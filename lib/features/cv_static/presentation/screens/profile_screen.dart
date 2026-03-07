@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/domain/models/user_profile.dart';
@@ -79,15 +80,47 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    DateTime tempDate = _selectedBirthDate ?? DateTime(1995);
+    await showModalBottomSheet(
       context: context,
-      initialDate: _selectedBirthDate ?? DateTime(1995),
-      firstDate: DateTime(1950),
-      lastDate: DateTime.now(),
+      builder: (BuildContext builder) {
+        return Container(
+          height: 250,
+          color: Colors.white,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('İptal'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() => _selectedBirthDate = tempDate);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Tamam'),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: tempDate,
+                  minimumDate: DateTime(1900),
+                  maximumDate: DateTime.now(),
+                  onDateTimeChanged: (DateTime newDate) {
+                    tempDate = newDate;
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
-    if (picked != null && picked != _selectedBirthDate) {
-      setState(() => _selectedBirthDate = picked);
-    }
   }
 
   @override
