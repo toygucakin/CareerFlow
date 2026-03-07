@@ -30,12 +30,9 @@ mixin _$UserProfile {
   String? get firstName => throw _privateConstructorUsedError;
   String? get lastName => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
-  String? get address => throw _privateConstructorUsedError;
-  String? get postalCode => throw _privateConstructorUsedError;
   String? get city => throw _privateConstructorUsedError;
   DateTime? get birthDate => throw _privateConstructorUsedError;
   String? get birthPlace => throw _privateConstructorUsedError;
-  String? get drivingLicense => throw _privateConstructorUsedError;
   String? get cvLanguage => throw _privateConstructorUsedError;
   List<String>? get hobbies => throw _privateConstructorUsedError;
   List<String>? get languages => throw _privateConstructorUsedError;
@@ -69,12 +66,9 @@ abstract class $UserProfileCopyWith<$Res> {
     String? firstName,
     String? lastName,
     String? phone,
-    String? address,
-    String? postalCode,
     String? city,
     DateTime? birthDate,
     String? birthPlace,
-    String? drivingLicense,
     String? cvLanguage,
     List<String>? hobbies,
     List<String>? languages,
@@ -107,12 +101,9 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? phone = freezed,
-    Object? address = freezed,
-    Object? postalCode = freezed,
     Object? city = freezed,
     Object? birthDate = freezed,
     Object? birthPlace = freezed,
-    Object? drivingLicense = freezed,
     Object? cvLanguage = freezed,
     Object? hobbies = freezed,
     Object? languages = freezed,
@@ -157,14 +148,6 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.phone
                 : phone // ignore: cast_nullable_to_non_nullable
                       as String?,
-            address: freezed == address
-                ? _value.address
-                : address // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            postalCode: freezed == postalCode
-                ? _value.postalCode
-                : postalCode // ignore: cast_nullable_to_non_nullable
-                      as String?,
             city: freezed == city
                 ? _value.city
                 : city // ignore: cast_nullable_to_non_nullable
@@ -176,10 +159,6 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
             birthPlace: freezed == birthPlace
                 ? _value.birthPlace
                 : birthPlace // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            drivingLicense: freezed == drivingLicense
-                ? _value.drivingLicense
-                : drivingLicense // ignore: cast_nullable_to_non_nullable
                       as String?,
             cvLanguage: freezed == cvLanguage
                 ? _value.cvLanguage
@@ -226,12 +205,9 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? firstName,
     String? lastName,
     String? phone,
-    String? address,
-    String? postalCode,
     String? city,
     DateTime? birthDate,
     String? birthPlace,
-    String? drivingLicense,
     String? cvLanguage,
     List<String>? hobbies,
     List<String>? languages,
@@ -263,12 +239,9 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? phone = freezed,
-    Object? address = freezed,
-    Object? postalCode = freezed,
     Object? city = freezed,
     Object? birthDate = freezed,
     Object? birthPlace = freezed,
-    Object? drivingLicense = freezed,
     Object? cvLanguage = freezed,
     Object? hobbies = freezed,
     Object? languages = freezed,
@@ -313,14 +286,6 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.phone
             : phone // ignore: cast_nullable_to_non_nullable
                   as String?,
-        address: freezed == address
-            ? _value.address
-            : address // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        postalCode: freezed == postalCode
-            ? _value.postalCode
-            : postalCode // ignore: cast_nullable_to_non_nullable
-                  as String?,
         city: freezed == city
             ? _value.city
             : city // ignore: cast_nullable_to_non_nullable
@@ -332,10 +297,6 @@ class __$$UserProfileImplCopyWithImpl<$Res>
         birthPlace: freezed == birthPlace
             ? _value.birthPlace
             : birthPlace // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        drivingLicense: freezed == drivingLicense
-            ? _value.drivingLicense
-            : drivingLicense // ignore: cast_nullable_to_non_nullable
                   as String?,
         cvLanguage: freezed == cvLanguage
             ? _value.cvLanguage
@@ -375,12 +336,9 @@ class _$UserProfileImpl implements _UserProfile {
     this.firstName,
     this.lastName,
     this.phone,
-    this.address,
-    this.postalCode,
     this.city,
     this.birthDate,
     this.birthPlace,
-    this.drivingLicense,
     this.cvLanguage,
     final List<String>? hobbies,
     final List<String>? languages,
@@ -430,17 +388,11 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   final String? phone;
   @override
-  final String? address;
-  @override
-  final String? postalCode;
-  @override
   final String? city;
   @override
   final DateTime? birthDate;
   @override
   final String? birthPlace;
-  @override
-  final String? drivingLicense;
   @override
   final String? cvLanguage;
   final List<String>? _hobbies;
@@ -478,7 +430,7 @@ class _$UserProfileImpl implements _UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, fullName: $fullName, title: $title, location: $location, contact: $contact, links: $links, firstName: $firstName, lastName: $lastName, phone: $phone, address: $address, postalCode: $postalCode, city: $city, birthDate: $birthDate, birthPlace: $birthPlace, drivingLicense: $drivingLicense, cvLanguage: $cvLanguage, hobbies: $hobbies, languages: $languages, associations: $associations, updatedAt: $updatedAt)';
+    return 'UserProfile(id: $id, fullName: $fullName, title: $title, location: $location, contact: $contact, links: $links, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, birthDate: $birthDate, birthPlace: $birthPlace, cvLanguage: $cvLanguage, hobbies: $hobbies, languages: $languages, associations: $associations, updatedAt: $updatedAt)';
   }
 
   @override
@@ -499,16 +451,11 @@ class _$UserProfileImpl implements _UserProfile {
             (identical(other.lastName, lastName) ||
                 other.lastName == lastName) &&
             (identical(other.phone, phone) || other.phone == phone) &&
-            (identical(other.address, address) || other.address == address) &&
-            (identical(other.postalCode, postalCode) ||
-                other.postalCode == postalCode) &&
             (identical(other.city, city) || other.city == city) &&
             (identical(other.birthDate, birthDate) ||
                 other.birthDate == birthDate) &&
             (identical(other.birthPlace, birthPlace) ||
                 other.birthPlace == birthPlace) &&
-            (identical(other.drivingLicense, drivingLicense) ||
-                other.drivingLicense == drivingLicense) &&
             (identical(other.cvLanguage, cvLanguage) ||
                 other.cvLanguage == cvLanguage) &&
             const DeepCollectionEquality().equals(other._hobbies, _hobbies) &&
@@ -526,7 +473,7 @@ class _$UserProfileImpl implements _UserProfile {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hashAll([
+  int get hashCode => Object.hash(
     runtimeType,
     id,
     fullName,
@@ -537,18 +484,15 @@ class _$UserProfileImpl implements _UserProfile {
     firstName,
     lastName,
     phone,
-    address,
-    postalCode,
     city,
     birthDate,
     birthPlace,
-    drivingLicense,
     cvLanguage,
     const DeepCollectionEquality().hash(_hobbies),
     const DeepCollectionEquality().hash(_languages),
     const DeepCollectionEquality().hash(_associations),
     updatedAt,
-  ]);
+  );
 
   /// Create a copy of UserProfile
   /// with the given fields replaced by the non-null parameter values.
@@ -575,12 +519,9 @@ abstract class _UserProfile implements UserProfile {
     final String? firstName,
     final String? lastName,
     final String? phone,
-    final String? address,
-    final String? postalCode,
     final String? city,
     final DateTime? birthDate,
     final String? birthPlace,
-    final String? drivingLicense,
     final String? cvLanguage,
     final List<String>? hobbies,
     final List<String>? languages,
@@ -610,17 +551,11 @@ abstract class _UserProfile implements UserProfile {
   @override
   String? get phone;
   @override
-  String? get address;
-  @override
-  String? get postalCode;
-  @override
   String? get city;
   @override
   DateTime? get birthDate;
   @override
   String? get birthPlace;
-  @override
-  String? get drivingLicense;
   @override
   String? get cvLanguage;
   @override

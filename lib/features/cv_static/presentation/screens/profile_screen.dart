@@ -15,11 +15,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
   late TextEditingController _phoneController;
-  late TextEditingController _addressController;
-  late TextEditingController _postalCodeController;
   late TextEditingController _cityController;
   late TextEditingController _birthPlaceController;
-  late TextEditingController _drivingLicenseController;
   String _cvLanguage = 'Türkçe';
   DateTime? _selectedBirthDate;
   bool _isSaving = false;
@@ -30,11 +27,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _firstNameController = TextEditingController();
     _lastNameController = TextEditingController();
     _phoneController = TextEditingController();
-    _addressController = TextEditingController();
-    _postalCodeController = TextEditingController();
     _cityController = TextEditingController();
     _birthPlaceController = TextEditingController();
-    _drivingLicenseController = TextEditingController();
   }
 
   @override
@@ -42,11 +36,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneController.dispose();
-    _addressController.dispose();
-    _postalCodeController.dispose();
     _cityController.dispose();
     _birthPlaceController.dispose();
-    _drivingLicenseController.dispose();
     super.dispose();
   }
 
@@ -59,12 +50,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         phone: _phoneController.text.trim(),
-        address: _addressController.text.trim(),
-        postalCode: _postalCodeController.text.trim(),
         city: _cityController.text.trim(),
         birthDate: _selectedBirthDate,
         birthPlace: _birthPlaceController.text.trim(),
-        drivingLicense: _drivingLicenseController.text.trim(),
         cvLanguage: _cvLanguage,
         updatedAt: DateTime.now(),
       );
@@ -142,11 +130,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _firstNameController.text = currentProfile.firstName ?? '';
             _lastNameController.text = currentProfile.lastName ?? '';
             _phoneController.text = currentProfile.phone ?? '';
-            _addressController.text = currentProfile.address ?? '';
-            _postalCodeController.text = currentProfile.postalCode ?? '';
             _cityController.text = currentProfile.city ?? '';
             _birthPlaceController.text = currentProfile.birthPlace ?? '';
-            _drivingLicenseController.text = currentProfile.drivingLicense ?? '';
             _cvLanguage = currentProfile.cvLanguage ?? 'Türkçe';
             _selectedBirthDate = currentProfile.birthDate;
           }
@@ -156,44 +141,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: ListView(
               padding: const EdgeInsets.all(24),
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 120,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.withOpacity(0.5), style: BorderStyle.solid),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.camera_alt_outlined, size: 40, color: Colors.grey),
-                          SizedBox(height: 8),
-                          Text('Fotoğraf ekle', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.grey)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _firstNameController,
-                            decoration: const InputDecoration(labelText: 'İsim*'),
-                            validator: (v) => v!.isEmpty ? 'Gerekli' : null,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _lastNameController,
-                            decoration: const InputDecoration(labelText: 'Soy isim*'),
-                            validator: (v) => v!.isEmpty ? 'Gerekli' : null,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                TextFormField(
+                  controller: _firstNameController,
+                  decoration: const InputDecoration(labelText: 'İsim*'),
+                  validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _lastNameController,
+                  decoration: const InputDecoration(labelText: 'Soy isim*'),
+                  validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -217,27 +174,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _addressController,
-                  decoration: const InputDecoration(labelText: 'Adres', prefixIcon: Icon(Icons.location_on_outlined)),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _postalCodeController,
-                        decoration: const InputDecoration(labelText: 'Posta kodu'),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _cityController,
-                        decoration: const InputDecoration(labelText: 'Şehir/İlçe', hintText: 'örn. İstanbul'),
-                      ),
-                    ),
-                  ],
+                  controller: _cityController,
+                  decoration: const InputDecoration(labelText: 'Şehir/İlçe', hintText: 'örn. İstanbul', prefixIcon: Icon(Icons.location_city_outlined)),
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -265,10 +203,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _drivingLicenseController,
-                  decoration: const InputDecoration(labelText: 'Sürücü ehliyeti'),
-                ),
                 const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: _isSaving ? null : () => _saveProfile(currentProfile),
