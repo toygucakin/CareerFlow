@@ -144,13 +144,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               children: [
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: const InputDecoration(labelText: 'İsim*'),
+                  decoration: const InputDecoration(labelText: 'İsim'),
                   validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lastNameController,
-                  decoration: const InputDecoration(labelText: 'Soy isim*'),
+                  decoration: const InputDecoration(labelText: 'Soy isim'),
                   validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                 ),
                 const SizedBox(height: 24),
@@ -188,6 +188,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _cityController.text = selection;
                       _districtController.clear();
                     });
+                    FocusScope.of(context).unfocus(); // İmleci ve klavyeyi gizle
                   },
                   fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
                     return TextFormField(
@@ -208,9 +209,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
+                  key: ValueKey('district_${_cityController.text}'), // Şehir değiştiğinde Dropdown'ı yenile
                   value: _districtController.text.isEmpty ? null : _districtController.text,
                   decoration: const InputDecoration(
-                    labelText: 'İlçe*',
+                    labelText: 'İlçe',
                     prefixIcon: Icon(Icons.map_outlined),
                     hintText: 'Önce şehir seçin',
                   ),
