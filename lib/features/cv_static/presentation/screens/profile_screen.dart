@@ -136,6 +136,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _cvLanguage = currentProfile.cvLanguage ?? 'Türkçe';
             _selectedBirthDate = currentProfile.birthDate;
           }
+          final inputCity = _cityController.text.trim().toLowerCase();
+          String? validCity;
+          for (final city in turkeyCities.keys) {
+            if (city.toLowerCase() == inputCity) {
+              validCity = city;
+              break;
+            }
+          }
+          final districtItems = validCity != null ? turkeyCities[validCity]! : <String>[];
 
           return Form(
             key: _formKey,
@@ -209,22 +218,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  key: ValueKey('district_${_cityController.text}'),
-                  value: _districtController.text.isEmpty ? null : _districtController.text,
+                  value: (_districtController.text.isNotEmpty && districtItems.contains(_districtController.text))
+                      ? _districtController.text
+                      : null,
                   decoration: InputDecoration(
                     labelText: 'İlçe',
                     prefixIcon: const Icon(Icons.map_outlined),
-                    hintText: turkeyCities.containsKey(_cityController.text) ? 'İlçe seçin' : 'Önce şehir seçin',
+                    hintText: validCity != null ? 'İlçe seçin' : 'Önce şehir seçin',
                   ),
-                  items: turkeyCities.containsKey(_cityController.text)
-                      ? turkeyCities[_cityController.text]!.map((String district) {
+                  items: validCity != null
+                      ? districtItems.map((String district) {
                           return DropdownMenuItem<String>(
                             value: district,
                             child: Text(district),
                           );
                         }).toList()
                       : null,
-                  onChanged: !turkeyCities.containsKey(_cityController.text)
+                  onChanged: validCity == null
                       ? null
                       : (String? newValue) {
                           if (newValue != null) {
