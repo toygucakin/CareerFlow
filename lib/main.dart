@@ -72,6 +72,15 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('CareerFlow'),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.person_outline),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -79,35 +88,27 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.rocket_launch_rounded,
-              size: 64,
+              size: 80,
               color: Color(0xFF2196F3),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 24),
             Text(
-              'CareerFlow Initialized',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
-                );
-              },
-              icon: const Icon(Icons.person_outline),
-              label: const Text('Edit Profile'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2196F3),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              'Welcome, Developer',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Your autonomous CV engine is ready.',
+              style: TextStyle(color: Colors.grey),
             ),
           ],
         ),

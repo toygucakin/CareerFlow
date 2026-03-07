@@ -1,11 +1,16 @@
 -- Profiles table (Linked to Supabase Auth)
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
-  full_name TEXT,
-  title TEXT,
-  location TEXT,
-  contact JSONB, -- {email, phone}
-  links JSONB,   -- {linkedin, github}
+  first_name TEXT,
+  last_name TEXT,
+  phone TEXT,
+  address TEXT,
+  postal_code TEXT,
+  city TEXT,
+  birth_date DATE,
+  birth_place TEXT,
+  driving_license TEXT,
+  cv_language TEXT DEFAULT 'Türkçe',
   hobbies TEXT[],
   languages TEXT[],
   associations TEXT[],

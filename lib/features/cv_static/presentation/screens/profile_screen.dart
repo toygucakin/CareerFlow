@@ -12,39 +12,42 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _titleController;
-  late TextEditingController _locationController;
-  late TextEditingController _hobbiesController;
-  late TextEditingController _languagesController;
-  late TextEditingController _associationsController;
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
+  late TextEditingController _phoneController;
+  late TextEditingController _addressController;
+  late TextEditingController _postalCodeController;
+  late TextEditingController _cityController;
+  late TextEditingController _birthPlaceController;
+  late TextEditingController _drivingLicenseController;
+  String _cvLanguage = 'Türkçe';
+  DateTime? _selectedBirthDate;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _titleController = TextEditingController();
-    _locationController = TextEditingController();
-    _hobbiesController = TextEditingController();
-    _languagesController = TextEditingController();
-    _associationsController = TextEditingController();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _addressController = TextEditingController();
+    _postalCodeController = TextEditingController();
+    _cityController = TextEditingController();
+    _birthPlaceController = TextEditingController();
+    _drivingLicenseController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _titleController.dispose();
-    _locationController.dispose();
-    _hobbiesController.dispose();
-    _languagesController.dispose();
-    _associationsController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    _postalCodeController.dispose();
+    _cityController.dispose();
+    _birthPlaceController.dispose();
+    _drivingLicenseController.dispose();
     super.dispose();
-  }
-
-  List<String> _parseList(String value) {
-    if (value.trim().isEmpty) return [];
-    return value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
   }
 
   Future<void> _saveProfile(UserProfile currentProfile) async {
@@ -53,12 +56,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() => _isSaving = true);
     try {
       final updatedProfile = currentProfile.copyWith(
-        fullName: _nameController.text.trim(),
-        title: _titleController.text.trim(),
-        location: _locationController.text.trim(),
-        hobbies: _parseList(_hobbiesController.text),
-        languages: _parseList(_languagesController.text),
-        associations: _parseList(_associationsController.text),
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        phone: _phoneController.text.trim(),
+        address: _addressController.text.trim(),
+        postalCode: _postalCodeController.text.trim(),
+        city: _cityController.text.trim(),
+        birthDate: _selectedBirthDate,
+        birthPlace: _birthPlaceController.text.trim(),
+        drivingLicense: _drivingLicenseController.text.trim(),
+        cvLanguage: _cvLanguage,
         updatedAt: DateTime.now(),
       );
 
@@ -66,14 +73,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully!')),
+          const SnackBar(content: Text('Profil başarıyla güncellendi!')),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(content: Text('Hata: ${e.toString()}')),
         );
       }
     } finally {
@@ -81,30 +88,67 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedBirthDate ?? DateTime(1995),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedBirthDate) {
+      setState(() => _selectedBirthDate = picked);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(currentUserProfileProvider);
+    final user = ref.read(authRepositoryProvider).currentUser;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Personal Information'),
+        title: const Text('Kişisel Bilgiler'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                const Text('CV dili ', style: TextStyle(fontSize: 12)),
+                DropdownButton<String>(
+                  value: _cvLanguage,
+                  underline: const SizedBox(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) setState(() => _cvLanguage = newValue);
+                  },
+                  items: <String>['Türkçe', 'English', 'Deutsch']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value, style: const TextStyle(fontSize: 12)),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       body: profileAsync.when(
         data: (profile) {
-          final user = ref.read(authRepositoryProvider).currentUser;
-          if (user == null) return const Center(child: Text('Please log in.'));
-
-          // Use existing profile or create a skeleton one if doesn't exist yet
+          if (user == null) return const Center(child: Text('Lütfen giriş yapın.'));
           final currentProfile = profile ?? UserProfile(id: user.id);
 
-          // Initialize controllers with existing data if not already set
-          if (_nameController.text.isEmpty && _titleController.text.isEmpty) {
-            _nameController.text = currentProfile.fullName ?? '';
-            _titleController.text = currentProfile.title ?? '';
-            _locationController.text = currentProfile.location ?? '';
-            _hobbiesController.text = (currentProfile.hobbies ?? []).join(', ');
-            _languagesController.text = (currentProfile.languages ?? []).join(', ');
-            _associationsController.text = (currentProfile.associations ?? []).join(', ');
+          if (_firstNameController.text.isEmpty && _lastNameController.text.isEmpty) {
+            _firstNameController.text = currentProfile.firstName ?? '';
+            _lastNameController.text = currentProfile.lastName ?? '';
+            _phoneController.text = currentProfile.phone ?? '';
+            _addressController.text = currentProfile.address ?? '';
+            _postalCodeController.text = currentProfile.postalCode ?? '';
+            _cityController.text = currentProfile.city ?? '';
+            _birthPlaceController.text = currentProfile.birthPlace ?? '';
+            _drivingLicenseController.text = currentProfile.drivingLicense ?? '';
+            _cvLanguage = currentProfile.cvLanguage ?? 'Türkçe';
+            _selectedBirthDate = currentProfile.birthDate;
           }
 
           return Form(
@@ -112,93 +156,138 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: ListView(
               padding: const EdgeInsets.all(24),
               children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Color(0xFF2196F3),
-                  child: Icon(Icons.person, size: 50, color: Colors.white),
-                ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                    prefixIcon: Icon(Icons.badge_outlined),
-                  ),
-                  validator: (value) => value!.isEmpty ? 'Please enter your name' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Professional Title',
-                    hintText: 'e.g. Senior Flutter Developer',
-                    prefixIcon: Icon(Icons.work_outline),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _locationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Location',
-                    hintText: 'e.g. Istanbul, Turkey',
-                    prefixIcon: Icon(Icons.location_on_outlined),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 24),
-                Text(
-                  'Additional Info',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF2196F3),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 120,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.withOpacity(0.5), style: BorderStyle.solid),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.camera_alt_outlined, size: 40, color: Colors.grey),
+                          SizedBox(height: 8),
+                          Text('Fotoğraf ekle', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _firstNameController,
+                            decoration: const InputDecoration(labelText: 'İsim*'),
+                            validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _lastNameController,
+                            decoration: const InputDecoration(labelText: 'Soy isim*'),
+                            validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        initialValue: user.email,
+                        readOnly: true,
+                        decoration: const InputDecoration(labelText: 'E-posta adresi*', prefixIcon: Icon(Icons.email_outlined)),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _phoneController,
+                        decoration: const InputDecoration(labelText: 'Telefon numarası', prefixIcon: Icon(Icons.phone_outlined)),
+                        keyboardType: TextInputType.phone,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _languagesController,
-                  decoration: const InputDecoration(
-                    labelText: 'Languages (comma separated)',
-                    prefixIcon: Icon(Icons.language_outlined),
-                  ),
+                  controller: _addressController,
+                  decoration: const InputDecoration(labelText: 'Adres', prefixIcon: Icon(Icons.location_on_outlined)),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _postalCodeController,
+                        decoration: const InputDecoration(labelText: 'Posta kodu'),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _cityController,
+                        decoration: const InputDecoration(labelText: 'Şehir/İlçe', hintText: 'örn. İstanbul'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => _selectDate(context),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(labelText: 'Doğum tarihi'),
+                          child: Text(
+                            _selectedBirthDate == null
+                                ? 'Gün / Ay / Yıl'
+                                : '${_selectedBirthDate!.day}/${_selectedBirthDate!.month}/${_selectedBirthDate!.year}',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _birthPlaceController,
+                        decoration: const InputDecoration(labelText: 'Doğum yeri'),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _hobbiesController,
-                  decoration: const InputDecoration(
-                    labelText: 'Hobbies (comma separated)',
-                    prefixIcon: Icon(Icons.interests_outlined),
-                  ),
+                  controller: _drivingLicenseController,
+                  decoration: const InputDecoration(labelText: 'Sürücü ehliyeti'),
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _associationsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Associations (comma separated)',
-                    prefixIcon: Icon(Icons.groups_outlined),
-                  ),
-                ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: _isSaving ? null : () => _saveProfile(currentProfile),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2196F3),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: _isSaving
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Save Changes'),
+                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Text('Değişiklikleri Kaydet'),
                 ),
               ],
             ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text('Hata: $err')),
       ),
     );
   }
