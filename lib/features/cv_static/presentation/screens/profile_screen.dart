@@ -209,20 +209,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  key: ValueKey('district_${_cityController.text}'), // Şehir değiştiğinde Dropdown'ı yenile
                   value: _districtController.text.isEmpty ? null : _districtController.text,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'İlçe',
-                    prefixIcon: Icon(Icons.map_outlined),
-                    hintText: 'Önce şehir seçin',
+                    prefixIcon: const Icon(Icons.map_outlined),
+                    hintText: turkeyCities.containsKey(_cityController.text) ? 'İlçe seçin' : 'Önce şehir seçin',
                   ),
-                  items: (turkeyCities[_cityController.text] ?? []).map((String district) {
-                    return DropdownMenuItem<String>(
-                      value: district,
-                      child: Text(district),
-                    );
-                  }).toList(),
-                  onChanged: _cityController.text.isEmpty
+                  items: turkeyCities.containsKey(_cityController.text)
+                      ? turkeyCities[_cityController.text]!.map((String district) {
+                          return DropdownMenuItem<String>(
+                            value: district,
+                            child: Text(district),
+                          );
+                        }).toList()
+                      : null,
+                  onChanged: !turkeyCities.containsKey(_cityController.text)
                       ? null
                       : (String? newValue) {
                           if (newValue != null) {
