@@ -1,8 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
-import '../data/repositories/supabase_auth_repository.dart';
-import '../domain/models/user_profile.dart';
-import '../domain/repositories/auth_repository.dart';
+import '../../data/repositories/supabase_auth_repository.dart';
+import '../../domain/models/user_profile.dart';
+import '../../domain/repositories/auth_repository.dart';
 
 part 'auth_provider.g.dart';
 
