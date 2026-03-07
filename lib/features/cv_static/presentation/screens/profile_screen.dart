@@ -13,6 +13,9 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
+  late TextEditingController _phoneController;
   late TextEditingController _cityController;
   late TextEditingController _districtController;
   String _cvLanguage = 'Türkçe';
