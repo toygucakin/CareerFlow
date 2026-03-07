@@ -33,7 +33,6 @@ mixin _$UserProfile {
   String? get city => throw _privateConstructorUsedError;
   String? get district => throw _privateConstructorUsedError;
   DateTime? get birthDate => throw _privateConstructorUsedError;
-  String? get birthPlace => throw _privateConstructorUsedError;
   String? get cvLanguage => throw _privateConstructorUsedError;
   List<String>? get hobbies => throw _privateConstructorUsedError;
   List<String>? get languages => throw _privateConstructorUsedError;
@@ -70,7 +69,6 @@ abstract class $UserProfileCopyWith<$Res> {
     String? city,
     String? district,
     DateTime? birthDate,
-    String? birthPlace,
     String? cvLanguage,
     List<String>? hobbies,
     List<String>? languages,
@@ -106,7 +104,6 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? city = freezed,
     Object? district = freezed,
     Object? birthDate = freezed,
-    Object? birthPlace = freezed,
     Object? cvLanguage = freezed,
     Object? hobbies = freezed,
     Object? languages = freezed,
@@ -163,10 +160,6 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.birthDate
                 : birthDate // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
-            birthPlace: freezed == birthPlace
-                ? _value.birthPlace
-                : birthPlace // ignore: cast_nullable_to_non_nullable
-                      as String?,
             cvLanguage: freezed == cvLanguage
                 ? _value.cvLanguage
                 : cvLanguage // ignore: cast_nullable_to_non_nullable
@@ -215,7 +208,6 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? city,
     String? district,
     DateTime? birthDate,
-    String? birthPlace,
     String? cvLanguage,
     List<String>? hobbies,
     List<String>? languages,
@@ -250,7 +242,6 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? city = freezed,
     Object? district = freezed,
     Object? birthDate = freezed,
-    Object? birthPlace = freezed,
     Object? cvLanguage = freezed,
     Object? hobbies = freezed,
     Object? languages = freezed,
@@ -307,10 +298,6 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.birthDate
             : birthDate // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
-        birthPlace: freezed == birthPlace
-            ? _value.birthPlace
-            : birthPlace // ignore: cast_nullable_to_non_nullable
-                  as String?,
         cvLanguage: freezed == cvLanguage
             ? _value.cvLanguage
             : cvLanguage // ignore: cast_nullable_to_non_nullable
@@ -352,7 +339,6 @@ class _$UserProfileImpl implements _UserProfile {
     this.city,
     this.district,
     this.birthDate,
-    this.birthPlace,
     this.cvLanguage,
     final List<String>? hobbies,
     final List<String>? languages,
@@ -408,8 +394,6 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   final DateTime? birthDate;
   @override
-  final String? birthPlace;
-  @override
   final String? cvLanguage;
   final List<String>? _hobbies;
   @override
@@ -446,7 +430,7 @@ class _$UserProfileImpl implements _UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, fullName: $fullName, title: $title, location: $location, contact: $contact, links: $links, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, birthDate: $birthDate, birthPlace: $birthPlace, cvLanguage: $cvLanguage, hobbies: $hobbies, languages: $languages, associations: $associations, updatedAt: $updatedAt)';
+    return 'UserProfile(id: $id, fullName: $fullName, title: $title, location: $location, contact: $contact, links: $links, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, birthDate: $birthDate, cvLanguage: $cvLanguage, hobbies: $hobbies, languages: $languages, associations: $associations, updatedAt: $updatedAt)';
   }
 
   @override
@@ -472,8 +456,6 @@ class _$UserProfileImpl implements _UserProfile {
                 other.district == district) &&
             (identical(other.birthDate, birthDate) ||
                 other.birthDate == birthDate) &&
-            (identical(other.birthPlace, birthPlace) ||
-                other.birthPlace == birthPlace) &&
             (identical(other.cvLanguage, cvLanguage) ||
                 other.cvLanguage == cvLanguage) &&
             const DeepCollectionEquality().equals(other._hobbies, _hobbies) &&
@@ -505,7 +487,6 @@ class _$UserProfileImpl implements _UserProfile {
     city,
     district,
     birthDate,
-    birthPlace,
     cvLanguage,
     const DeepCollectionEquality().hash(_hobbies),
     const DeepCollectionEquality().hash(_languages),
@@ -541,7 +522,6 @@ abstract class _UserProfile implements UserProfile {
     final String? city,
     final String? district,
     final DateTime? birthDate,
-    final String? birthPlace,
     final String? cvLanguage,
     final List<String>? hobbies,
     final List<String>? languages,
@@ -576,8 +556,6 @@ abstract class _UserProfile implements UserProfile {
   String? get district;
   @override
   DateTime? get birthDate;
-  @override
-  String? get birthPlace;
   @override
   String? get cvLanguage;
   @override

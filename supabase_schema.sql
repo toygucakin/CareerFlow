@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS profiles (
   city TEXT,
   district TEXT,
   birth_date DATE,
-  birth_place TEXT,
   cv_language TEXT DEFAULT 'Türkçe',
   hobbies TEXT[],
   languages TEXT[],

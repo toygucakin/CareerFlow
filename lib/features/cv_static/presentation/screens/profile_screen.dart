@@ -13,12 +13,8 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _firstNameController;
-  late TextEditingController _lastNameController;
-  late TextEditingController _phoneController;
   late TextEditingController _cityController;
   late TextEditingController _districtController;
-  late TextEditingController _birthPlaceController;
   String _cvLanguage = 'Türkçe';
   DateTime? _selectedBirthDate;
   bool _isSaving = false;
@@ -31,7 +27,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _phoneController = TextEditingController();
     _cityController = TextEditingController();
     _districtController = TextEditingController();
-    _birthPlaceController = TextEditingController();
   }
 
   @override
@@ -41,7 +36,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _phoneController.dispose();
     _cityController.dispose();
     _districtController.dispose();
-    _birthPlaceController.dispose();
     super.dispose();
   }
 
@@ -57,7 +51,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         city: _cityController.text.trim(),
         district: _districtController.text.trim(),
         birthDate: _selectedBirthDate,
-        birthPlace: _birthPlaceController.text.trim(),
         cvLanguage: _cvLanguage,
         updatedAt: DateTime.now(),
       );
@@ -137,7 +130,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _phoneController.text = currentProfile.phone ?? '';
             _cityController.text = currentProfile.city ?? '';
             _districtController.text = currentProfile.district ?? '';
-            _birthPlaceController.text = currentProfile.birthPlace ?? '';
             _cvLanguage = currentProfile.cvLanguage ?? 'Türkçe';
             _selectedBirthDate = currentProfile.birthDate;
           }
@@ -212,62 +204,41 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                Autocomplete<String>(
-                  key: ValueKey(_cityController.text),
-                  initialValue: TextEditingValue(text: _districtController.text),
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                    final districts = turkeyCities[_cityController.text] ?? [];
-                    if (textEditingValue.text == '') {
-                      return districts.toList()..sort();
-                    }
-                    return districts.where((String district) {
-                      return district.toLowerCase().startsWith(textEditingValue.text.toLowerCase());
-                    }).toList()..sort();
-                  },
-                  onSelected: (String selection) {
-                    _districtController.text = selection;
-                  },
-                  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                    return TextFormField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      enabled: _cityController.text.isNotEmpty && turkeyCities.containsKey(_cityController.text),
-                      decoration: const InputDecoration(
-                        labelText: 'İlçe',
-                        prefixIcon: Icon(Icons.map_outlined),
-                        hintText: 'Önce şehir seçin',
-                      ),
-                      onChanged: (v) => _districtController.text = v,
-                      validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+                DropdownButtonFormField<String>(
+                  value: _districtController.text.isEmpty ? null : _districtController.text,
+                  decoration: const InputDecoration(
+                    labelText: 'İlçe*',
+                    prefixIcon: Icon(Icons.map_outlined),
+                    hintText: 'Önce şehir seçin',
+                  ),
+                  items: (turkeyCities[_cityController.text] ?? []).map((String district) {
+                    return DropdownMenuItem<String>(
+                      value: district,
+                      child: Text(district),
                     );
-                  },
+                  }).toList(),
+                  onChanged: _cityController.text.isEmpty
+                      ? null
+                      : (String? newValue) {
+                          if (newValue != null) {
+                            setState(() => _districtController.text = newValue);
+                          }
+                        },
+                  validator: (v) => (v == null || v.isEmpty) ? 'Gerekli' : null,
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => _selectDate(context),
-                        child: InputDecorator(
-                          decoration: const InputDecoration(labelText: 'Doğum tarihi'),
-                          child: Text(
-                            _selectedBirthDate == null
-                                ? 'Gün / Ay / Yıl'
-                                : '${_selectedBirthDate!.day}/${_selectedBirthDate!.month}/${_selectedBirthDate!.year}',
-                          ),
-                        ),
-                      ),
+                InkWell(
+                  onTap: () => _selectDate(context),
+                  child: InputDecorator(
+                    decoration: const InputDecoration(labelText: 'Doğum tarihi'),
+                    child: Text(
+                      _selectedBirthDate == null
+                          ? 'Gün / Ay / Yıl'
+                          : '${_selectedBirthDate!.day}/${_selectedBirthDate!.month}/${_selectedBirthDate!.year}',
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _birthPlaceController,
-                        decoration: const InputDecoration(labelText: 'Doğum yeri'),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 40),
                 const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: _isSaving ? null : () => _saveProfile(currentProfile),
