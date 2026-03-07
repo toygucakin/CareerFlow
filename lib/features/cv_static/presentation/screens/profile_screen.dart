@@ -209,6 +209,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
+                  key: ValueKey('district_${_cityController.text}'),
                   value: _districtController.text.isEmpty ? null : _districtController.text,
                   decoration: InputDecoration(
                     labelText: 'İlçe',
