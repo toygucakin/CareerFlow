@@ -21,6 +21,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   String _cvLanguage = 'Türkçe';
   DateTime? _selectedBirthDate;
   bool _isSaving = false;
+  bool _isFormInitialized = false;
 
   @override
   void initState() {
@@ -127,7 +128,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (user == null) return const Center(child: Text('Lütfen giriş yapın.'));
           final currentProfile = profile ?? UserProfile(id: user.id);
 
-          if (_firstNameController.text.isEmpty && _lastNameController.text.isEmpty) {
+          if (!_isFormInitialized) {
             _firstNameController.text = currentProfile.firstName ?? '';
             _lastNameController.text = currentProfile.lastName ?? '';
             _phoneController.text = currentProfile.phone ?? '';
@@ -135,7 +136,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _districtController.text = currentProfile.district ?? '';
             _cvLanguage = currentProfile.cvLanguage ?? 'Türkçe';
             _selectedBirthDate = currentProfile.birthDate;
+            _isFormInitialized = true;
           }
+
           final inputCity = _cityController.text.trim().toLowerCase();
           String? validCity;
           for (final city in turkeyCities.keys) {
