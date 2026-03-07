@@ -1,17 +1,19 @@
-# career_flow
+# CareerFlow
 
-A new Flutter project.
+**CareerFlow** is a hybrid CV Maker application designed specifically for software developers. It combines manually entered professional data with autonomous project tracking via GitHub and WakaTime APIs to create a "living portfolio".
 
-## Getting Started
+## Key Features
+- **Hybrid Data Entry**: Static personal/experience data + Autonomous project updates.
+- **Tech Stack Analysis**: Automatic language and framework detection from repositories.
+- **AI Summarization**: README files summarized into punchy project descriptions.
+- **ATS-Friendly PDF**: 100% text-based PDF export with selectable text.
+- **Dynamic QR Codes**: Link your PDF to your live, updated portfolio.
 
-This project is a starting point for a Flutter application.
+## Technical Stack
+- **Framework**: Flutter (Multi-platform)
+- **State Management**: Riverpod (Clean Architecture)
+- **PDF Engine**: `pdf` & `printing` packages
+- **APIs**: GitHub, WakaTime, Gemini (AI)
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Development
+This project follows a branching strategy where `dev` is the active development branch and `main` contains stable releases.
