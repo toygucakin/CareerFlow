@@ -159,24 +159,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                 ),
                 const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        initialValue: user.email,
-                        readOnly: true,
-                        decoration: const InputDecoration(labelText: 'E-posta adresi*', prefixIcon: Icon(Icons.email_outlined)),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _phoneController,
-                        decoration: const InputDecoration(labelText: 'Telefon numarası', prefixIcon: Icon(Icons.phone_outlined)),
-                        keyboardType: TextInputType.phone,
-                      ),
-                    ),
-                  ],
+                TextFormField(
+                  initialValue: user.email,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    labelText: 'E-posta adresi',
+                    prefixIcon: Icon(Icons.email_outlined),
+                    helperText: 'Oturum açtığınız e-posta adresi (değiştirilemez)',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Telefon numarası',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                  ),
+                  keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 16),
                 Autocomplete<String>(
@@ -200,7 +199,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       controller: controller,
                       focusNode: focusNode,
                       decoration: const InputDecoration(
-                        labelText: 'Şehir*',
+                        labelText: 'Şehir',
                         prefixIcon: Icon(Icons.location_city_outlined),
                       ),
                       onChanged: (v) {
@@ -233,7 +232,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       focusNode: focusNode,
                       enabled: _cityController.text.isNotEmpty && turkeyCities.containsKey(_cityController.text),
                       decoration: const InputDecoration(
-                        labelText: 'İlçe*',
+                        labelText: 'İlçe',
                         prefixIcon: Icon(Icons.map_outlined),
                         hintText: 'Önce şehir seçin',
                       ),
