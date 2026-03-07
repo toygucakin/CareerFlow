@@ -156,12 +156,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               children: [
                 TextFormField(
                   controller: _firstNameController,
+                  textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(labelText: 'İsim'),
                   validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _lastNameController,
+                  textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(labelText: 'Soy isim'),
                   validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                 ),

@@ -7,11 +7,6 @@ part 'user_profile.g.dart';
 class UserProfile with _$UserProfile {
   const factory UserProfile({
     required String id,
-    String? fullName,
-    String? title,
-    String? location,
-    Map<String, dynamic>? contact,
-    Map<String, dynamic>? links,
     String? firstName,
     String? lastName,
     String? phone,
@@ -19,9 +14,6 @@ class UserProfile with _$UserProfile {
     String? district,
     DateTime? birthDate,
     String? cvLanguage,
-    List<String>? hobbies,
-    List<String>? languages,
-    List<String>? associations,
     DateTime? updatedAt,
   }) = _UserProfile;
 

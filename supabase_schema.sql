@@ -8,9 +8,6 @@ CREATE TABLE IF NOT EXISTS profiles (
   district TEXT,
   birth_date DATE,
   cv_language TEXT DEFAULT 'Türkçe',
-  hobbies TEXT[],
-  languages TEXT[],
-  associations TEXT[],
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
