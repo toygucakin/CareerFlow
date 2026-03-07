@@ -185,7 +185,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       return turkeyCities.keys.toList()..sort();
                     }
                     return turkeyCities.keys.where((String city) {
-                      return city.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                      return city.toLowerCase().startsWith(textEditingValue.text.toLowerCase());
                     }).toList()..sort();
                   },
                   onSelected: (String selection) {
@@ -213,14 +213,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 Autocomplete<String>(
+                  key: ValueKey(_cityController.text),
                   initialValue: TextEditingValue(text: _districtController.text),
                   optionsBuilder: (TextEditingValue textEditingValue) {
                     final districts = turkeyCities[_cityController.text] ?? [];
                     if (textEditingValue.text == '') {
-                      return districts..sort();
+                      return districts.toList()..sort();
                     }
                     return districts.where((String district) {
-                      return district.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                      return district.toLowerCase().startsWith(textEditingValue.text.toLowerCase());
                     }).toList()..sort();
                   },
                   onSelected: (String selection) {
