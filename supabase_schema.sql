@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS profiles (
   location TEXT,
   contact JSONB, -- {email, phone}
   links JSONB,   -- {linkedin, github}
+  hobbies TEXT[],
+  languages TEXT[],
+  associations TEXT[],
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

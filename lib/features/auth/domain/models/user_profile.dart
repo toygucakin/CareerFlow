@@ -12,6 +12,9 @@ class UserProfile with _$UserProfile {
     String? location,
     Map<String, dynamic>? contact,
     Map<String, dynamic>? links,
+    List<String>? hobbies,
+    List<String>? languages,
+    List<String>? associations,
     DateTime? updatedAt,
   }) = _UserProfile;
 

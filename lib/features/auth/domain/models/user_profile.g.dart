@@ -14,6 +14,15 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
       location: json['location'] as String?,
       contact: json['contact'] as Map<String, dynamic>?,
       links: json['links'] as Map<String, dynamic>?,
+      hobbies: (json['hobbies'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      languages: (json['languages'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      associations: (json['associations'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
@@ -27,5 +36,8 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
       'location': instance.location,
       'contact': instance.contact,
       'links': instance.links,
+      'hobbies': instance.hobbies,
+      'languages': instance.languages,
+      'associations': instance.associations,
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };

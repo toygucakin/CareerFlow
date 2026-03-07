@@ -27,6 +27,9 @@ mixin _$UserProfile {
   String? get location => throw _privateConstructorUsedError;
   Map<String, dynamic>? get contact => throw _privateConstructorUsedError;
   Map<String, dynamic>? get links => throw _privateConstructorUsedError;
+  List<String>? get hobbies => throw _privateConstructorUsedError;
+  List<String>? get languages => throw _privateConstructorUsedError;
+  List<String>? get associations => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfile to a JSON map.
@@ -53,6 +56,9 @@ abstract class $UserProfileCopyWith<$Res> {
     String? location,
     Map<String, dynamic>? contact,
     Map<String, dynamic>? links,
+    List<String>? hobbies,
+    List<String>? languages,
+    List<String>? associations,
     DateTime? updatedAt,
   });
 }
@@ -78,6 +84,9 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? location = freezed,
     Object? contact = freezed,
     Object? links = freezed,
+    Object? hobbies = freezed,
+    Object? languages = freezed,
+    Object? associations = freezed,
     Object? updatedAt = freezed,
   }) {
     return _then(
@@ -106,6 +115,18 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.links
                 : links // ignore: cast_nullable_to_non_nullable
                       as Map<String, dynamic>?,
+            hobbies: freezed == hobbies
+                ? _value.hobbies
+                : hobbies // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            languages: freezed == languages
+                ? _value.languages
+                : languages // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
+            associations: freezed == associations
+                ? _value.associations
+                : associations // ignore: cast_nullable_to_non_nullable
+                      as List<String>?,
             updatedAt: freezed == updatedAt
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -132,6 +153,9 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? location,
     Map<String, dynamic>? contact,
     Map<String, dynamic>? links,
+    List<String>? hobbies,
+    List<String>? languages,
+    List<String>? associations,
     DateTime? updatedAt,
   });
 }
@@ -156,6 +180,9 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? location = freezed,
     Object? contact = freezed,
     Object? links = freezed,
+    Object? hobbies = freezed,
+    Object? languages = freezed,
+    Object? associations = freezed,
     Object? updatedAt = freezed,
   }) {
     return _then(
@@ -184,6 +211,18 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value._links
             : links // ignore: cast_nullable_to_non_nullable
                   as Map<String, dynamic>?,
+        hobbies: freezed == hobbies
+            ? _value._hobbies
+            : hobbies // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        languages: freezed == languages
+            ? _value._languages
+            : languages // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
+        associations: freezed == associations
+            ? _value._associations
+            : associations // ignore: cast_nullable_to_non_nullable
+                  as List<String>?,
         updatedAt: freezed == updatedAt
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -203,9 +242,15 @@ class _$UserProfileImpl implements _UserProfile {
     this.location,
     final Map<String, dynamic>? contact,
     final Map<String, dynamic>? links,
+    final List<String>? hobbies,
+    final List<String>? languages,
+    final List<String>? associations,
     this.updatedAt,
   }) : _contact = contact,
-       _links = links;
+       _links = links,
+       _hobbies = hobbies,
+       _languages = languages,
+       _associations = associations;
 
   factory _$UserProfileImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserProfileImplFromJson(json);
@@ -238,12 +283,42 @@ class _$UserProfileImpl implements _UserProfile {
     return EqualUnmodifiableMapView(value);
   }
 
+  final List<String>? _hobbies;
+  @override
+  List<String>? get hobbies {
+    final value = _hobbies;
+    if (value == null) return null;
+    if (_hobbies is EqualUnmodifiableListView) return _hobbies;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<String>? _languages;
+  @override
+  List<String>? get languages {
+    final value = _languages;
+    if (value == null) return null;
+    if (_languages is EqualUnmodifiableListView) return _languages;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  final List<String>? _associations;
+  @override
+  List<String>? get associations {
+    final value = _associations;
+    if (value == null) return null;
+    if (_associations is EqualUnmodifiableListView) return _associations;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, fullName: $fullName, title: $title, location: $location, contact: $contact, links: $links, updatedAt: $updatedAt)';
+    return 'UserProfile(id: $id, fullName: $fullName, title: $title, location: $location, contact: $contact, links: $links, hobbies: $hobbies, languages: $languages, associations: $associations, updatedAt: $updatedAt)';
   }
 
   @override
@@ -259,6 +334,15 @@ class _$UserProfileImpl implements _UserProfile {
                 other.location == location) &&
             const DeepCollectionEquality().equals(other._contact, _contact) &&
             const DeepCollectionEquality().equals(other._links, _links) &&
+            const DeepCollectionEquality().equals(other._hobbies, _hobbies) &&
+            const DeepCollectionEquality().equals(
+              other._languages,
+              _languages,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._associations,
+              _associations,
+            ) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt));
   }
@@ -273,6 +357,9 @@ class _$UserProfileImpl implements _UserProfile {
     location,
     const DeepCollectionEquality().hash(_contact),
     const DeepCollectionEquality().hash(_links),
+    const DeepCollectionEquality().hash(_hobbies),
+    const DeepCollectionEquality().hash(_languages),
+    const DeepCollectionEquality().hash(_associations),
     updatedAt,
   );
 
@@ -298,6 +385,9 @@ abstract class _UserProfile implements UserProfile {
     final String? location,
     final Map<String, dynamic>? contact,
     final Map<String, dynamic>? links,
+    final List<String>? hobbies,
+    final List<String>? languages,
+    final List<String>? associations,
     final DateTime? updatedAt,
   }) = _$UserProfileImpl;
 
@@ -316,6 +406,12 @@ abstract class _UserProfile implements UserProfile {
   Map<String, dynamic>? get contact;
   @override
   Map<String, dynamic>? get links;
+  @override
+  List<String>? get hobbies;
+  @override
+  List<String>? get languages;
+  @override
+  List<String>? get associations;
   @override
   DateTime? get updatedAt;
 

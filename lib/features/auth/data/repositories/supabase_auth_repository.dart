@@ -34,7 +34,9 @@ class SupabaseAuthRepository implements AuthRepository {
         .from('profiles')
         .select()
         .eq('id', userId)
-        .single();
+        .maybeSingle();
+    
+    if (data == null) return null;
     return UserProfile.fromJson(data);
   }
 
