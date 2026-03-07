@@ -31,6 +31,7 @@ mixin _$UserProfile {
   String? get lastName => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
   String? get city => throw _privateConstructorUsedError;
+  String? get district => throw _privateConstructorUsedError;
   DateTime? get birthDate => throw _privateConstructorUsedError;
   String? get birthPlace => throw _privateConstructorUsedError;
   String? get cvLanguage => throw _privateConstructorUsedError;
@@ -67,6 +68,7 @@ abstract class $UserProfileCopyWith<$Res> {
     String? lastName,
     String? phone,
     String? city,
+    String? district,
     DateTime? birthDate,
     String? birthPlace,
     String? cvLanguage,
@@ -102,6 +104,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? lastName = freezed,
     Object? phone = freezed,
     Object? city = freezed,
+    Object? district = freezed,
     Object? birthDate = freezed,
     Object? birthPlace = freezed,
     Object? cvLanguage = freezed,
@@ -151,6 +154,10 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
             city: freezed == city
                 ? _value.city
                 : city // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            district: freezed == district
+                ? _value.district
+                : district // ignore: cast_nullable_to_non_nullable
                       as String?,
             birthDate: freezed == birthDate
                 ? _value.birthDate
@@ -206,6 +213,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? lastName,
     String? phone,
     String? city,
+    String? district,
     DateTime? birthDate,
     String? birthPlace,
     String? cvLanguage,
@@ -240,6 +248,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? lastName = freezed,
     Object? phone = freezed,
     Object? city = freezed,
+    Object? district = freezed,
     Object? birthDate = freezed,
     Object? birthPlace = freezed,
     Object? cvLanguage = freezed,
@@ -290,6 +299,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.city
             : city // ignore: cast_nullable_to_non_nullable
                   as String?,
+        district: freezed == district
+            ? _value.district
+            : district // ignore: cast_nullable_to_non_nullable
+                  as String?,
         birthDate: freezed == birthDate
             ? _value.birthDate
             : birthDate // ignore: cast_nullable_to_non_nullable
@@ -337,6 +350,7 @@ class _$UserProfileImpl implements _UserProfile {
     this.lastName,
     this.phone,
     this.city,
+    this.district,
     this.birthDate,
     this.birthPlace,
     this.cvLanguage,
@@ -390,6 +404,8 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   final String? city;
   @override
+  final String? district;
+  @override
   final DateTime? birthDate;
   @override
   final String? birthPlace;
@@ -430,7 +446,7 @@ class _$UserProfileImpl implements _UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, fullName: $fullName, title: $title, location: $location, contact: $contact, links: $links, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, birthDate: $birthDate, birthPlace: $birthPlace, cvLanguage: $cvLanguage, hobbies: $hobbies, languages: $languages, associations: $associations, updatedAt: $updatedAt)';
+    return 'UserProfile(id: $id, fullName: $fullName, title: $title, location: $location, contact: $contact, links: $links, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, birthDate: $birthDate, birthPlace: $birthPlace, cvLanguage: $cvLanguage, hobbies: $hobbies, languages: $languages, associations: $associations, updatedAt: $updatedAt)';
   }
 
   @override
@@ -452,6 +468,8 @@ class _$UserProfileImpl implements _UserProfile {
                 other.lastName == lastName) &&
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.city, city) || other.city == city) &&
+            (identical(other.district, district) ||
+                other.district == district) &&
             (identical(other.birthDate, birthDate) ||
                 other.birthDate == birthDate) &&
             (identical(other.birthPlace, birthPlace) ||
@@ -485,6 +503,7 @@ class _$UserProfileImpl implements _UserProfile {
     lastName,
     phone,
     city,
+    district,
     birthDate,
     birthPlace,
     cvLanguage,
@@ -520,6 +539,7 @@ abstract class _UserProfile implements UserProfile {
     final String? lastName,
     final String? phone,
     final String? city,
+    final String? district,
     final DateTime? birthDate,
     final String? birthPlace,
     final String? cvLanguage,
@@ -552,6 +572,8 @@ abstract class _UserProfile implements UserProfile {
   String? get phone;
   @override
   String? get city;
+  @override
+  String? get district;
   @override
   DateTime? get birthDate;
   @override

@@ -18,6 +18,7 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
       lastName: json['lastName'] as String?,
       phone: json['phone'] as String?,
       city: json['city'] as String?,
+      district: json['district'] as String?,
       birthDate: json['birthDate'] == null
           ? null
           : DateTime.parse(json['birthDate'] as String),
@@ -49,6 +50,7 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
       'lastName': instance.lastName,
       'phone': instance.phone,
       'city': instance.city,
+      'district': instance.district,
       'birthDate': instance.birthDate?.toIso8601String(),
       'birthPlace': instance.birthPlace,
       'cvLanguage': instance.cvLanguage,

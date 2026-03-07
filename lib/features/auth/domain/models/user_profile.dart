@@ -16,6 +16,7 @@ class UserProfile with _$UserProfile {
     String? lastName,
     String? phone,
     String? city,
+    String? district,
     DateTime? birthDate,
     String? birthPlace,
     String? cvLanguage,

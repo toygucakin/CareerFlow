@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/domain/models/user_profile.dart';
+import '../../../../core/constants/turkey_data.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -16,6 +17,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
+  late TextEditingController _districtController;
   late TextEditingController _birthPlaceController;
   String _cvLanguage = 'Türkçe';
   DateTime? _selectedBirthDate;
@@ -28,6 +30,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _lastNameController = TextEditingController();
     _phoneController = TextEditingController();
     _cityController = TextEditingController();
+    _districtController = TextEditingController();
     _birthPlaceController = TextEditingController();
   }
 
@@ -37,6 +40,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _lastNameController.dispose();
     _phoneController.dispose();
     _cityController.dispose();
+    _districtController.dispose();
     _birthPlaceController.dispose();
     super.dispose();
   }
@@ -51,6 +55,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         lastName: _lastNameController.text.trim(),
         phone: _phoneController.text.trim(),
         city: _cityController.text.trim(),
+        district: _districtController.text.trim(),
         birthDate: _selectedBirthDate,
         birthPlace: _birthPlaceController.text.trim(),
         cvLanguage: _cvLanguage,
@@ -131,6 +136,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _lastNameController.text = currentProfile.lastName ?? '';
             _phoneController.text = currentProfile.phone ?? '';
             _cityController.text = currentProfile.city ?? '';
+            _districtController.text = currentProfile.district ?? '';
             _birthPlaceController.text = currentProfile.birthPlace ?? '';
             _cvLanguage = currentProfile.cvLanguage ?? 'Türkçe';
             _selectedBirthDate = currentProfile.birthDate;
@@ -173,9 +179,68 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _cityController,
-                  decoration: const InputDecoration(labelText: 'Şehir/İlçe', hintText: 'örn. İstanbul', prefixIcon: Icon(Icons.location_city_outlined)),
+                Autocomplete<String>(
+                  initialValue: TextEditingValue(text: _cityController.text),
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    if (textEditingValue.text == '') {
+                      return turkeyCities.keys.toList()..sort();
+                    }
+                    return turkeyCities.keys.where((String city) {
+                      return city.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                    }).toList()..sort();
+                  },
+                  onSelected: (String selection) {
+                    setState(() {
+                      _cityController.text = selection;
+                      _districtController.clear();
+                    });
+                  },
+                  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                    return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: const InputDecoration(
+                        labelText: 'Şehir*',
+                        prefixIcon: Icon(Icons.location_city_outlined),
+                      ),
+                      onChanged: (v) {
+                        _cityController.text = v;
+                        _districtController.clear();
+                        setState(() {});
+                      },
+                      validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                Autocomplete<String>(
+                  initialValue: TextEditingValue(text: _districtController.text),
+                  optionsBuilder: (TextEditingValue textEditingValue) {
+                    final districts = turkeyCities[_cityController.text] ?? [];
+                    if (textEditingValue.text == '') {
+                      return districts..sort();
+                    }
+                    return districts.where((String district) {
+                      return district.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                    }).toList()..sort();
+                  },
+                  onSelected: (String selection) {
+                    _districtController.text = selection;
+                  },
+                  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                    return TextFormField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      enabled: _cityController.text.isNotEmpty && turkeyCities.containsKey(_cityController.text),
+                      decoration: const InputDecoration(
+                        labelText: 'İlçe*',
+                        prefixIcon: Icon(Icons.map_outlined),
+                        hintText: 'Önce şehir seçin',
+                      ),
+                      onChanged: (v) => _districtController.text = v,
+                      validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 Row(
