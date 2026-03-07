@@ -218,6 +218,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
+                  key: ValueKey('district_${validCity ?? "none"}'),
                   value: (_districtController.text.isNotEmpty && districtItems.contains(_districtController.text))
                       ? _districtController.text
                       : null,
