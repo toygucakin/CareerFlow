@@ -264,8 +264,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                       onChanged: (v) {
                         _cityController.text = v;
-                        _districtController.clear();
-                        setState(() {});
+                        if (_districtController.text.isNotEmpty) {
+                          _districtController.clear();
+                          setState(() {});
+                        }
                       },
                       validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                     );
@@ -330,6 +332,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final minDate = DateTime.now().subtract(const Duration(days: 365 * 100)); // Max age 100
     final maxDate = DateTime.now().subtract(const Duration(days: 365 * 13));  // Min age 13
 
+    DateTime tempSelectedDate = initialDate;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -357,10 +361,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     const Text('Doğum Tarihi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     TextButton(
                       onPressed: () {
-                        // If user hasn't scrolled, ensure the initially displayed date is saved
-                        if (_selectedBirthDate == null) {
-                           setState(() => _selectedBirthDate = initialDate);
-                        }
+                        setState(() => _selectedBirthDate = tempSelectedDate);
                         Navigator.of(context).pop();
                       },
                       child: const Text('Bitti', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -374,9 +375,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   minimumDate: minDate,
                   maximumDate: maxDate,
                   onDateChanged: (DateTime newDate) {
-                    setState(() {
-                      _selectedBirthDate = newDate;
-                    });
+                    tempSelectedDate = newDate;
                   },
                 ),
               ),
@@ -559,7 +558,10 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
               flex: 1,
               child: CupertinoPicker.builder(
                 scrollController: _dayController,
-                itemExtent: 32,
+                itemExtent: 44,
+                magnification: 1.2,
+                useMagnifier: true,
+                squeeze: 1.15,
                 childCount: _daysInMonth,
                 onSelectedItemChanged: (index) {
                   _selectedDay = index + 1;
@@ -575,7 +577,10 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
               flex: 2,
               child: CupertinoPicker.builder(
                 scrollController: _monthController,
-                itemExtent: 32,
+                itemExtent: 44,
+                magnification: 1.2,
+                useMagnifier: true,
+                squeeze: 1.15,
                 childCount: 12,
                 onSelectedItemChanged: (index) {
                   _selectedMonth = index + 1;
@@ -591,7 +596,10 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
               flex: 1,
               child: CupertinoPicker.builder(
                 scrollController: _yearController,
-                itemExtent: 32,
+                itemExtent: 44,
+                magnification: 1.2,
+                useMagnifier: true,
+                squeeze: 1.15,
                 childCount: yearsCount,
                 onSelectedItemChanged: (index) {
                   _selectedYear = minYear + index;
