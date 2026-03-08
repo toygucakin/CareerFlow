@@ -10,6 +10,8 @@ class Community with _$Community {
     @JsonKey(name: 'profile_id') String? profileId,
     required String name,
     String? role,
+    @JsonKey(name: 'start_date') DateTime? startDate,
+    @JsonKey(name: 'end_date') DateTime? endDate,
     @JsonKey(name: 'sort_order') int? orderIndex,
   }) = _Community;
 

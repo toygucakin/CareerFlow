@@ -85,6 +85,8 @@ CREATE TABLE IF NOT EXISTS communities (
   profile_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   role TEXT,
+  start_date DATE,
+  end_date DATE,
   sort_order INTEGER DEFAULT 0
 );
 
@@ -153,4 +155,8 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 
 ALTER TABLE experience ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 ALTER TABLE education ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+
+ALTER TABLE communities ADD COLUMN IF NOT EXISTS start_date DATE;
+ALTER TABLE communities ADD COLUMN IF NOT EXISTS end_date DATE;
+
 

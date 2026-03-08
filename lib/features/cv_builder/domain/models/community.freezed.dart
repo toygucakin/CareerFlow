@@ -26,6 +26,10 @@ mixin _$Community {
   String? get profileId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String? get role => throw _privateConstructorUsedError;
+  @JsonKey(name: 'start_date')
+  DateTime? get startDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'end_date')
+  DateTime? get endDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'sort_order')
   int? get orderIndex => throw _privateConstructorUsedError;
 
@@ -49,6 +53,8 @@ abstract class $CommunityCopyWith<$Res> {
     @JsonKey(name: 'profile_id') String? profileId,
     String name,
     String? role,
+    @JsonKey(name: 'start_date') DateTime? startDate,
+    @JsonKey(name: 'end_date') DateTime? endDate,
     @JsonKey(name: 'sort_order') int? orderIndex,
   });
 }
@@ -72,6 +78,8 @@ class _$CommunityCopyWithImpl<$Res, $Val extends Community>
     Object? profileId = freezed,
     Object? name = null,
     Object? role = freezed,
+    Object? startDate = freezed,
+    Object? endDate = freezed,
     Object? orderIndex = freezed,
   }) {
     return _then(
@@ -92,6 +100,14 @@ class _$CommunityCopyWithImpl<$Res, $Val extends Community>
                 ? _value.role
                 : role // ignore: cast_nullable_to_non_nullable
                       as String?,
+            startDate: freezed == startDate
+                ? _value.startDate
+                : startDate // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            endDate: freezed == endDate
+                ? _value.endDate
+                : endDate // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
             orderIndex: freezed == orderIndex
                 ? _value.orderIndex
                 : orderIndex // ignore: cast_nullable_to_non_nullable
@@ -116,6 +132,8 @@ abstract class _$$CommunityImplCopyWith<$Res>
     @JsonKey(name: 'profile_id') String? profileId,
     String name,
     String? role,
+    @JsonKey(name: 'start_date') DateTime? startDate,
+    @JsonKey(name: 'end_date') DateTime? endDate,
     @JsonKey(name: 'sort_order') int? orderIndex,
   });
 }
@@ -138,6 +156,8 @@ class __$$CommunityImplCopyWithImpl<$Res>
     Object? profileId = freezed,
     Object? name = null,
     Object? role = freezed,
+    Object? startDate = freezed,
+    Object? endDate = freezed,
     Object? orderIndex = freezed,
   }) {
     return _then(
@@ -158,6 +178,14 @@ class __$$CommunityImplCopyWithImpl<$Res>
             ? _value.role
             : role // ignore: cast_nullable_to_non_nullable
                   as String?,
+        startDate: freezed == startDate
+            ? _value.startDate
+            : startDate // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        endDate: freezed == endDate
+            ? _value.endDate
+            : endDate // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
         orderIndex: freezed == orderIndex
             ? _value.orderIndex
             : orderIndex // ignore: cast_nullable_to_non_nullable
@@ -175,6 +203,8 @@ class _$CommunityImpl implements _Community {
     @JsonKey(name: 'profile_id') this.profileId,
     required this.name,
     this.role,
+    @JsonKey(name: 'start_date') this.startDate,
+    @JsonKey(name: 'end_date') this.endDate,
     @JsonKey(name: 'sort_order') this.orderIndex,
   });
 
@@ -191,12 +221,18 @@ class _$CommunityImpl implements _Community {
   @override
   final String? role;
   @override
+  @JsonKey(name: 'start_date')
+  final DateTime? startDate;
+  @override
+  @JsonKey(name: 'end_date')
+  final DateTime? endDate;
+  @override
   @JsonKey(name: 'sort_order')
   final int? orderIndex;
 
   @override
   String toString() {
-    return 'Community(id: $id, profileId: $profileId, name: $name, role: $role, orderIndex: $orderIndex)';
+    return 'Community(id: $id, profileId: $profileId, name: $name, role: $role, startDate: $startDate, endDate: $endDate, orderIndex: $orderIndex)';
   }
 
   @override
@@ -209,14 +245,25 @@ class _$CommunityImpl implements _Community {
                 other.profileId == profileId) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.role, role) || other.role == role) &&
+            (identical(other.startDate, startDate) ||
+                other.startDate == startDate) &&
+            (identical(other.endDate, endDate) || other.endDate == endDate) &&
             (identical(other.orderIndex, orderIndex) ||
                 other.orderIndex == orderIndex));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, profileId, name, role, orderIndex);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    profileId,
+    name,
+    role,
+    startDate,
+    endDate,
+    orderIndex,
+  );
 
   /// Create a copy of Community
   /// with the given fields replaced by the non-null parameter values.
@@ -238,6 +285,8 @@ abstract class _Community implements Community {
     @JsonKey(name: 'profile_id') final String? profileId,
     required final String name,
     final String? role,
+    @JsonKey(name: 'start_date') final DateTime? startDate,
+    @JsonKey(name: 'end_date') final DateTime? endDate,
     @JsonKey(name: 'sort_order') final int? orderIndex,
   }) = _$CommunityImpl;
 
@@ -253,6 +302,12 @@ abstract class _Community implements Community {
   String get name;
   @override
   String? get role;
+  @override
+  @JsonKey(name: 'start_date')
+  DateTime? get startDate;
+  @override
+  @JsonKey(name: 'end_date')
+  DateTime? get endDate;
   @override
   @JsonKey(name: 'sort_order')
   int? get orderIndex;

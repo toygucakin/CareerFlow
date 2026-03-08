@@ -6,11 +6,26 @@ import '../providers/community_provider.dart';
 import 'language_form_screen.dart';
 import 'project_form_screen.dart';
 import 'community_form_screen.dart';
+import 'package:intl/intl.dart';
 
 class SkillsProjectsScreen extends ConsumerWidget {
   final bool isWizardMode;
 
   const SkillsProjectsScreen({super.key, this.isWizardMode = false});
+
+  String _formatDateRange(DateTime? start, DateTime? end) {
+    if (start == null) return '';
+    final dateFormat = DateFormat('MMM yyyy', 'tr_TR');
+    String range = dateFormat.format(start);
+    range += ' - ';
+    if (end != null) {
+      range += dateFormat.format(end);
+    } else {
+      range += 'Devam Ediyor';
+    }
+    return range;
+  }
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -157,7 +172,18 @@ class SkillsProjectsScreen extends ConsumerWidget {
                   proj.name,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(proj.scope ?? ''),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (proj.scope != null && proj.scope!.isNotEmpty)
+                      Text(proj.scope!),
+                    const SizedBox(height: 2),
+                    Text(
+                      _formatDateRange(proj.startDate, proj.endDate),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ],
+                ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   onPressed: () => ref
@@ -193,7 +219,18 @@ class SkillsProjectsScreen extends ConsumerWidget {
                   club.name,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(club.role ?? ''),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (club.role != null && club.role!.isNotEmpty)
+                      Text(club.role!),
+                    const SizedBox(height: 2),
+                    Text(
+                      _formatDateRange(club.startDate, club.endDate),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ],
+                ),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   onPressed: () => ref
