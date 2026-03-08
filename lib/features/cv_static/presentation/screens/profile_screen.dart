@@ -370,17 +370,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               // Cupertino Picker (iOS scrollable reel)
               Expanded(
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.date,
-                  initialDateTime: initialDate,
-                  minimumDate: minDate,
-                  maximumDate: maxDate,
-                  // We only need the date part (month/day/year)
-                  onDateTimeChanged: (DateTime newDate) {
-                    setState(() {
-                      _selectedBirthDate = newDate;
-                    });
-                  },
+                child: CupertinoTheme(
+                  data: const CupertinoThemeData(
+                    textTheme: CupertinoTextThemeData(
+                      dateTimePickerTextStyle: TextStyle(
+                        color: Colors.black, // Force text color to be visible
+                        fontSize: 21,
+                      ),
+                    ),
+                  ),
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.date,
+                    dateOrder: DatePickerDateOrder.dmy, // Force Day/Month/Year order
+                    initialDateTime: initialDate,
+                    minimumDate: minDate,
+                    maximumDate: maxDate,
+                    onDateTimeChanged: (DateTime newDate) {
+                      setState(() {
+                        _selectedBirthDate = newDate;
+                      });
+                    },
+                  ),
                 ),
               ),
             ],
