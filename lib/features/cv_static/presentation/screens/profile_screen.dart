@@ -267,16 +267,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2196F3),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: _isSaving
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Text('Değişiklikleri Kaydet'),
                 ),
-                ),
               ],
             ),
+           ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
