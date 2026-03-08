@@ -274,6 +274,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : const Text('Değişiklikleri Kaydet'),
                 ),
+                ),
               ],
             ),
           );
