@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/domain/models/user_profile.dart';
@@ -19,7 +20,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
   late TextEditingController _districtController;
-  String _selectedCountryCode = '+90';
+  
+  final List<CountryData> _countryOptions = [
+    CountryData(code: '+90', name: 'Türkiye', flag: '🇹🇷', mask: '### ### ## ##'),
+    CountryData(code: '+1', name: 'Amerika', flag: '🇺🇸', mask: '### ### ####'),
+    CountryData(code: '+49', name: 'Almanya', flag: '🇩🇪', mask: '#### ########'),
+  ];
+  late CountryData _selectedCountry;
+
   bool _isSaving = false;
   bool _isFormInitialized = false;
 
@@ -31,6 +39,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _phoneController = TextEditingController();
     _cityController = TextEditingController();
     _districtController = TextEditingController();
+    _selectedCountry = _countryOptions.first; // Default Turkey
   }
 
   @override
@@ -48,10 +57,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     setState(() => _isSaving = true);
     try {
+      // Remove mask characters (spaces) for saving to DB
+      final unmaskedPhone = _phoneController.text.replaceAll(' ', '');
+      
       final updatedProfile = currentProfile.copyWith(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        phone: '$_selectedCountryCode${_phoneController.text.trim()}',
+        phone: '${_selectedCountry.code}$unmaskedPhone',
         city: _cityController.text.trim(),
         district: _districtController.text.trim(),
         email: ref.read(authRepositoryProvider).currentUser?.email,
@@ -99,24 +111,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             // Ülke kodu ve telefon numarasını ayrıştırma
             String rawPhone = currentProfile.phone ?? '';
             if (rawPhone.startsWith('+')) {
-              // Basit bir ayrıştırma: eğer + ile başlıyorsa ve en az 3 karakterse (+90 veya +1 gibi)
-              // Şimdilik popüler olanları kontrol edelim veya genel bir mantık kuralım.
-              final commonCodes = ['+90', '+1', '+44', '+49'];
               bool found = false;
-              for (String code in commonCodes) {
-                if (rawPhone.startsWith(code)) {
-                  _selectedCountryCode = code;
-                  _phoneController.text = rawPhone.substring(code.length);
+              for (CountryData country in _countryOptions) {
+                if (rawPhone.startsWith(country.code)) {
+                  _selectedCountry = country;
+                  // format the remaining parts according to the new mask
+                  String numPart = rawPhone.substring(country.code.length);
+                  _phoneController.text = _formatWithMask(numPart, country.mask);
                   found = true;
                   break;
                 }
               }
-              // Eğer listede yoksa, varsayılanı koru veya tümünü telefona yaz (geliştirilebilir)
               if (!found) {
                  _phoneController.text = rawPhone;
               }
             } else {
-              _phoneController.text = rawPhone;
+              _phoneController.text = _formatWithMask(rawPhone, _selectedCountry.mask);
             }
 
             _cityController.text = currentProfile.city ?? '';
@@ -167,6 +177,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
+                  inputFormatters: [
+                    PhoneInputFormatter(mask: _selectedCountry.mask),
+                  ],
                   decoration: InputDecoration(
                     labelText: 'Telefon numarası',
                     prefixIcon: Container(
@@ -176,18 +189,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         border: Border(right: BorderSide(color: Colors.grey, width: 1)),
                       ),
                       child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedCountryCode,
-                          items: ['+90', '+1', '+44', '+49'].map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
+                        child: DropdownButton<CountryData>(
+                          value: _selectedCountry,
+                          items: _countryOptions.map((CountryData country) {
+                            return DropdownMenuItem<CountryData>(
+                              value: country,
+                              child: Text('${country.flag} ${country.code} ${country.name}'),
                             );
                           }).toList(),
-                          onChanged: (String? newValue) {
+                          onChanged: (CountryData? newValue) {
                             if (newValue != null) {
                               setState(() {
-                                _selectedCountryCode = newValue;
+                                _selectedCountry = newValue;
+                                // clear text or reformat existing to new mask if needed.
+                                // For simplicity, we just clear to avoid mask clashing
+                                _phoneController.clear();
                               });
                             }
                           },
@@ -280,6 +296,72 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Hata: $err')),
       ),
+    );
+  }
+  
+  // Helper to pre-format data coming from DB
+  String _formatWithMask(String text, String mask) {
+    String cleanText = text.replaceAll(RegExp(r'\D'), '');
+    String formattedText = '';
+    int textIndex = 0;
+    for (int i = 0; i < mask.length; i++) {
+      if (textIndex >= cleanText.length) break;
+      if (mask[i] == '#') {
+        formattedText += cleanText[textIndex];
+        textIndex++;
+      } else {
+        formattedText += mask[i];
+      }
+    }
+    return formattedText;
+  }
+}
+
+class CountryData {
+  final String code;
+  final String name;
+  final String flag;
+  final String mask;
+
+  CountryData({
+    required this.code,
+    required this.name,
+    required this.flag,
+    required this.mask,
+  });
+}
+
+class PhoneInputFormatter extends TextInputFormatter {
+  final String mask;
+
+  PhoneInputFormatter({required this.mask});
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // Only numbers 
+    String cleanText = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    String formattedText = '';
+    int textIndex = 0;
+
+    for (int i = 0; i < mask.length; i++) {
+      if (textIndex >= cleanText.length) {
+        break;
+      }
+      if (mask[i] == '#') {
+        formattedText += cleanText[textIndex];
+        textIndex++;
+      } else {
+        formattedText += mask[i];
+      }
+    }
+
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
     );
   }
 }
