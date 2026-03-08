@@ -368,31 +368,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ],
                 ),
               ),
-              // Cupertino Picker (iOS scrollable reel)
-              SizedBox(
-                height: 180, // Limit height to reduce number of visible items (squished fix)
-                child: CupertinoTheme(
-                  data: CupertinoThemeData(
-                    brightness: Brightness.light, // Forces light theme inside picker (white bg)
-                    textTheme: const CupertinoTextThemeData(
-                      dateTimePickerTextStyle: TextStyle(
-                        color: Colors.black, // Explicitly black
-                        fontSize: 21,
-                      ),
-                    ),
-                  ),
-                  child: CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.date,
-                    dateOrder: DatePickerDateOrder.dmy,
-                    initialDateTime: initialDate,
-                    minimumDate: minDate,
-                    maximumDate: maxDate,
-                    onDateTimeChanged: (DateTime newDate) {
-                      setState(() {
-                        _selectedBirthDate = newDate;
-                      });
-                    },
-                  ),
+              Expanded(
+                child: _CustomDatePicker(
+                  initialDate: initialDate,
+                  minimumDate: minDate,
+                  maximumDate: maxDate,
+                  onDateChanged: (DateTime newDate) {
+                    setState(() {
+                      _selectedBirthDate = newDate;
+                    });
+                  },
                 ),
               ),
             ],
@@ -468,3 +453,159 @@ class PhoneInputFormatter extends TextInputFormatter {
     );
   }
 }
+
+class _CustomDatePicker extends StatefulWidget {
+  final DateTime initialDate;
+  final DateTime minimumDate;
+  final DateTime maximumDate;
+  final ValueChanged<DateTime> onDateChanged;
+
+  const _CustomDatePicker({
+    required this.initialDate,
+    required this.minimumDate,
+    required this.maximumDate,
+    required this.onDateChanged,
+  });
+
+  @override
+  State<_CustomDatePicker> createState() => _CustomDatePickerState();
+}
+
+class _CustomDatePickerState extends State<_CustomDatePicker> {
+  late int _selectedDay;
+  late int _selectedMonth;
+  late int _selectedYear;
+
+  late FixedExtentScrollController _dayController;
+  late FixedExtentScrollController _monthController;
+  late FixedExtentScrollController _yearController;
+
+  final List<String> _months = [
+    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = widget.initialDate.day;
+    _selectedMonth = widget.initialDate.month;
+    _selectedYear = widget.initialDate.year;
+
+    _dayController = FixedExtentScrollController(initialItem: _selectedDay - 1);
+    _monthController = FixedExtentScrollController(initialItem: _selectedMonth - 1);
+    _yearController = FixedExtentScrollController(initialItem: _selectedYear - widget.minimumDate.year);
+  }
+
+  @override
+  void dispose() {
+    _dayController.dispose();
+    _monthController.dispose();
+    _yearController.dispose();
+    super.dispose();
+  }
+
+  int get _daysInMonth => DateUtils.getDaysInMonth(_selectedYear, _selectedMonth);
+
+  void _onDateChanged() {
+    final daysInCurrentMonth = _daysInMonth;
+    if (_selectedDay > daysInCurrentMonth) {
+      _selectedDay = daysInCurrentMonth;
+      _dayController.jumpToItem(_selectedDay - 1);
+    }
+    
+    // Ensure we don't exceed min/max dates
+    DateTime newDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
+    if (newDate.isBefore(widget.minimumDate)) {
+      newDate = widget.minimumDate;
+      _syncControllersToDate(newDate);
+    } else if (newDate.isAfter(widget.maximumDate)) {
+      newDate = widget.maximumDate;
+      _syncControllersToDate(newDate);
+    }
+
+    widget.onDateChanged(newDate);
+    setState(() {});
+  }
+
+  void _syncControllersToDate(DateTime date) {
+    _selectedYear = date.year;
+    _selectedMonth = date.month;
+    _selectedDay = date.day;
+    _yearController.jumpToItem(_selectedYear - widget.minimumDate.year);
+    _monthController.jumpToItem(_selectedMonth - 1);
+    _dayController.jumpToItem(_selectedDay - 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final int minYear = widget.minimumDate.year;
+    final int maxYear = widget.maximumDate.year;
+    final int yearsCount = maxYear - minYear + 1;
+
+    return SizedBox(
+      height: 180,
+      child: CupertinoTheme(
+        data: const CupertinoThemeData(
+          brightness: Brightness.light,
+          textTheme: CupertinoTextThemeData(
+            pickerTextStyle: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+        ),
+        child: Row(
+          children: [
+            // DAY PICKER
+            Expanded(
+              flex: 1,
+              child: CupertinoPicker.builder(
+                scrollController: _dayController,
+                itemExtent: 32,
+                childCount: _daysInMonth,
+                onSelectedItemChanged: (index) {
+                  _selectedDay = index + 1;
+                  _onDateChanged();
+                },
+                itemBuilder: (context, index) {
+                  return Center(child: Text('${index + 1}'));
+                },
+              ),
+            ),
+            // MONTH PICKER
+            Expanded(
+              flex: 2,
+              child: CupertinoPicker.builder(
+                scrollController: _monthController,
+                itemExtent: 32,
+                childCount: 12,
+                onSelectedItemChanged: (index) {
+                  _selectedMonth = index + 1;
+                  _onDateChanged();
+                },
+                itemBuilder: (context, index) {
+                  return Center(child: Text(_months[index]));
+                },
+              ),
+            ),
+            // YEAR PICKER
+            Expanded(
+              flex: 1,
+              child: CupertinoPicker.builder(
+                scrollController: _yearController,
+                itemExtent: 32,
+                childCount: yearsCount,
+                onSelectedItemChanged: (index) {
+                  _selectedYear = minYear + index;
+                  _onDateChanged();
+                },
+                itemBuilder: (context, index) {
+                  return Center(child: Text('${minYear + index}'));
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
