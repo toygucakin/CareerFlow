@@ -19,8 +19,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
   late TextEditingController _districtController;
-  String _cvLanguage = 'Türkçe';
-  DateTime? _selectedBirthDate;
   bool _isSaving = false;
   bool _isFormInitialized = false;
 
@@ -55,8 +53,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         phone: _phoneController.text.trim(),
         city: _cityController.text.trim(),
         district: _districtController.text.trim(),
-        birthDate: _selectedBirthDate,
-        cvLanguage: _cvLanguage,
+        email: ref.read(authRepositoryProvider).currentUser?.email,
         updatedAt: DateTime.now(),
       );
 
@@ -79,49 +76,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime tempDate = _selectedBirthDate ?? DateTime(1995);
-    await showModalBottomSheet(
-      context: context,
-      builder: (BuildContext builder) {
-        return Container(
-          height: 250,
-          color: Colors.white,
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('İptal'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() => _selectedBirthDate = tempDate);
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Tamam'),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: CupertinoDatePicker(
-                  mode: CupertinoDatePickerMode.date,
-                  initialDateTime: tempDate,
-                  minimumDate: DateTime(1900),
-                  maximumDate: DateTime.now(),
-                  onDateTimeChanged: (DateTime newDate) {
-                    tempDate = newDate;
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,30 +85,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kişisel Bilgiler'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Text('CV dili ', style: TextStyle(fontSize: 12)),
-                DropdownButton<String>(
-                  value: _cvLanguage,
-                  underline: const SizedBox(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) setState(() => _cvLanguage = newValue);
-                  },
-                  items: <String>['Türkçe', 'English', 'Deutsch']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value, style: const TextStyle(fontSize: 12)),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
       body: profileAsync.when(
         data: (profile) {
@@ -167,8 +97,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _phoneController.text = currentProfile.phone ?? '';
             _cityController.text = currentProfile.city ?? '';
             _districtController.text = currentProfile.district ?? '';
-            _cvLanguage = currentProfile.cvLanguage ?? 'Türkçe';
-            _selectedBirthDate = currentProfile.birthDate;
             _isFormInitialized = true;
           }
 
@@ -281,18 +209,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           }
                         },
                   validator: (v) => (v == null || v.isEmpty) ? 'Gerekli' : null,
-                ),
-                const SizedBox(height: 16),
-                InkWell(
-                  onTap: () => _selectDate(context),
-                  child: InputDecorator(
-                    decoration: const InputDecoration(labelText: 'Doğum tarihi'),
-                    child: Text(
-                      _selectedBirthDate == null
-                          ? 'Gün / Ay / Yıl'
-                          : '${_selectedBirthDate!.day}/${_selectedBirthDate!.month}/${_selectedBirthDate!.year}',
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 40),
                 const SizedBox(height: 40),

@@ -27,8 +27,7 @@ mixin _$UserProfile {
   String? get phone => throw _privateConstructorUsedError;
   String? get city => throw _privateConstructorUsedError;
   String? get district => throw _privateConstructorUsedError;
-  DateTime? get birthDate => throw _privateConstructorUsedError;
-  String? get cvLanguage => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfile to a JSON map.
@@ -55,8 +54,7 @@ abstract class $UserProfileCopyWith<$Res> {
     String? phone,
     String? city,
     String? district,
-    DateTime? birthDate,
-    String? cvLanguage,
+    String? email,
     DateTime? updatedAt,
   });
 }
@@ -82,8 +80,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? phone = freezed,
     Object? city = freezed,
     Object? district = freezed,
-    Object? birthDate = freezed,
-    Object? cvLanguage = freezed,
+    Object? email = freezed,
     Object? updatedAt = freezed,
   }) {
     return _then(
@@ -112,13 +109,9 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.district
                 : district // ignore: cast_nullable_to_non_nullable
                       as String?,
-            birthDate: freezed == birthDate
-                ? _value.birthDate
-                : birthDate // ignore: cast_nullable_to_non_nullable
-                      as DateTime?,
-            cvLanguage: freezed == cvLanguage
-                ? _value.cvLanguage
-                : cvLanguage // ignore: cast_nullable_to_non_nullable
+            email: freezed == email
+                ? _value.email
+                : email // ignore: cast_nullable_to_non_nullable
                       as String?,
             updatedAt: freezed == updatedAt
                 ? _value.updatedAt
@@ -146,8 +139,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? phone,
     String? city,
     String? district,
-    DateTime? birthDate,
-    String? cvLanguage,
+    String? email,
     DateTime? updatedAt,
   });
 }
@@ -172,8 +164,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? phone = freezed,
     Object? city = freezed,
     Object? district = freezed,
-    Object? birthDate = freezed,
-    Object? cvLanguage = freezed,
+    Object? email = freezed,
     Object? updatedAt = freezed,
   }) {
     return _then(
@@ -202,13 +193,9 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.district
             : district // ignore: cast_nullable_to_non_nullable
                   as String?,
-        birthDate: freezed == birthDate
-            ? _value.birthDate
-            : birthDate // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
-        cvLanguage: freezed == cvLanguage
-            ? _value.cvLanguage
-            : cvLanguage // ignore: cast_nullable_to_non_nullable
+        email: freezed == email
+            ? _value.email
+            : email // ignore: cast_nullable_to_non_nullable
                   as String?,
         updatedAt: freezed == updatedAt
             ? _value.updatedAt
@@ -220,7 +207,8 @@ class __$$UserProfileImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _$UserProfileImpl implements _UserProfile {
   const _$UserProfileImpl({
     required this.id,
@@ -229,8 +217,7 @@ class _$UserProfileImpl implements _UserProfile {
     this.phone,
     this.city,
     this.district,
-    this.birthDate,
-    this.cvLanguage,
+    this.email,
     this.updatedAt,
   });
 
@@ -250,15 +237,13 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   final String? district;
   @override
-  final DateTime? birthDate;
-  @override
-  final String? cvLanguage;
+  final String? email;
   @override
   final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, birthDate: $birthDate, cvLanguage: $cvLanguage, updatedAt: $updatedAt)';
+    return 'UserProfile(id: $id, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, email: $email, updatedAt: $updatedAt)';
   }
 
   @override
@@ -275,10 +260,7 @@ class _$UserProfileImpl implements _UserProfile {
             (identical(other.city, city) || other.city == city) &&
             (identical(other.district, district) ||
                 other.district == district) &&
-            (identical(other.birthDate, birthDate) ||
-                other.birthDate == birthDate) &&
-            (identical(other.cvLanguage, cvLanguage) ||
-                other.cvLanguage == cvLanguage) &&
+            (identical(other.email, email) || other.email == email) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt));
   }
@@ -293,8 +275,7 @@ class _$UserProfileImpl implements _UserProfile {
     phone,
     city,
     district,
-    birthDate,
-    cvLanguage,
+    email,
     updatedAt,
   );
 
@@ -320,8 +301,7 @@ abstract class _UserProfile implements UserProfile {
     final String? phone,
     final String? city,
     final String? district,
-    final DateTime? birthDate,
-    final String? cvLanguage,
+    final String? email,
     final DateTime? updatedAt,
   }) = _$UserProfileImpl;
 
@@ -341,9 +321,7 @@ abstract class _UserProfile implements UserProfile {
   @override
   String? get district;
   @override
-  DateTime? get birthDate;
-  @override
-  String? get cvLanguage;
+  String? get email;
   @override
   DateTime? get updatedAt;
 

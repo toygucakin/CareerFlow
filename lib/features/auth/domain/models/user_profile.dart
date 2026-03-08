@@ -3,8 +3,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'user_profile.freezed.dart';
 part 'user_profile.g.dart';
 
-@Freezed(fieldRename: FieldRename.snake)
+@freezed
 class UserProfile with _$UserProfile {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory UserProfile({
     required String id,
     String? firstName,
@@ -12,8 +13,7 @@ class UserProfile with _$UserProfile {
     String? phone,
     String? city,
     String? district,
-    DateTime? birthDate,
-    String? cvLanguage,
+    String? email,
     DateTime? updatedAt,
   }) = _UserProfile;
 
