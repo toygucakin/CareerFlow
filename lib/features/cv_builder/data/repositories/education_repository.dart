@@ -17,9 +17,11 @@ class EducationRepository {
   }
 
   Future<Education> createEducation(Education education) async {
+    final data = education.toJson()..remove('id');
+    
     final response = await _supabase
         .from('education')
-        .insert(education.toJson())
+        .insert(data)
         .select()
         .single();
         
@@ -31,8 +33,6 @@ class EducationRepository {
       throw Exception('Education ID cannot be null for update');
     }
 
-    // Filter out null values so we don't accidentally overwrite with nulls
-    // unless explicitly needed. But Freezed toJson handles this mostly.
     final response = await _supabase
         .from('education')
         .update(education.toJson())
@@ -41,6 +41,14 @@ class EducationRepository {
         .single();
 
     return Education.fromJson(response);
+  }
+
+  Future<void> updateEducationOrder(List<Education> educations) async {
+    // Supabase RPC or batch update might be ideal, but for simplicity, we do sequential updates.
+    // Or we can use upsert. Upsert is cleaner for batch editing if we have all fields.
+    final List<Map<String, dynamic>> dataToUpdate = educations.map((e) => e.toJson()).toList();
+    
+    await _supabase.from('education').upsert(dataToUpdate);
   }
 
   Future<void> deleteEducation(int id) async {

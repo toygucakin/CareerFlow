@@ -30,6 +30,8 @@ mixin _$Education {
   DateTime? get startDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'end_date')
   DateTime? get endDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'sort_order')
+  int? get orderIndex => throw _privateConstructorUsedError;
 
   /// Serializes this Education to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -53,6 +55,7 @@ abstract class $EducationCopyWith<$Res> {
     String? degree,
     @JsonKey(name: 'start_date') DateTime? startDate,
     @JsonKey(name: 'end_date') DateTime? endDate,
+    @JsonKey(name: 'sort_order') int? orderIndex,
   });
 }
 
@@ -77,6 +80,7 @@ class _$EducationCopyWithImpl<$Res, $Val extends Education>
     Object? degree = freezed,
     Object? startDate = freezed,
     Object? endDate = freezed,
+    Object? orderIndex = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -104,6 +108,10 @@ class _$EducationCopyWithImpl<$Res, $Val extends Education>
                 ? _value.endDate
                 : endDate // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            orderIndex: freezed == orderIndex
+                ? _value.orderIndex
+                : orderIndex // ignore: cast_nullable_to_non_nullable
+                      as int?,
           )
           as $Val,
     );
@@ -126,6 +134,7 @@ abstract class _$$EducationImplCopyWith<$Res>
     String? degree,
     @JsonKey(name: 'start_date') DateTime? startDate,
     @JsonKey(name: 'end_date') DateTime? endDate,
+    @JsonKey(name: 'sort_order') int? orderIndex,
   });
 }
 
@@ -149,6 +158,7 @@ class __$$EducationImplCopyWithImpl<$Res>
     Object? degree = freezed,
     Object? startDate = freezed,
     Object? endDate = freezed,
+    Object? orderIndex = freezed,
   }) {
     return _then(
       _$EducationImpl(
@@ -176,6 +186,10 @@ class __$$EducationImplCopyWithImpl<$Res>
             ? _value.endDate
             : endDate // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        orderIndex: freezed == orderIndex
+            ? _value.orderIndex
+            : orderIndex // ignore: cast_nullable_to_non_nullable
+                  as int?,
       ),
     );
   }
@@ -191,6 +205,7 @@ class _$EducationImpl implements _Education {
     this.degree,
     @JsonKey(name: 'start_date') this.startDate,
     @JsonKey(name: 'end_date') this.endDate,
+    @JsonKey(name: 'sort_order') this.orderIndex,
   });
 
   factory _$EducationImpl.fromJson(Map<String, dynamic> json) =>
@@ -211,10 +226,13 @@ class _$EducationImpl implements _Education {
   @override
   @JsonKey(name: 'end_date')
   final DateTime? endDate;
+  @override
+  @JsonKey(name: 'sort_order')
+  final int? orderIndex;
 
   @override
   String toString() {
-    return 'Education(id: $id, profileId: $profileId, school: $school, degree: $degree, startDate: $startDate, endDate: $endDate)';
+    return 'Education(id: $id, profileId: $profileId, school: $school, degree: $degree, startDate: $startDate, endDate: $endDate, orderIndex: $orderIndex)';
   }
 
   @override
@@ -229,7 +247,9 @@ class _$EducationImpl implements _Education {
             (identical(other.degree, degree) || other.degree == degree) &&
             (identical(other.startDate, startDate) ||
                 other.startDate == startDate) &&
-            (identical(other.endDate, endDate) || other.endDate == endDate));
+            (identical(other.endDate, endDate) || other.endDate == endDate) &&
+            (identical(other.orderIndex, orderIndex) ||
+                other.orderIndex == orderIndex));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -242,6 +262,7 @@ class _$EducationImpl implements _Education {
     degree,
     startDate,
     endDate,
+    orderIndex,
   );
 
   /// Create a copy of Education
@@ -266,6 +287,7 @@ abstract class _Education implements Education {
     final String? degree,
     @JsonKey(name: 'start_date') final DateTime? startDate,
     @JsonKey(name: 'end_date') final DateTime? endDate,
+    @JsonKey(name: 'sort_order') final int? orderIndex,
   }) = _$EducationImpl;
 
   factory _Education.fromJson(Map<String, dynamic> json) =
@@ -286,6 +308,9 @@ abstract class _Education implements Education {
   @override
   @JsonKey(name: 'end_date')
   DateTime? get endDate;
+  @override
+  @JsonKey(name: 'sort_order')
+  int? get orderIndex;
 
   /// Create a copy of Education
   /// with the given fields replaced by the non-null parameter values.

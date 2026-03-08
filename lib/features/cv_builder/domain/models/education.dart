@@ -12,6 +12,7 @@ class Education with _$Education {
     String? degree,
     @JsonKey(name: 'start_date') DateTime? startDate,
     @JsonKey(name: 'end_date') DateTime? endDate,
+    @JsonKey(name: 'sort_order') int? orderIndex,
   }) = _Education;
 
   factory Education.fromJson(Map<String, dynamic> json) => _$EducationFromJson(json);

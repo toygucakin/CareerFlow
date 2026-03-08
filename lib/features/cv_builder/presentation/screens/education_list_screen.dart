@@ -26,9 +26,12 @@ class EducationListScreen extends ConsumerWidget {
             );
           }
 
-          return ListView.builder(
+          return ReorderableListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: educations.length,
+            onReorder: (oldIndex, newIndex) {
+              ref.read(educationListProvider.notifier).reorderEducations(oldIndex, newIndex);
+            },
             itemBuilder: (context, index) {
               final edu = educations[index];
               final dateFormat = DateFormat('MMM yyyy', 'tr_TR');
@@ -45,6 +48,7 @@ class EducationListScreen extends ConsumerWidget {
               }
 
               return Card(
+                key: ValueKey(edu.id ?? index),
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -105,6 +109,8 @@ class EducationListScreen extends ConsumerWidget {
                           }
                         },
                       ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.drag_indicator, color: Colors.grey),
                     ],
                   ),
                 ),
