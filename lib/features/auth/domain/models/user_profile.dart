@@ -13,6 +13,7 @@ class UserProfile with _$UserProfile {
     String? phone,
     String? city,
     String? district,
+    DateTime? birthDate,
     String? email,
     DateTime? updatedAt,
   }) = _UserProfile;

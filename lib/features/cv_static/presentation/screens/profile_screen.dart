@@ -27,6 +27,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     CountryData(code: '+49', name: 'Almanya', flag: '🇩🇪', mask: '#### ########'),
   ];
   late CountryData _selectedCountry;
+  DateTime? _selectedBirthDate;
 
   bool _isSaving = false;
   bool _isFormInitialized = false;
@@ -66,6 +67,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         phone: '${_selectedCountry.code}$unmaskedPhone',
         city: _cityController.text.trim(),
         district: _districtController.text.trim(),
+        birthDate: _selectedBirthDate,
         email: ref.read(authRepositoryProvider).currentUser?.email,
         updatedAt: DateTime.now(),
       );
@@ -131,6 +133,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             _cityController.text = currentProfile.city ?? '';
             _districtController.text = currentProfile.district ?? '';
+            _selectedBirthDate = currentProfile.birthDate;
             _isFormInitialized = true;
           }
 
@@ -212,6 +215,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                   ),
                   keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () => FocusScope.of(context).unfocus(), // First dismiss keyboard
+                  child: TextFormField(
+                    controller: TextEditingController(
+                      text: _selectedBirthDate != null
+                          // Show in DD/MM/YYYY format
+                          ? "${_selectedBirthDate!.day.toString().padLeft(2, '0')}/${_selectedBirthDate!.month.toString().padLeft(2, '0')}/${_selectedBirthDate!.year}"
+                          : '',
+                    ),
+                    readOnly: true,
+                    onTap: _showDatePicker,
+                    decoration: const InputDecoration(
+                      labelText: 'Doğum tarihi',
+                      prefixIcon: Icon(Icons.cake_outlined, color: Colors.pinkAccent),
+                      hintText: 'Gün/Ay/Yıl seçin',
+                    ),
+                    validator: (v) => _selectedBirthDate == null ? 'Gerekli' : null,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Autocomplete<String>(
@@ -296,6 +319,74 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Hata: $err')),
       ),
+    );
+  }
+
+  void _showDatePicker() {
+    FocusScope.of(context).unfocus();
+    
+    // Set initial date to either selected date or 20 years ago
+    final initialDate = _selectedBirthDate ?? DateTime.now().subtract(const Duration(days: 365 * 20));
+    final minDate = DateTime.now().subtract(const Duration(days: 365 * 100)); // Max age 100
+    final maxDate = DateTime.now().subtract(const Duration(days: 365 * 13));  // Min age 13
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext builder) {
+        return SizedBox(
+          height: 300,
+          child: Column(
+            children: [
+              // Header with Done button
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: const BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.black12, width: 1)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('İptal', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                    ),
+                    const Text('Doğum Tarihi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    TextButton(
+                      onPressed: () {
+                        // If user hasn't scrolled, ensure the initially displayed date is saved
+                        if (_selectedBirthDate == null) {
+                           setState(() => _selectedBirthDate = initialDate);
+                        }
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Bitti', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
+                    ),
+                  ],
+                ),
+              ),
+              // Cupertino Picker (iOS scrollable reel)
+              Expanded(
+                child: CupertinoDatePicker(
+                  mode: CupertinoDatePickerMode.date,
+                  initialDateTime: initialDate,
+                  minimumDate: minDate,
+                  maximumDate: maxDate,
+                  // We only need the date part (month/day/year)
+                  onDateTimeChanged: (DateTime newDate) {
+                    setState(() {
+                      _selectedBirthDate = newDate;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
   
