@@ -6,8 +6,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   phone TEXT,
   city TEXT,
   district TEXT,
-  birth_date DATE,
-  cv_language TEXT DEFAULT 'Türkçe',
+  email TEXT,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -62,8 +61,7 @@ ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tech_stacks ENABLE ROW LEVEL SECURITY;
 
 -- Create Policies
-CREATE POLICY "Users can view their own profile" ON profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users can manage their own profile" ON profiles FOR ALL USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
 CREATE POLICY "Users can view their own education" ON education FOR SELECT USING (profile_id = auth.uid());
 CREATE POLICY "Users can manage their own education" ON education FOR ALL USING (profile_id = auth.uid());

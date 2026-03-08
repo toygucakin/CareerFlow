@@ -19,6 +19,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
   late TextEditingController _districtController;
+  String _selectedCountryCode = '+90';
   bool _isSaving = false;
   bool _isFormInitialized = false;
 
@@ -50,7 +51,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       final updatedProfile = currentProfile.copyWith(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        phone: _phoneController.text.trim(),
+        phone: '$_selectedCountryCode${_phoneController.text.trim()}',
         city: _cityController.text.trim(),
         district: _districtController.text.trim(),
         email: ref.read(authRepositoryProvider).currentUser?.email,
@@ -94,7 +95,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (!_isFormInitialized) {
             _firstNameController.text = currentProfile.firstName ?? '';
             _lastNameController.text = currentProfile.lastName ?? '';
-            _phoneController.text = currentProfile.phone ?? '';
+            
+            // Ülke kodu ve telefon numarasını ayrıştırma
+            String rawPhone = currentProfile.phone ?? '';
+            if (rawPhone.startsWith('+')) {
+              // Basit bir ayrıştırma: eğer + ile başlıyorsa ve en az 3 karakterse (+90 veya +1 gibi)
+              // Şimdilik popüler olanları kontrol edelim veya genel bir mantık kuralım.
+              final commonCodes = ['+90', '+1', '+44', '+49'];
+              bool found = false;
+              for (String code in commonCodes) {
+                if (rawPhone.startsWith(code)) {
+                  _selectedCountryCode = code;
+                  _phoneController.text = rawPhone.substring(code.length);
+                  found = true;
+                  break;
+                }
+              }
+              // Eğer listede yoksa, varsayılanı koru veya tümünü telefona yaz (geliştirilebilir)
+              if (!found) {
+                 _phoneController.text = rawPhone;
+              }
+            } else {
+              _phoneController.text = rawPhone;
+            }
+
             _cityController.text = currentProfile.city ?? '';
             _districtController.text = currentProfile.district ?? '';
             _isFormInitialized = true;
@@ -110,11 +134,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           }
           final districtItems = validCity != null ? turkeyCities[validCity]! : <String>[];
 
-          return Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(24),
-              children: [
+          return GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
                 TextFormField(
                   controller: _firstNameController,
                   textCapitalization: TextCapitalization.words,
@@ -141,9 +167,33 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Telefon numarası',
-                    prefixIcon: Icon(Icons.phone_outlined),
+                    prefixIcon: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: const BoxDecoration(
+                        border: Border(right: BorderSide(color: Colors.grey, width: 1)),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedCountryCode,
+                          items: ['+90', '+1', '+44', '+49'].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                _selectedCountryCode = newValue;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                   keyboardType: TextInputType.phone,
                 ),
