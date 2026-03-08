@@ -369,19 +369,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
               ),
               // Cupertino Picker (iOS scrollable reel)
-              Expanded(
+              SizedBox(
+                height: 180, // Limit height to reduce number of visible items (squished fix)
                 child: CupertinoTheme(
-                  data: const CupertinoThemeData(
-                    textTheme: CupertinoTextThemeData(
+                  data: CupertinoThemeData(
+                    brightness: Brightness.light, // Forces light theme inside picker (white bg)
+                    textTheme: const CupertinoTextThemeData(
                       dateTimePickerTextStyle: TextStyle(
-                        color: Colors.black, // Force text color to be visible
+                        color: Colors.black, // Explicitly black
                         fontSize: 21,
                       ),
                     ),
                   ),
                   child: CupertinoDatePicker(
                     mode: CupertinoDatePickerMode.date,
-                    dateOrder: DatePickerDateOrder.dmy, // Force Day/Month/Year order
+                    dateOrder: DatePickerDateOrder.dmy,
                     initialDateTime: initialDate,
                     minimumDate: minDate,
                     maximumDate: maxDate,
