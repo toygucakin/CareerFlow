@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/education_provider.dart';
-import 'education_form_screen.dart';
+import '../providers/experience_provider.dart';
+import 'experience_form_screen.dart';
 import 'package:intl/intl.dart';
 
-class EducationListScreen extends ConsumerWidget {
+class ExperienceListScreen extends ConsumerWidget {
   final bool isWizardMode;
 
-  const EducationListScreen({super.key, this.isWizardMode = false});
+  const ExperienceListScreen({super.key, this.isWizardMode = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final educationsAsync = ref.watch(educationListProvider);
+    final experienceAsync = ref.watch(experienceListProvider);
 
     return Scaffold(
       appBar: isWizardMode
           ? null
-          : AppBar(title: const Text('Eğitim Bilgileri')),
-      body: educationsAsync.when(
-        data: (educations) {
-          if (educations.isEmpty) {
+          : AppBar(title: const Text('İş Deneyimlerim')),
+      body: experienceAsync.when(
+        data: (experiences) {
+          if (experiences.isEmpty) {
             return const Center(
               child: Text(
-                'Henüz eğitim bilgisi eklemediniz.',
+                'Henüz iş deneyimi eklemediniz.',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             );
@@ -30,29 +30,29 @@ class EducationListScreen extends ConsumerWidget {
 
           return ReorderableListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: educations.length,
+            itemCount: experiences.length,
             onReorder: (oldIndex, newIndex) {
               ref
-                  .read(educationListProvider.notifier)
-                  .reorderEducations(oldIndex, newIndex);
+                  .read(experienceListProvider.notifier)
+                  .reorderExperiences(oldIndex, newIndex);
             },
             itemBuilder: (context, index) {
-              final edu = educations[index];
+              final exp = experiences[index];
               final dateFormat = DateFormat('MMM yyyy', 'tr_TR');
 
               String dateString = '';
-              if (edu.startDate != null) {
-                dateString += dateFormat.format(edu.startDate!);
+              if (exp.startDate != null) {
+                dateString += dateFormat.format(exp.startDate!);
                 dateString += ' - ';
-                if (edu.endDate != null) {
-                  dateString += dateFormat.format(edu.endDate!);
+                if (exp.endDate != null) {
+                  dateString += dateFormat.format(exp.endDate!);
                 } else {
                   dateString += 'Devam Ediyor';
                 }
               }
 
               return Card(
-                key: ValueKey(edu.id ?? index),
+                key: ValueKey(exp.id ?? index),
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(
@@ -60,7 +60,7 @@ class EducationListScreen extends ConsumerWidget {
                     vertical: 8,
                   ),
                   title: Text(
-                    edu.school,
+                    exp.company,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -70,8 +70,8 @@ class EducationListScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
-                      if (edu.degree != null && edu.degree!.isNotEmpty)
-                        Text(edu.degree!, style: const TextStyle(fontSize: 14)),
+                      if (exp.role != null && exp.role!.isNotEmpty)
+                        Text(exp.role!, style: const TextStyle(fontSize: 14)),
                       const SizedBox(height: 4),
                       Text(
                         dateString,
@@ -95,7 +95,7 @@ class EducationListScreen extends ConsumerWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  EducationFormScreen(educationToEdit: edu),
+                                  ExperienceFormScreen(experienceToEdit: exp),
                             ),
                           );
                         },
@@ -111,7 +111,7 @@ class EducationListScreen extends ConsumerWidget {
                             builder: (context) => AlertDialog(
                               title: const Text('Silmeyi Onayla'),
                               content: const Text(
-                                'Bu eğitim bilgisini silmek istediğinize emin misiniz?',
+                                'Bu iş deneyimini silmek istediğinize emin misiniz?',
                               ),
                               actions: [
                                 TextButton(
@@ -130,10 +130,10 @@ class EducationListScreen extends ConsumerWidget {
                             ),
                           );
 
-                          if (confirm == true && edu.id != null) {
+                          if (confirm == true && exp.id != null) {
                             ref
-                                .read(educationListProvider.notifier)
-                                .deleteEducation(edu.id!);
+                                .read(experienceListProvider.notifier)
+                                .deleteExperience(exp.id!);
                           }
                         },
                       ),
@@ -154,7 +154,7 @@ class EducationListScreen extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const EducationFormScreen(),
+              builder: (context) => const ExperienceFormScreen(),
             ),
           );
         },

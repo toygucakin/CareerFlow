@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/education_provider.dart';
-import 'education_form_screen.dart';
-import 'package:intl/intl.dart';
+import '../providers/course_provider.dart';
+import 'course_form_screen.dart';
 
-class EducationListScreen extends ConsumerWidget {
+class CoursesListScreen extends ConsumerWidget {
   final bool isWizardMode;
 
-  const EducationListScreen({super.key, this.isWizardMode = false});
+  const CoursesListScreen({super.key, this.isWizardMode = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final educationsAsync = ref.watch(educationListProvider);
+    final coursesAsync = ref.watch(courseListProvider);
 
     return Scaffold(
       appBar: isWizardMode
           ? null
-          : AppBar(title: const Text('Eğitim Bilgileri')),
-      body: educationsAsync.when(
-        data: (educations) {
-          if (educations.isEmpty) {
+          : AppBar(title: const Text('Kurslarım ve Sertifikalarım')),
+      body: coursesAsync.when(
+        data: (courses) {
+          if (courses.isEmpty) {
             return const Center(
               child: Text(
-                'Henüz eğitim bilgisi eklemediniz.',
+                'Henüz kurs veya sertifika eklemediniz.',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             );
@@ -30,29 +29,17 @@ class EducationListScreen extends ConsumerWidget {
 
           return ReorderableListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: educations.length,
+            itemCount: courses.length,
             onReorder: (oldIndex, newIndex) {
               ref
-                  .read(educationListProvider.notifier)
-                  .reorderEducations(oldIndex, newIndex);
+                  .read(courseListProvider.notifier)
+                  .reorderCourses(oldIndex, newIndex);
             },
             itemBuilder: (context, index) {
-              final edu = educations[index];
-              final dateFormat = DateFormat('MMM yyyy', 'tr_TR');
-
-              String dateString = '';
-              if (edu.startDate != null) {
-                dateString += dateFormat.format(edu.startDate!);
-                dateString += ' - ';
-                if (edu.endDate != null) {
-                  dateString += dateFormat.format(edu.endDate!);
-                } else {
-                  dateString += 'Devam Ediyor';
-                }
-              }
+              final course = courses[index];
 
               return Card(
-                key: ValueKey(edu.id ?? index),
+                key: ValueKey(course.id ?? index),
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(
@@ -60,7 +47,7 @@ class EducationListScreen extends ConsumerWidget {
                     vertical: 8,
                   ),
                   title: Text(
-                    edu.school,
+                    course.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -70,16 +57,24 @@ class EducationListScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
-                      if (edu.degree != null && edu.degree!.isNotEmpty)
-                        Text(edu.degree!, style: const TextStyle(fontSize: 14)),
-                      const SizedBox(height: 4),
-                      Text(
-                        dateString,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
+                      if (course.issuer != null && course.issuer!.isNotEmpty)
+                        Text(
+                          course.issuer!,
+                          style: const TextStyle(fontSize: 14),
                         ),
-                      ),
+                      if (course.description != null &&
+                          course.description!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          course.description!,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ],
                   ),
                   trailing: Row(
@@ -95,7 +90,7 @@ class EducationListScreen extends ConsumerWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  EducationFormScreen(educationToEdit: edu),
+                                  CourseFormScreen(courseToEdit: course),
                             ),
                           );
                         },
@@ -111,7 +106,7 @@ class EducationListScreen extends ConsumerWidget {
                             builder: (context) => AlertDialog(
                               title: const Text('Silmeyi Onayla'),
                               content: const Text(
-                                'Bu eğitim bilgisini silmek istediğinize emin misiniz?',
+                                'Bu kursu silmek istediğinize emin misiniz?',
                               ),
                               actions: [
                                 TextButton(
@@ -130,10 +125,10 @@ class EducationListScreen extends ConsumerWidget {
                             ),
                           );
 
-                          if (confirm == true && edu.id != null) {
+                          if (confirm == true && course.id != null) {
                             ref
-                                .read(educationListProvider.notifier)
-                                .deleteEducation(edu.id!);
+                                .read(courseListProvider.notifier)
+                                .deleteCourse(course.id!);
                           }
                         },
                       ),
@@ -153,9 +148,7 @@ class EducationListScreen extends ConsumerWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const EducationFormScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => const CourseFormScreen()),
           );
         },
         child: const Icon(Icons.add),

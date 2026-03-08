@@ -11,14 +11,15 @@ class EducationFormScreen extends ConsumerStatefulWidget {
   const EducationFormScreen({super.key, this.educationToEdit});
 
   @override
-  ConsumerState<EducationFormScreen> createState() => _EducationFormScreenState();
+  ConsumerState<EducationFormScreen> createState() =>
+      _EducationFormScreenState();
 }
 
 class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _schoolController;
   late TextEditingController _degreeController;
-  
+
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isOngoing = false;
@@ -27,12 +28,16 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
   @override
   void initState() {
     super.initState();
-    _schoolController = TextEditingController(text: widget.educationToEdit?.school ?? '');
-    _degreeController = TextEditingController(text: widget.educationToEdit?.degree ?? '');
-    
+    _schoolController = TextEditingController(
+      text: widget.educationToEdit?.school ?? '',
+    );
+    _degreeController = TextEditingController(
+      text: widget.educationToEdit?.degree ?? '',
+    );
+
     _startDate = widget.educationToEdit?.startDate;
     _endDate = widget.educationToEdit?.endDate;
-    
+
     if (widget.educationToEdit != null) {
       // If we have an education but end date is null, it means it's ongoing
       _isOngoing = widget.educationToEdit?.endDate == null;
@@ -48,7 +53,7 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
 
   Future<void> _saveEducation() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     // Custom validation
     if (_startDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -56,24 +61,30 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
       );
       return;
     }
-    
+
     if (!_isOngoing && _endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bitiş tarihi seçin veya "Devam Ediyor"u işaretleyin.')),
+        const SnackBar(
+          content: Text(
+            'Lütfen bitiş tarihi seçin veya "Devam Ediyor"u işaretleyin.',
+          ),
+        ),
       );
       return;
     }
-    
+
     if (!_isOngoing && _endDate != null && _endDate!.isBefore(_startDate!)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bitiş tarihi başlangıç tarihinden önce olamaz.')),
+        const SnackBar(
+          content: Text('Bitiş tarihi başlangıç tarihinden önce olamaz.'),
+        ),
       );
       return;
     }
 
     setState(() => _isSaving = true);
     final user = ref.read(authRepositoryProvider).currentUser;
-    
+
     try {
       final education = Education(
         id: widget.educationToEdit?.id,
@@ -87,9 +98,11 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
       if (widget.educationToEdit == null) {
         await ref.read(educationListProvider.notifier).addEducation(education);
       } else {
-        await ref.read(educationListProvider.notifier).updateEducation(education);
+        await ref
+            .read(educationListProvider.notifier)
+            .updateEducation(education);
       }
-      
+
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -98,9 +111,9 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata oluştu: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Hata oluştu: ${e.toString()}')));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -109,10 +122,10 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
 
   void _showDatePickerModal(BuildContext context, bool isStart) {
     FocusScope.of(context).unfocus();
-    final initialDate = isStart 
-        ? (_startDate ?? DateTime.now()) 
+    final initialDate = isStart
+        ? (_startDate ?? DateTime.now())
         : (_endDate ?? (_startDate ?? DateTime.now()));
-        
+
     DateTime tempSelectedDate = initialDate;
 
     showModalBottomSheet(
@@ -127,20 +140,32 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: const BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.black12, width: 1)),
+                  border: Border(
+                    bottom: BorderSide(color: Colors.black12, width: 1),
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('İptal', style: TextStyle(color: Colors.grey, fontSize: 16)),
+                      child: const Text(
+                        'İptal',
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      ),
                     ),
                     Text(
-                      isStart ? 'Başlangıç Tarihi' : 'Bitiş Tarihi', 
-                      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)
+                      isStart ? 'Başlangıç Tarihi' : 'Bitiş Tarihi',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     TextButton(
                       onPressed: () {
@@ -153,7 +178,14 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
                         });
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Bitti', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: const Text(
+                        'Bitti',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -165,12 +197,16 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
                     data: const CupertinoThemeData(
                       brightness: Brightness.light,
                       textTheme: CupertinoTextThemeData(
-                        pickerTextStyle: TextStyle(color: Colors.black, fontSize: 18),
+                        pickerTextStyle: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                     child: CupertinoDatePicker(
                       initialDateTime: initialDate,
-                      mode: CupertinoDatePickerMode.monthYear, // Sadece Yıl ve Ay seçilsin
+                      mode: CupertinoDatePickerMode
+                          .monthYear, // Sadece Yıl ve Ay seçilsin
                       onDateTimeChanged: (DateTime newDate) {
                         tempSelectedDate = newDate;
                       },
@@ -188,10 +224,12 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM yyyy', 'tr_TR');
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.educationToEdit == null ? 'Eğitim Ekle' : 'Eğitimi Düzenle'),
+        title: Text(
+          widget.educationToEdit == null ? 'Eğitim Ekle' : 'Eğitimi Düzenle',
+        ),
       ),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -234,9 +272,13 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
                           errorText: _startDate == null ? 'Gerekli' : null,
                         ),
                         child: Text(
-                          _startDate != null ? dateFormat.format(_startDate!) : 'Seçiniz',
+                          _startDate != null
+                              ? dateFormat.format(_startDate!)
+                              : 'Seçiniz',
                           style: TextStyle(
-                            color: _startDate != null ? Theme.of(context).textTheme.bodyLarge?.color : Colors.grey.shade600,
+                            color: _startDate != null
+                                ? Theme.of(context).textTheme.bodyLarge?.color
+                                : Colors.grey.shade600,
                           ),
                         ),
                       ),
@@ -245,20 +287,30 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: InkWell(
-                      onTap: _isOngoing ? null : () => _showDatePickerModal(context, false),
+                      onTap: _isOngoing
+                          ? null
+                          : () => _showDatePickerModal(context, false),
                       child: InputDecorator(
                         decoration: InputDecoration(
                           labelText: 'Bitiş Tarihi',
-                          prefixIcon: const Icon(Icons.event_available_outlined),
-                          fillColor: _isOngoing ? Colors.grey.withOpacity(0.1) : null,
+                          prefixIcon: const Icon(
+                            Icons.event_available_outlined,
+                          ),
+                          fillColor: _isOngoing
+                              ? Colors.grey.withOpacity(0.1)
+                              : null,
                           filled: _isOngoing,
                         ),
                         child: Text(
-                          _isOngoing 
-                              ? 'Devam Ediyor' 
-                              : (_endDate != null ? dateFormat.format(_endDate!) : 'Seçiniz'),
+                          _isOngoing
+                              ? 'Devam Ediyor'
+                              : (_endDate != null
+                                    ? dateFormat.format(_endDate!)
+                                    : 'Seçiniz'),
                           style: TextStyle(
-                            color: _endDate != null || _isOngoing ? Theme.of(context).textTheme.bodyLarge?.color : Colors.grey.shade600,
+                            color: _endDate != null || _isOngoing
+                                ? Theme.of(context).textTheme.bodyLarge?.color
+                                : Colors.grey.shade600,
                           ),
                         ),
                       ),
@@ -269,7 +321,9 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
               const SizedBox(height: 16),
               CheckboxListTile(
                 title: const Text('Devam Ediyor'),
-                subtitle: const Text('Şu anda bu okulda okumaya devam ediyorum.'),
+                subtitle: const Text(
+                  'Şu anda bu okulda okumaya devam ediyorum.',
+                ),
                 value: _isOngoing,
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
@@ -294,8 +348,21 @@ class _EducationFormScreenState extends ConsumerState<EducationFormScreen> {
                   ),
                 ),
                 child: _isSaving
-                    ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Kaydet', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Kaydet',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ],
           ),

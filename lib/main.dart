@@ -6,7 +6,7 @@ import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/auth/presentation/screens/auth_screen.dart';
 import 'features/cv_static/presentation/screens/profile_screen.dart';
 
-import 'features/cv_builder/presentation/screens/education_list_screen.dart';
+import 'features/cv_builder/presentation/screens/cv_builder_wizard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,14 +14,11 @@ void main() async {
   // Supabase initialization with project credentials
   await Supabase.initialize(
     url: 'https://REMOVED.supabase.co',
-    anonKey: 'SUPABASE_ANON_KEY_REMOVED',
+    anonKey:
+        'SUPABASE_ANON_KEY_REMOVED',
   );
 
-  runApp(
-    const ProviderScope(
-      child: CareerFlowApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: CareerFlowApp()));
 }
 
 class CareerFlowApp extends ConsumerWidget {
@@ -42,9 +39,7 @@ class CareerFlowApp extends ConsumerWidget {
           brightness: Brightness.dark,
         ),
         inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
         ),
       ),
@@ -53,9 +48,7 @@ class CareerFlowApp extends ConsumerWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('tr', 'TR'),
-      ],
+      supportedLocales: const [Locale('tr', 'TR')],
       locale: const Locale('tr', 'TR'),
       home: authState.when(
         data: (state) {
@@ -64,12 +57,10 @@ class CareerFlowApp extends ConsumerWidget {
           }
           return const AuthScreen();
         },
-        loading: () => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
-        error: (err, stack) => Scaffold(
-          body: Center(child: Text('Error: $err')),
-        ),
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        error: (err, stack) =>
+            Scaffold(body: Center(child: Text('Error: $err'))),
       ),
     );
   }
@@ -112,10 +103,7 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 24),
             const Text(
               'Welcome, Developer',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -123,19 +111,34 @@ class HomeScreen extends ConsumerWidget {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 48),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const EducationListScreen()),
-                );
-              },
-              icon: const Icon(Icons.school_outlined),
-              label: const Text('Eğitim Bilgileri'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2196F3),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CvBuilderWizardScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.edit_document),
+                  label: const Text(
+                    'Profilini Oluştur (CV)',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2196F3),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 4,
+                  ),
+                ),
               ),
             ),
           ],

@@ -15,5 +15,6 @@ class Education with _$Education {
     @JsonKey(name: 'sort_order') int? orderIndex,
   }) = _Education;
 
-  factory Education.fromJson(Map<String, dynamic> json) => _$EducationFromJson(json);
+  factory Education.fromJson(Map<String, dynamic> json) =>
+      _$EducationFromJson(json);
 }
