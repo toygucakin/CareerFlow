@@ -358,7 +358,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       onPressed: () => Navigator.of(context).pop(),
                       child: const Text('İptal', style: TextStyle(color: Colors.grey, fontSize: 16)),
                     ),
-                    const Text('Doğum Tarihi', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const Text('Doğum Tarihi', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
                     TextButton(
                       onPressed: () {
                         setState(() => _selectedBirthDate = tempSelectedDate);
@@ -568,7 +568,7 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
                   _onDateChanged();
                 },
                 itemBuilder: (context, index) {
-                  return Center(child: Text('${index + 1}'));
+                  return Center(child: Text('${index + 1}', style: const TextStyle(color: Colors.black)));
                 },
               ),
             ),
@@ -587,7 +587,7 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
                   _onDateChanged();
                 },
                 itemBuilder: (context, index) {
-                  return Center(child: Text(_months[index]));
+                  return Center(child: Text(_months[index], style: const TextStyle(color: Colors.black)));
                 },
               ),
             ),
@@ -606,7 +606,7 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
                   _onDateChanged();
                 },
                 itemBuilder: (context, index) {
-                  return Center(child: Text('${minYear + index}'));
+                  return Center(child: Text('${minYear + index}', style: const TextStyle(color: Colors.black)));
                 },
               ),
             ),
