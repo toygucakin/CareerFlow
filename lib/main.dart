@@ -6,6 +6,8 @@ import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/auth/presentation/screens/auth_screen.dart';
 import 'features/cv_static/presentation/screens/profile_screen.dart';
 
+import 'features/cv_builder/presentation/screens/education_list_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -98,27 +100,43 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.rocket_launch_rounded,
               size: 80,
               color: Color(0xFF2196F3),
             ),
-            SizedBox(height: 24),
-            Text(
+            const SizedBox(height: 24),
+            const Text(
               'Welcome, Developer',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
-            Text(
+            const SizedBox(height: 8),
+            const Text(
               'Your autonomous CV engine is ready.',
               style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 48),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const EducationListScreen()),
+                );
+              },
+              icon: const Icon(Icons.school_outlined),
+              label: const Text('Eğitim Bilgileri'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2196F3),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
             ),
           ],
         ),
