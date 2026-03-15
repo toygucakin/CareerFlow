@@ -20,6 +20,7 @@ class CvBuilderWizardScreen extends ConsumerStatefulWidget {
 class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
   final PageController _pageController = PageController();
   int _currentPageIndex = 0;
+  bool _isReady = false;
 
   final List<String> _phaseTitles = [
     'Eğitim',
@@ -27,6 +28,20 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
     'Yetenek', // Dil/Proje/Topluluk
     'Deneyim'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Sayfa geçiş animasyonunun (slide) kasılmasını önlemek için 
+    // ağır liste/sayfa çizimlerini animasyon bitimine erteliyoruz.
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isReady = true;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -75,30 +90,35 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
                     final isActive = index <= _currentPageIndex;
                     return Expanded(
                       child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
                         onTap: () => _onStepTapped(index),
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: isActive ? const Color(0xFF2196F3) : Colors.grey.shade300,
-                              foregroundColor: isActive ? Colors.white : Colors.grey.shade600,
-                              child: Text('${index + 1}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _phaseTitles[index],
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                                color: isActive 
-                                    ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87) 
-                                    : Colors.grey.shade600,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          width: double.infinity,
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: isActive ? const Color(0xFF2196F3) : Colors.grey.shade300,
+                                foregroundColor: isActive ? Colors.white : Colors.grey.shade600,
+                                child: Text('${index + 1}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Text(
+                                _phaseTitles[index],
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                                  color: isActive 
+                                      ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87) 
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -133,27 +153,29 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
           ),
         ),
       ),
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(), // Only navigate via buttons/stepper
-        onPageChanged: (index) {
-          setState(() {
-            _currentPageIndex = index;
-          });
-        },
-        children: [
-          // Faz 1
-          const EducationListScreen(isWizardMode: true),
-          
-          // Faz 2
-          const CoursesListScreen(isWizardMode: true),
-          // Faz 3
-          const SkillsProjectsScreen(isWizardMode: true),
-          
-          // Faz 4
-          const ExperienceListScreen(isWizardMode: true),
-        ],
-      ),
+      body: !_isReady 
+          ? const Center(child: CircularProgressIndicator()) 
+          : PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(), // Only navigate via buttons/stepper
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPageIndex = index;
+                });
+              },
+              children: [
+                // Faz 1
+                const EducationListScreen(isWizardMode: true),
+                
+                // Faz 2
+                const CoursesListScreen(isWizardMode: true),
+                // Faz 3
+                const SkillsProjectsScreen(isWizardMode: true),
+                
+                // Faz 4
+                const ExperienceListScreen(isWizardMode: true),
+              ],
+            ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
