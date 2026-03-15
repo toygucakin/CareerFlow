@@ -44,4 +44,9 @@ class SupabaseAuthRepository implements AuthRepository {
   Future<void> updateProfile(UserProfile profile) async {
     await _client.from('profiles').upsert(profile.toJson());
   }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _client.auth.resetPasswordForEmail(email);
+  }
 }
