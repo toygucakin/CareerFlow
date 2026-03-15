@@ -68,8 +68,9 @@ class _GitHubIntegrationScreenState extends ConsumerState<GitHubIntegrationScree
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildRepoList(repos) {
     if (repos.isEmpty) {
@@ -167,8 +168,9 @@ class _GitHubIntegrationScreenState extends ConsumerState<GitHubIntegrationScree
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildBottomAction() {
     return Container(
