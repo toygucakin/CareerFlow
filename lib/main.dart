@@ -111,9 +111,21 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('CareerFlow'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.person_outline),
-          onPressed: () {
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.person_outline, size: 20),
+              padding: EdgeInsets.zero,
+              onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -124,10 +136,19 @@ class HomeScreen extends ConsumerWidget {
             );
           },
         ),
+      ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authRepositoryProvider).signOut(),
+            icon: Icon(
+              ref.watch(themeProvider) == ThemeMode.dark
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+            ),
+            onPressed: () {
+              final current = ref.read(themeProvider);
+              ref.read(themeProvider.notifier).state =
+                  current == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+            },
           ),
         ],
       ),
