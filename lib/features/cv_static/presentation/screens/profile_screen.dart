@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/domain/models/user_profile.dart';
 import '../../../../core/constants/turkey_data.dart';
+import '../../../cv_builder/domain/models/social_media.dart';
+import '../../../cv_builder/presentation/providers/social_media_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -350,6 +352,30 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     validator: (v) =>
                         (v == null || v.isEmpty) ? 'Gerekli' : null,
                   ),
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Sosyal Medya & Linkler',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'LinkedIn, GitHub veya makale paylaştığın platformları ekleyerek profilini güçlendir.',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _showSocialMediaManager,
+                    icon: const Icon(Icons.link),
+                    label: const Text('Sosyal Medya Hesaplarını Yönet'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 40),
                   const SizedBox(height: 40),
                   ElevatedButton(
@@ -472,6 +498,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  void _showSocialMediaManager() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const _SocialMediaManagerSheet(),
+    );
+  }
+
   // Helper to pre-format data coming from DB
   String _formatWithMask(String text, String mask) {
     String cleanText = text.replaceAll(RegExp(r'\D'), '');
@@ -490,18 +525,222 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 }
 
-class CountryData {
-  final String code;
-  final String name;
-  final String flag;
-  final String mask;
+class _SocialMediaManagerSheet extends ConsumerWidget {
+  const _SocialMediaManagerSheet();
 
-  CountryData({
-    required this.code,
-    required this.name,
-    required this.flag,
-    required this.mask,
-  });
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final accountsAsync = ref.watch(socialMediaListProvider);
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Sosyal Medya Hesapları',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  onPressed: () => _showAddSocialMediaForm(context, ref),
+                  icon: const Icon(Icons.add_circle, color: Colors.blue, size: 32),
+                ),
+              ],
+            ),
+          ),
+          const Divider(),
+          Expanded(
+            child: accountsAsync.when(
+              data: (accounts) {
+                if (accounts.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.link_off, size: 64, color: Colors.grey.withOpacity(0.5)),
+                        const SizedBox(height: 16),
+                        const Text('Henüz bir hesap eklenmemiş.', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: accounts.length,
+                  itemBuilder: (context, index) {
+                    final account = accounts[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: ListTile(
+                        leading: _getPlatformIcon(account.platform),
+                        title: Text(account.platform.displayName),
+                        subtitle: Text(account.url, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                          onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Hata: $err')),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Kapat'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getPlatformIcon(SocialMediaPlatform platform) {
+    IconData iconData;
+    Color color;
+    switch (platform) {
+      case SocialMediaPlatform.linkedIn:
+        iconData = Icons.business_outlined;
+        color = Colors.blue.shade700;
+        break;
+      case SocialMediaPlatform.github:
+        iconData = Icons.code_outlined;
+        color = Colors.grey.shade900;
+        break;
+      case SocialMediaPlatform.medium:
+      case SocialMediaPlatform.devto:
+      case SocialMediaPlatform.hashnode:
+      case SocialMediaPlatform.substack:
+        iconData = Icons.article_outlined;
+        color = Colors.green;
+        break;
+      case SocialMediaPlatform.youtube:
+        iconData = Icons.play_circle_outline;
+        color = Colors.red;
+        break;
+      case SocialMediaPlatform.instagram:
+      case SocialMediaPlatform.facebook:
+      case SocialMediaPlatform.x:
+        iconData = Icons.share_outlined;
+        color = Colors.purple;
+        break;
+      default:
+        iconData = Icons.link_outlined;
+        color = Colors.blueGrey;
+    }
+    return CircleAvatar(
+      backgroundColor: color.withOpacity(0.1),
+      child: Icon(iconData, color: color),
+    );
+  }
+
+  void _showAddSocialMediaForm(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => _AddSocialMediaDialog(ref: ref),
+    );
+  }
+}
+
+class _AddSocialMediaDialog extends StatefulWidget {
+  final WidgetRef ref;
+  const _AddSocialMediaDialog({required this.ref});
+
+  @override
+  State<_AddSocialMediaDialog> createState() => _AddSocialMediaDialogState();
+}
+
+class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
+  SocialMediaPlatform _selectedPlatform = SocialMediaPlatform.linkedIn;
+  final _urlController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Hesap Ekle'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButtonFormField<SocialMediaPlatform>(
+              value: _selectedPlatform,
+              decoration: const InputDecoration(labelText: 'Platform'),
+              items: SocialMediaPlatform.values.map((p) {
+                return DropdownMenuItem(value: p, child: Text(p.displayName));
+              }).toList(),
+              onChanged: (val) {
+                if (val != null) setState(() => _selectedPlatform = val);
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _urlController,
+              decoration: const InputDecoration(
+                labelText: 'Profil Linki / URL',
+                hintText: 'https://...',
+              ),
+              validator: (v) => (v == null || v.isEmpty) ? 'Gerekli' : (!v.startsWith('http') ? 'Geçerli bir URL girin' : null),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
+        ElevatedButton(
+          onPressed: () async {
+            if (_formKey.currentState!.validate()) {
+              final recruiter = widget.ref.read(authRepositoryProvider).currentUser;
+              if (recruiter != null) {
+                await widget.ref.read(socialMediaListProvider.notifier).addAccount(
+                      SocialMediaAccount(
+                        platform: _selectedPlatform,
+                        url: _urlController.text.trim(),
+                        profileId: recruiter.id,
+                      ),
+                    );
+                if (mounted) Navigator.pop(context);
+              }
+            }
+          },
+          child: const Text('Ekle'),
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
+  }
 }
 
 class PhoneInputFormatter extends TextInputFormatter {
@@ -731,4 +970,18 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
       ),
     );
   }
+}
+
+class CountryData {
+  final String code;
+  final String name;
+  final String flag;
+  final String mask;
+
+  CountryData({
+    required this.code,
+    required this.name,
+    required this.flag,
+    required this.mask,
+  });
 }
