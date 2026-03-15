@@ -8,6 +8,7 @@ import '../../../../core/constants/turkey_data.dart';
 import '../../../cv_builder/domain/models/social_media.dart';
 import '../../../cv_builder/presentation/providers/social_media_provider.dart';
 import '../../../../core/providers/theme_provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final DateTime? navigationStartTime;
@@ -515,7 +516,7 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
                       contentPadding: EdgeInsets.zero,
                       leading: CircleAvatar(
                         backgroundColor: account.platform.color.withOpacity(0.1),
-                        child: Icon(account.platform.icon, color: account.platform.color, size: 20),
+                        child: FaIcon(account.platform.icon, color: account.platform.color, size: 18),
                       ),
                       title: Text(account.platform.displayName, style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color, fontWeight: FontWeight.bold)),
                       subtitle: Text(account.url, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -582,7 +583,18 @@ class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
                 DropdownButtonFormField<SocialMediaPlatform>(
                   value: _selectedPlatform,
                   decoration: const InputDecoration(labelText: 'Platform'),
-                  items: SocialMediaPlatform.values.map((p) => DropdownMenuItem(value: p, child: Text(p.displayName))).toList(),
+                  items: SocialMediaPlatform.values.map((p) {
+                    return DropdownMenuItem(
+                      value: p,
+                      child: Row(
+                        children: [
+                          FaIcon(p.icon, color: p.color, size: 16),
+                          const SizedBox(width: 12),
+                          Text(p.displayName),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                   onChanged: (val) => setState(() => _selectedPlatform = val!),
                 ),
                 const SizedBox(height: 16),

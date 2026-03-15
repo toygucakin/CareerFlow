@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 part 'social_media.freezed.dart';
 part 'social_media.g.dart';
@@ -57,33 +58,35 @@ extension SocialMediaPlatformExtension on SocialMediaPlatform {
 
   IconData get icon {
     switch (this) {
-      case SocialMediaPlatform.linkedIn: return Icons.business_outlined;
-      case SocialMediaPlatform.github: return Icons.code_outlined;
-      case SocialMediaPlatform.medium:
-      case SocialMediaPlatform.devto:
-      case SocialMediaPlatform.hashnode:
+      case SocialMediaPlatform.linkedIn: return FontAwesomeIcons.linkedinIn;
+      case SocialMediaPlatform.github: return FontAwesomeIcons.github;
+      case SocialMediaPlatform.medium: return FontAwesomeIcons.medium;
+      case SocialMediaPlatform.devto: return FontAwesomeIcons.dev;
+      case SocialMediaPlatform.hashnode: return FontAwesomeIcons.hashnode;
       case SocialMediaPlatform.substack: return Icons.article_outlined;
-      case SocialMediaPlatform.youtube: return Icons.play_circle_outline;
-      case SocialMediaPlatform.instagram:
-      case SocialMediaPlatform.facebook:
-      case SocialMediaPlatform.x: return Icons.share_outlined;
-      case SocialMediaPlatform.behance:
-      case SocialMediaPlatform.dribbble: return Icons.palette_outlined;
-      case SocialMediaPlatform.website: return Icons.language_outlined;
-      default: return Icons.link_outlined;
+      case SocialMediaPlatform.x: return FontAwesomeIcons.xTwitter;
+      case SocialMediaPlatform.instagram: return FontAwesomeIcons.instagram;
+      case SocialMediaPlatform.facebook: return FontAwesomeIcons.facebookF;
+      case SocialMediaPlatform.youtube: return FontAwesomeIcons.youtube;
+      case SocialMediaPlatform.behance: return FontAwesomeIcons.behance;
+      case SocialMediaPlatform.dribbble: return FontAwesomeIcons.dribbble;
+      case SocialMediaPlatform.website: return FontAwesomeIcons.globe;
+      default: return FontAwesomeIcons.link;
     }
   }
 
   Color get color {
     switch (this) {
-      case SocialMediaPlatform.linkedIn: return Color(0xFF0077B5);
-      case SocialMediaPlatform.github: return Color(0xFF333333);
-      case SocialMediaPlatform.medium: return Color(0xFF00AB6C);
-      case SocialMediaPlatform.youtube: return Color(0xFFFF0000);
-      case SocialMediaPlatform.instagram: return Color(0xFFE4405F);
-      case SocialMediaPlatform.facebook: return Color(0xFF1877F2);
-      case SocialMediaPlatform.x: return Color(0xFF000000);
-      default: return Color(0xFF2196F3);
+      case SocialMediaPlatform.linkedIn: return const Color(0xFF0077B5);
+      case SocialMediaPlatform.github: return const Color(0xFF333333);
+      case SocialMediaPlatform.medium: return const Color(0xFF00AB6C);
+      case SocialMediaPlatform.youtube: return const Color(0xFFFF0000);
+      case SocialMediaPlatform.instagram: return const Color(0xFFE4405F);
+      case SocialMediaPlatform.facebook: return const Color(0xFF1877F2);
+      case SocialMediaPlatform.x: return const Color(0xFF000000);
+      case SocialMediaPlatform.behance: return const Color(0xFF1769FF);
+      case SocialMediaPlatform.dribbble: return const Color(0xFFEA4C89);
+      default: return const Color(0xFF2196F3);
     }
   }
 }
