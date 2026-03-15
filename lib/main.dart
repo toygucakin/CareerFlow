@@ -8,6 +8,12 @@ import 'features/cv_static/presentation/screens/profile_screen.dart';
 import 'features/auth/presentation/screens/update_password_screen.dart';
 
 import 'features/cv_builder/presentation/screens/cv_builder_wizard_screen.dart';
+import 'features/cv_builder/presentation/providers/education_provider.dart';
+import 'features/cv_builder/presentation/providers/course_provider.dart';
+import 'features/cv_builder/presentation/providers/language_provider.dart';
+import 'features/cv_builder/presentation/providers/project_provider.dart';
+import 'features/cv_builder/presentation/providers/community_provider.dart';
+import 'features/cv_builder/presentation/providers/experience_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -77,6 +83,14 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Prefetch user profile in background to eliminate ProfileScreen loading delay
     ref.watch(currentUserProfileProvider);
+    
+    // Prefetch CV Builder lists to eliminate loading delay
+    ref.watch(educationListProvider);
+    ref.watch(courseListProvider);
+    ref.watch(languageListProvider);
+    ref.watch(projectListProvider);
+    ref.watch(communityListProvider);
+    ref.watch(experienceListProvider);
 
     return Scaffold(
       appBar: AppBar(

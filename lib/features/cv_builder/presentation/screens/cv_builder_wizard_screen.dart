@@ -52,7 +52,7 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
         title: const Text('Özgeçmişimi Doldur'),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
+          preferredSize: const Size.fromHeight(110),
           child: Container(
             color: Theme.of(context).scaffoldBackgroundColor,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -63,26 +63,33 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(_phaseTitles.length, (index) {
                     final isActive = index <= _currentPageIndex;
-                    return GestureDetector(
-                      onTap: () => _onStepTapped(index),
-                      child: Column(
-                        children: [
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundColor: isActive ? const Color(0xFF2196F3) : Colors.grey.shade300,
-                            foregroundColor: isActive ? Colors.white : Colors.grey.shade600,
-                            child: Text('${index + 1}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _phaseTitles[index],
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                              color: isActive ? Colors.black87 : Colors.grey.shade600,
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => _onStepTapped(index),
+                        child: Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 16,
+                              backgroundColor: isActive ? const Color(0xFF2196F3) : Colors.grey.shade300,
+                              foregroundColor: isActive ? Colors.white : Colors.grey.shade600,
+                              child: Text('${index + 1}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              _phaseTitles[index],
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                                color: isActive 
+                                    ? (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87) 
+                                    : Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }),
