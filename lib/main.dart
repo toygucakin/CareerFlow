@@ -380,20 +380,47 @@ class _ModernPreview extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(width: 30, color: Colors.blue.shade50),
+          Container(
+            width: 35,
+            color: Colors.blue.shade50,
+            padding: const EdgeInsets.all(4),
+            child: Column(
+              children: [
+                Container(height: 10, width: 10, decoration: BoxDecoration(color: Colors.blue.shade200, shape: BoxShape.circle)),
+                const SizedBox(height: 8),
+                Container(height: 2, width: 20, color: Colors.blue.shade100),
+                const SizedBox(height: 4),
+                Container(height: 2, width: 15, color: Colors.blue.shade100),
+                const Spacer(),
+                Container(height: 2, width: 15, color: Colors.blue.shade100),
+              ],
+            ),
+          ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(4.0),
+              padding: const EdgeInsets.all(6.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(height: 4, width: 40, color: Colors.blue.shade200),
+                  Container(height: 5, width: 50, color: Colors.blue.shade300),
                   const SizedBox(height: 4),
-                  Container(height: 2, width: 50, color: Colors.grey.shade200),
-                  const SizedBox(height: 2),
-                  Container(height: 2, width: 30, color: Colors.grey.shade200),
-                  const Spacer(),
-                  Container(height: 30, width: double.infinity, color: Colors.grey.shade50),
+                  Container(height: 2, width: 40, color: Colors.grey.shade200),
+                  const SizedBox(height: 12),
+                  // Experience Section
+                  Container(height: 3, width: 30, color: Colors.blue.shade100),
+                  const SizedBox(height: 4),
+                  Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+                  const SizedBox(height: 12),
+                  // Projects Section
+                  Container(height: 3, width: 25, color: Colors.blue.shade100),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Expanded(child: Container(height: 25, color: Colors.grey.shade50)),
+                      const SizedBox(width: 4),
+                      Expanded(child: Container(height: 25, color: Colors.grey.shade50)),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -415,37 +442,39 @@ class _ProfessionalPreview extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300, width: 0.5),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(6.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Container(height: 6, width: 60, color: Colors.indigo.shade300),
+            Container(height: 8, width: 70, color: Colors.indigo.shade400),
             const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(height: 2, width: 10, color: Colors.grey.shade300),
-                const SizedBox(width: 4),
-                Container(height: 2, width: 10, color: Colors.grey.shade300),
-                const SizedBox(width: 4),
-                Container(height: 2, width: 10, color: Colors.grey.shade300),
-              ],
-            ),
+            Container(height: 2, width: 40, color: Colors.grey.shade300),
             const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(height: 3, width: 25, color: Colors.indigo.shade100),
+            // Summary
+            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 12),
+            // Experience
+            Row(
+              children: [
+                Container(height: 3, width: 20, color: Colors.indigo.shade200),
+                const Expanded(child: SizedBox()),
+              ],
             ),
             const SizedBox(height: 4),
             Container(height: 2, width: double.infinity, color: Colors.grey.shade100),
             const SizedBox(height: 2),
-            Container(height: 2, width: double.infinity, color: Colors.grey.shade100),
+            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
             const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(height: 3, width: 25, color: Colors.indigo.shade100),
+            // Projects
+            Row(
+              children: [
+                Container(height: 3, width: 20, color: Colors.indigo.shade200),
+                const Expanded(child: SizedBox()),
+              ],
             ),
             const SizedBox(height: 4),
-            Container(height: 40, width: double.infinity, color: Colors.grey.shade50),
+            Container(height: 2, width: double.infinity, color: Colors.grey.shade100),
+            const SizedBox(height: 2),
+            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
           ],
         ),
       ),
@@ -466,30 +495,60 @@ class _CreativePreview extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 30,
+            height: 35,
             width: double.infinity,
             color: Colors.purple.shade50,
-            child: Center(child: Container(height: 15, width: 15, decoration: const BoxDecoration(color: Colors.purple, shape: BoxShape.circle))),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(height: 20, width: 20, decoration: const BoxDecoration(color: Colors.purple, shape: BoxShape.circle)),
+                const SizedBox(width: 8),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(height: 4, width: 40, color: Colors.purple.shade300),
+                    const SizedBox(height: 2),
+                    Container(height: 2, width: 25, color: Colors.purple.shade100),
+                  ],
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(4.0),
+              padding: const EdgeInsets.all(6.0),
               child: Row(
                 children: [
                   Expanded(
+                    flex: 2,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(height: 4, width: 30, color: Colors.purple.shade200),
+                        Container(height: 4, width: 30, color: Colors.purple.shade100),
                         const SizedBox(height: 4),
-                        Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+                        Container(height: 30, width: double.infinity, decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(2))),
+                        const SizedBox(height: 8),
+                        Container(height: 4, width: 25, color: Colors.purple.shade100),
                         const SizedBox(height: 4),
-                        Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+                        Container(height: 30, width: double.infinity, decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(2))),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  Container(width: 30, color: Colors.purple.shade50),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Container(height: 4, width: double.infinity, color: Colors.purple.shade100),
+                        const SizedBox(height: 4),
+                        Container(height: 10, width: double.infinity, color: Colors.purple.shade50),
+                        const SizedBox(height: 4),
+                        Container(height: 10, width: double.infinity, color: Colors.purple.shade50),
+                        const SizedBox(height: 4),
+                        Container(height: 10, width: double.infinity, color: Colors.purple.shade50),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -511,21 +570,30 @@ class _MinimalistPreview extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300, width: 0.5),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 4, width: 50, color: Colors.black87),
-            const SizedBox(height: 8),
-            Container(height: 1, width: double.infinity, color: Colors.grey.shade200),
-            const SizedBox(height: 8),
-            Container(height: 2, width: 40, color: Colors.teal.shade200),
+            Container(height: 6, width: 60, color: Colors.black87),
+            const SizedBox(height: 2),
+            Container(height: 2, width: 40, color: Colors.grey.shade400),
+            const SizedBox(height: 12),
+            // Experience Section
+            Container(height: 3, width: 20, color: Colors.teal.shade300),
+            const SizedBox(height: 6),
+            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
             const SizedBox(height: 4),
-            Container(height: 40, width: double.infinity, color: Colors.grey.shade50),
+            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 12),
+            // Projects Section
+            Container(height: 3, width: 20, color: Colors.teal.shade300),
+            const SizedBox(height: 6),
+            Container(height: 30, width: double.infinity, color: Colors.grey.shade50),
             const Spacer(),
-            Container(height: 2, width: 40, color: Colors.teal.shade200),
+            // Education
+            Container(height: 3, width: 15, color: Colors.teal.shade300),
             const SizedBox(height: 4),
-            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+            Container(height: 10, width: double.infinity, color: Colors.grey.shade50),
           ],
         ),
       ),
