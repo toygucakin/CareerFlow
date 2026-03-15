@@ -381,18 +381,19 @@ class _ModernPreview extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 35,
+            width: 38,
             color: Colors.blue.shade50,
             padding: const EdgeInsets.all(4),
             child: Column(
               children: [
-                Container(height: 10, width: 10, decoration: BoxDecoration(color: Colors.blue.shade200, shape: BoxShape.circle)),
-                const SizedBox(height: 8),
-                Container(height: 2, width: 20, color: Colors.blue.shade100),
+                Container(height: 12, width: 12, decoration: BoxDecoration(color: Colors.blue.shade200, shape: BoxShape.circle)),
                 const SizedBox(height: 4),
-                Container(height: 2, width: 15, color: Colors.blue.shade100),
+                const Text('D.Tarih', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.blue)),
+                const SizedBox(height: 8),
+                const Text('Sosyal', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.blue)),
+                Container(height: 1.5, width: 20, color: Colors.blue.shade100),
                 const Spacer(),
-                Container(height: 2, width: 15, color: Colors.blue.shade100),
+                const Text('Yetenek', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.blue)),
               ],
             ),
           ),
@@ -402,23 +403,24 @@ class _ModernPreview extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(height: 5, width: 50, color: Colors.blue.shade300),
-                  const SizedBox(height: 4),
-                  Container(height: 2, width: 40, color: Colors.grey.shade200),
-                  const SizedBox(height: 12),
+                  const Text('AD SOYAD', style: TextStyle(fontSize: 5, fontWeight: FontWeight.bold, color: Colors.blue)),
+                  Container(height: 1.5, width: 40, color: Colors.grey.shade200),
+                  const SizedBox(height: 8),
+                  // Education Section
+                  const Text('EĞİTİM', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.grey)),
+                  Container(height: 10, width: double.infinity, color: Colors.grey.shade50),
+                  const SizedBox(height: 8),
                   // Experience Section
-                  Container(height: 3, width: 30, color: Colors.blue.shade100),
-                  const SizedBox(height: 4),
+                  const Text('DENEYİM', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.grey)),
                   Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   // Projects Section
-                  Container(height: 3, width: 25, color: Colors.blue.shade100),
-                  const SizedBox(height: 4),
+                  const Text('PROJELER', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.grey)),
                   Row(
                     children: [
-                      Expanded(child: Container(height: 25, color: Colors.grey.shade50)),
+                      Expanded(child: Container(height: 20, color: Colors.grey.shade50, child: const Center(child: Text('P1', style: TextStyle(fontSize: 4, color: Colors.grey))))),
                       const SizedBox(width: 4),
-                      Expanded(child: Container(height: 25, color: Colors.grey.shade50)),
+                      Expanded(child: Container(height: 20, color: Colors.grey.shade50, child: const Center(child: Text('P2', style: TextStyle(fontSize: 4, color: Colors.grey))))),
                     ],
                   ),
                 ],
@@ -445,36 +447,38 @@ class _ProfessionalPreview extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Container(height: 8, width: 70, color: Colors.indigo.shade400),
-            const SizedBox(height: 4),
-            Container(height: 2, width: 40, color: Colors.grey.shade300),
-            const SizedBox(height: 12),
-            // Summary
-            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
-            const SizedBox(height: 12),
+            const Text('AD SOYAD', style: TextStyle(fontSize: 6, fontWeight: FontWeight.bold, color: Colors.indigo)),
+            const Text('01.01.1990 | linkedin.com/in/user', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+            const SizedBox(height: 8),
             // Experience
             Row(
               children: [
-                Container(height: 3, width: 20, color: Colors.indigo.shade200),
-                const Expanded(child: SizedBox()),
+                const Text('İŞ DENEYİMİ', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                const Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5)),
               ],
             ),
             const SizedBox(height: 4),
-            Container(height: 2, width: double.infinity, color: Colors.grey.shade100),
-            const SizedBox(height: 2),
-            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
+            Container(height: 25, width: double.infinity, color: Colors.grey.shade50, padding: const EdgeInsets.all(2), child: const Text('Kıdemli Yazılımcı @ Şirket A\n• Proje yönetimi ve geliştirme...', style: TextStyle(fontSize: 3, color: Colors.grey))),
+            const SizedBox(height: 8),
+            // Education
+            Row(
+              children: [
+                const Text('EĞİTİM', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                const Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Container(height: 15, width: double.infinity, color: Colors.grey.shade50, padding: const EdgeInsets.all(2), child: const Text('Bilgisayar Mühendisliği @ Üniversite B', style: TextStyle(fontSize: 3, color: Colors.grey))),
             const SizedBox(height: 8),
             // Projects
             Row(
               children: [
-                Container(height: 3, width: 20, color: Colors.indigo.shade200),
-                const Expanded(child: SizedBox()),
+                const Text('PROJELER', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.indigo)),
+                const Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5)),
               ],
             ),
             const SizedBox(height: 4),
-            Container(height: 2, width: double.infinity, color: Colors.grey.shade100),
-            const SizedBox(height: 2),
-            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
           ],
         ),
       ),
@@ -495,21 +499,20 @@ class _CreativePreview extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 35,
+            height: 40,
             width: double.infinity,
             color: Colors.purple.shade50,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(height: 20, width: 20, decoration: const BoxDecoration(color: Colors.purple, shape: BoxShape.circle)),
+                Container(height: 25, width: 25, decoration: const BoxDecoration(color: Colors.purple, shape: BoxShape.circle), child: const Center(child: Text('USER', style: TextStyle(fontSize: 4, color: Colors.white, fontWeight: FontWeight.bold)))),
                 const SizedBox(width: 8),
-                Column(
+                const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(height: 4, width: 40, color: Colors.purple.shade300),
-                    const SizedBox(height: 2),
-                    Container(height: 2, width: 25, color: Colors.purple.shade100),
+                    Text('AD SOYAD', style: TextStyle(fontSize: 5, fontWeight: FontWeight.bold, color: Colors.purple)),
+                    Text('Crea-Dev @ Portfolio', style: TextStyle(fontSize: 3.5, color: Colors.purple)),
                   ],
                 ),
               ],
@@ -525,13 +528,11 @@ class _CreativePreview extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(height: 4, width: 30, color: Colors.purple.shade100),
-                        const SizedBox(height: 4),
-                        Container(height: 30, width: double.infinity, decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(2))),
-                        const SizedBox(height: 8),
-                        Container(height: 4, width: 25, color: Colors.purple.shade100),
-                        const SizedBox(height: 4),
-                        Container(height: 30, width: double.infinity, decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(2))),
+                        const Text('DENEYİM', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.purple)),
+                        Container(height: 25, width: double.infinity, decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(2))),
+                        const SizedBox(height: 6),
+                        const Text('PROJELER', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.purple)),
+                        Container(height: 25, width: double.infinity, decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(2))),
                       ],
                     ),
                   ),
@@ -539,13 +540,14 @@ class _CreativePreview extends StatelessWidget {
                   Expanded(
                     child: Column(
                       children: [
-                        Container(height: 4, width: double.infinity, color: Colors.purple.shade100),
+                        const Text('YETENEK', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.purple)),
                         const SizedBox(height: 4),
-                        Container(height: 10, width: double.infinity, color: Colors.purple.shade50),
-                        const SizedBox(height: 4),
-                        Container(height: 10, width: double.infinity, color: Colors.purple.shade50),
-                        const SizedBox(height: 4),
-                        Container(height: 10, width: double.infinity, color: Colors.purple.shade50),
+                        Container(height: 8, width: double.infinity, color: Colors.purple.shade50),
+                        const SizedBox(height: 2),
+                        Container(height: 8, width: double.infinity, color: Colors.purple.shade50),
+                        const Spacer(),
+                        const Text('DOĞUM T.', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+                        const Text('19.05.95', style: TextStyle(fontSize: 3.5, color: Colors.purple)),
                       ],
                     ),
                   ),
@@ -574,26 +576,23 @@ class _MinimalistPreview extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(height: 6, width: 60, color: Colors.black87),
-            const SizedBox(height: 2),
-            Container(height: 2, width: 40, color: Colors.grey.shade400),
+            const Text('AD SOYAD', style: TextStyle(fontSize: 7, fontWeight: FontWeight.bold, color: Colors.black87, letterSpacing: 1.5)),
+            const Text('19.05.1995 • Ankara • @SocialHandle', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
             const SizedBox(height: 12),
-            // Experience Section
-            Container(height: 3, width: 20, color: Colors.teal.shade300),
-            const SizedBox(height: 6),
-            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
+            // Deneyim
+            const Text('DENEYİM —', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.teal)),
             const SizedBox(height: 4),
-            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
-            const SizedBox(height: 12),
-            // Projects Section
-            Container(height: 3, width: 20, color: Colors.teal.shade300),
-            const SizedBox(height: 6),
-            Container(height: 30, width: double.infinity, color: Colors.grey.shade50),
+            Container(height: 12, width: double.infinity, color: Colors.grey.shade50),
+            Container(height: 12, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 10),
+            // Projeler
+            const Text('PROJELER —', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.teal)),
+            const SizedBox(height: 4),
+            Container(height: 25, width: double.infinity, color: Colors.grey.shade50),
             const Spacer(),
-            // Education
-            Container(height: 3, width: 15, color: Colors.teal.shade300),
-            const SizedBox(height: 4),
-            Container(height: 10, width: double.infinity, color: Colors.grey.shade50),
+            // Eğitim
+            const Text('EĞİTİM —', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.teal)),
+            const Text('Üniversite - Fakülte', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
           ],
         ),
       ),
