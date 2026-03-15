@@ -15,9 +15,32 @@ class LanguageFormScreen extends ConsumerStatefulWidget {
 
 class _LanguageFormScreenState extends ConsumerState<LanguageFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
+  String? _selectedLanguage;
   String? _selectedProficiency;
   bool _isLoading = false;
+
+  final List<String> _topLanguages = [
+    'Türkçe',
+    'İngilizce',
+    'Çince',
+    'Hintçe',
+    'İspanyolca',
+    'Fransızca',
+    'Arapça',
+    'Bengalce',
+    'Rusça',
+    'Portekizce',
+    'Endonezyaca',
+    'Urduca',
+    'Almanca',
+    'Japonca',
+    'Swahili',
+    'Marathi',
+    'Telugu',
+    'Korece',
+    'İtalyanca',
+    'Felemenkçe'
+  ];
 
   final List<String> _proficiencies = [
     'A1 - Başlangıç',
@@ -31,13 +54,16 @@ class _LanguageFormScreenState extends ConsumerState<LanguageFormScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.languageToEdit?.name);
+    _selectedLanguage = widget.languageToEdit?.name;
+    // Eğer daha önceden listede olmayan bir dil girilmişse listeye ekleyelim ki dropdown hata vermesin
+    if (_selectedLanguage != null && !_topLanguages.contains(_selectedLanguage)) {
+      _topLanguages.insert(1, _selectedLanguage!); // Türkçeden hemen sonraya ekle
+    }
     _selectedProficiency = widget.languageToEdit?.proficiency;
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
     super.dispose();
   }
 
@@ -52,7 +78,7 @@ class _LanguageFormScreenState extends ConsumerState<LanguageFormScreen> {
     final language = Language(
       id: widget.languageToEdit?.id,
       profileId: user.id,
-      name: _nameController.text,
+      name: _selectedLanguage ?? '',
       proficiency: _selectedProficiency,
       orderIndex: widget.languageToEdit?.orderIndex ?? 0,
     );
@@ -88,15 +114,19 @@ class _LanguageFormScreenState extends ConsumerState<LanguageFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                controller: _nameController,
+              DropdownButtonFormField<String>(
+                value: _selectedLanguage,
                 decoration: const InputDecoration(
                   labelText: 'Dil Adı *',
                   border: OutlineInputBorder(),
-                  hintText: 'Örn: İngilizce, Almanca',
                 ),
+                hint: const Text('Bir dil seçin'),
+                items: _topLanguages.map((lang) {
+                  return DropdownMenuItem(value: lang, child: Text(lang));
+                }).toList(),
+                onChanged: (val) => setState(() => _selectedLanguage = val),
                 validator: (value) => value == null || value.isEmpty
-                    ? 'Lütfen dil adını girin'
+                    ? 'Lütfen dil adını seçin'
                     : null,
               ),
               const SizedBox(height: 16),
