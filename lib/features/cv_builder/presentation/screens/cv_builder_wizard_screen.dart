@@ -4,11 +4,10 @@ import 'education_list_screen.dart';
 import 'courses_list_screen.dart';
 import 'skills_projects_screen.dart';
 import 'experience_list_screen.dart';
+import 'skills_interests_screen.dart';
 
 // İleride diğer fazları da buraya ekleyeceğiz.
-// import 'courses_list_screen.dart';
-// import 'languages_projects_screen.dart';
-// import 'experience_list_screen.dart';
+
 
 class CvBuilderWizardScreen extends ConsumerStatefulWidget {
   const CvBuilderWizardScreen({super.key});
@@ -25,8 +24,9 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
   final List<String> _phaseTitles = [
     'Eğitim',
     'Sertifika',
-    'Yetenek', // Dil/Proje/Topluluk
-    'Deneyim'
+    'Projeler', 
+    'Deneyim',
+    'Beceriler' 
   ];
 
   @override
@@ -169,11 +169,15 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
                 
                 // Faz 2
                 const CoursesListScreen(isWizardMode: true),
+                
                 // Faz 3
                 const SkillsProjectsScreen(isWizardMode: true),
                 
                 // Faz 4
                 const ExperienceListScreen(isWizardMode: true),
+                
+                // Faz 5
+                const SkillsInterestsScreen(isWizardMode: true),
               ],
             ),
       bottomNavigationBar: Container(

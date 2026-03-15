@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/language_provider.dart';
 import '../providers/project_provider.dart';
 import '../providers/community_provider.dart';
-import 'language_form_screen.dart';
 import 'project_form_screen.dart';
 import 'community_form_screen.dart';
 import 'package:intl/intl.dart';
@@ -29,36 +27,18 @@ class SkillsProjectsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final languagesAsync = ref.watch(languageListProvider);
     final projectsAsync = ref.watch(projectListProvider);
     final communitiesAsync = ref.watch(communityListProvider);
 
     return Scaffold(
       appBar: isWizardMode
           ? null
-          : AppBar(title: const Text('Yetenekler ve Projeler')),
+          : AppBar(title: const Text('Projeler ve Topluluklar')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionHeader(
-              context,
-              'Yabancı Diller',
-              Icons.language,
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LanguageFormScreen(),
-                ),
-              ),
-            ),
-            languagesAsync.when(
-              data: (list) => _buildLanguageList(context, ref, list),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Text('Hata: $e'),
-            ),
-            const SizedBox(height: 32),
             _buildSectionHeader(
               context,
               'Projeler',
@@ -121,41 +101,6 @@ class SkillsProjectsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLanguageList(BuildContext context, WidgetRef ref, List list) {
-    if (list.isEmpty)
-      return const Text(
-        'Dil bilgisi eklenmemiş.',
-        style: TextStyle(color: Colors.grey),
-      );
-    return Column(
-      children: list
-          .map(
-            (lang) => Card(
-              child: ListTile(
-                title: Text(
-                  lang.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(lang.proficiency ?? ''),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () => ref
-                      .read(languageListProvider.notifier)
-                      .deleteLanguage(lang.id!),
-                ),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        LanguageFormScreen(languageToEdit: lang),
-                  ),
-                ),
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
 
   Widget _buildProjectList(BuildContext context, WidgetRef ref, List list) {
     if (list.isEmpty)
