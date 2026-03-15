@@ -22,24 +22,15 @@ class _LanguageFormScreenState extends ConsumerState<LanguageFormScreen> {
   final List<String> _topLanguages = [
     'Türkçe',
     'İngilizce',
-    'Çince',
-    'Hintçe',
+    'Almanca',
+    'Rusça',
     'İspanyolca',
     'Fransızca',
     'Arapça',
-    'Bengalce',
-    'Rusça',
-    'Portekizce',
-    'Endonezyaca',
-    'Urduca',
-    'Almanca',
+    'Çince',
     'Japonca',
-    'Swahili',
-    'Marathi',
-    'Telugu',
     'Korece',
     'İtalyanca',
-    'Felemenkçe'
   ];
 
   final List<String> _proficiencies = [
