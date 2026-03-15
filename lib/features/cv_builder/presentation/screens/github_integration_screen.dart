@@ -196,7 +196,7 @@ class _GitHubIntegrationScreenState extends ConsumerState<GitHubIntegrationScree
       await Supabase.instance.client.auth.signInWithOAuth(
         OAuthProvider.github,
         scopes: 'repo', // Private repolar için gerekli
-        redirectTo: 'io.supabase.careerflow://login-callback',
+        redirectTo: 'careerflow://callback',
       );
     } catch (e) {
       if (mounted) {
