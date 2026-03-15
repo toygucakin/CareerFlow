@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/auth/presentation/screens/auth_screen.dart';
 import 'features/cv_static/presentation/screens/profile_screen.dart';
+import 'features/auth/presentation/screens/update_password_screen.dart';
 
 import 'features/cv_builder/presentation/screens/cv_builder_wizard_screen.dart';
 
@@ -52,6 +53,9 @@ class CareerFlowApp extends ConsumerWidget {
       locale: const Locale('tr', 'TR'),
       home: authState.when(
         data: (state) {
+          if (state.event == AuthChangeEvent.passwordRecovery) {
+            return const UpdatePasswordScreen();
+          }
           if (state.session != null) {
             return const HomeScreen();
           }

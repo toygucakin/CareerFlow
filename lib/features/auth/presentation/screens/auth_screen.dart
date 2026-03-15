@@ -49,6 +49,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   Future<void> _resetPassword() async {
+    FocusScope.of(context).unfocus();
+    
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       if (mounted) {
@@ -64,7 +66,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     setState(() => _isLoading = true);
     try {
       final authRepo = ref.read(authRepositoryProvider);
-      await authRepo.sendPasswordResetEmail(email);
+      await authRepo.sendPasswordResetEmail(
+        email,
+        redirectTo: 'io.supabase.careerflow://login-callback/',
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

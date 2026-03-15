@@ -46,7 +46,10 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> sendPasswordResetEmail(String email) async {
-    await _client.auth.resetPasswordForEmail(email);
+  Future<void> sendPasswordResetEmail(String email, {String? redirectTo}) async {
+    await _client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: redirectTo,
+    );
   }
 }
