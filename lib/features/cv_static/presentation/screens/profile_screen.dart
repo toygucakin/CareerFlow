@@ -44,6 +44,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late CountryData _selectedCountry;
   DateTime? _selectedBirthDate;
 
+  // Cached sorted list of cities to prevent performance issues
+  late final List<String> _sortedCities;
+
   bool _isSaving = false;
   bool _isFormInitialized = false;
 
@@ -56,6 +59,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _cityController = TextEditingController();
     _districtController = TextEditingController();
     _selectedCountry = _countryOptions.first; // Default Turkey
+
+    // Cache the sorted cities only once when the screen loads
+    _sortedCities = turkeyCities.keys.toList()..sort();
   }
 
   @override
@@ -158,7 +164,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
           final inputCity = _cityController.text.trim().toLowerCase();
           String? validCity;
-          for (final city in turkeyCities.keys) {
+          for (final city in _sortedCities) {
             if (city.toLowerCase() == inputCity) {
               validCity = city;
               break;
@@ -272,14 +278,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   Autocomplete<String>(
                     initialValue: TextEditingValue(text: _cityController.text),
                     optionsBuilder: (TextEditingValue textEditingValue) {
-                      if (textEditingValue.text == '') {
-                        return turkeyCities.keys.toList()..sort();
+                      if (textEditingValue.text.isEmpty) {
+                        return _sortedCities;
                       }
-                      return turkeyCities.keys.where((String city) {
-                        return city.toLowerCase().startsWith(
-                          textEditingValue.text.toLowerCase(),
-                        );
-                      }).toList()..sort();
+                      final lowerSearch = textEditingValue.text.toLowerCase();
+                      return _sortedCities.where((String city) {
+                        return city.toLowerCase().startsWith(lowerSearch);
+                      });
                     },
                     onSelected: (String selection) {
                       setState(() {

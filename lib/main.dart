@@ -75,6 +75,9 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Prefetch user profile in background to eliminate ProfileScreen loading delay
+    ref.watch(currentUserProfileProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('CareerFlow'),
