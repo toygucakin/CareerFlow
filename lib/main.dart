@@ -137,6 +137,7 @@ class HomeScreen extends ConsumerWidget {
           },
         ),
       ),
+    ),
         actions: [
           IconButton(
             icon: Icon(
