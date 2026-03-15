@@ -56,9 +56,14 @@ class SkillsInterestsScreen extends ConsumerWidget {
             // Soft Skills Section
             _buildSectionHeader(
               context,
-              'Soft Skills',
+              'Yeterlilikler (Soft Skills)',
               Icons.psychology,
-              () => _navigateToAddSkill(context, 'Soft Skills'),
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SkillFormScreen(initialCategory: 'Soft Skills', isSoftSkillMode: true),
+                ),
+              ),
             ),
             skillsAsync.when(
               data: (skills) {
@@ -137,11 +142,11 @@ class SkillsInterestsScreen extends ConsumerWidget {
 
   Widget _buildCategorizedSkills(BuildContext context, WidgetRef ref, List<Skill> techSkills) {
     final Map<String, List<Skill>> grouped = {
-      'Programming': [],
+      'Programlama': [],
       'Web': [],
-      'Databases': [],
-      'Tools': [],
-      'Office': [],
+      'Veritabanı': [],
+      'Araçlar': [],
+      'Ofis': [],
     };
 
     for (var skill in techSkills) {
@@ -225,7 +230,7 @@ class SkillsInterestsScreen extends ConsumerWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit, size: 18),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SkillFormScreen(skillToEdit: skill))),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SkillFormScreen(skillToEdit: skill, isSoftSkillMode: true))),
               ),
               IconButton(
                 icon: const Icon(Icons.delete, size: 18, color: Colors.red),

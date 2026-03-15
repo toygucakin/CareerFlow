@@ -6,8 +6,9 @@ import '../providers/skill_provider.dart';
 class SkillFormScreen extends ConsumerStatefulWidget {
   final Skill? skillToEdit;
   final String? initialCategory;
+  final bool isSoftSkillMode;
 
-  const SkillFormScreen({super.key, this.skillToEdit, this.initialCategory});
+  const SkillFormScreen({super.key, this.skillToEdit, this.initialCategory, this.isSoftSkillMode = false});
 
   @override
   ConsumerState<SkillFormScreen> createState() => _SkillFormScreenState();
@@ -21,18 +22,24 @@ class _SkillFormScreenState extends ConsumerState<SkillFormScreen> {
   bool _isLoading = false;
 
   final List<String> _categories = [
-    'Programming',
+    'Programlama',
     'Web',
-    'Databases',
-    'Tools',
-    'Office',
-    'Soft Skills'
+    'Veritabanı',
+    'Araçlar',
+    'Ofis',
   ];
 
   @override
   void initState() {
     super.initState();
-    _category = widget.skillToEdit?.category ?? widget.initialCategory ?? _categories.first;
+    if (widget.isSoftSkillMode || widget.skillToEdit?.category == 'Soft Skills') {
+      _category = 'Soft Skills';
+    } else {
+      _category = widget.skillToEdit?.category ?? widget.initialCategory ?? _categories.first;
+      if (!_categories.contains(_category)) {
+        _categories.add(_category);
+      }
+    }
     _name = widget.skillToEdit?.name ?? '';
     _isActiveDevelopment = widget.skillToEdit?.isActiveDevelopment ?? false;
   }
@@ -79,7 +86,9 @@ class _SkillFormScreenState extends ConsumerState<SkillFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.skillToEdit == null ? 'Yetenek Ekle' : 'Yetenek Düzenle'),
+        title: Text(widget.skillToEdit == null 
+            ? (widget.isSoftSkillMode ? 'Yeterlilik Ekle' : 'Teknik Yetenek Ekle') 
+            : (widget.isSoftSkillMode ? 'Yeterlilik Düzenle' : 'Teknik Yetenek Düzenle')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -88,39 +97,43 @@ class _SkillFormScreenState extends ConsumerState<SkillFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DropdownButtonFormField<String>(
-                value: _category,
-                decoration: const InputDecoration(
-                  labelText: 'Kategori',
-                  border: OutlineInputBorder(),
+              if (!widget.isSoftSkillMode && _category != 'Soft Skills') ...[
+                DropdownButtonFormField<String>(
+                  value: _category,
+                  decoration: const InputDecoration(
+                    labelText: 'Kategori',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _categories.map((c) {
+                    return DropdownMenuItem(
+                      value: c,
+                      child: Text(c),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _category = val;
+                      });
+                    }
+                  },
+                  onSaved: (val) => _category = val ?? _categories.first,
                 ),
-                items: _categories.map((c) {
-                  return DropdownMenuItem(
-                    value: c,
-                    child: Text(c),
-                  );
-                }).toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _category = val;
-                    });
-                  }
-                },
-                onSaved: (val) => _category = val ?? _categories.first,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
+              ],
               TextFormField(
                 initialValue: _name,
-                decoration: const InputDecoration(
-                  labelText: 'Yetenek Adı (Örn: Python, React, İletişim)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: widget.isSoftSkillMode 
+                      ? 'Yetenek Adı (Örn: Proje Yönetimi, İletişim)' 
+                      : 'Yetenek Adı (Örn: Python, React)',
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val.isEmpty ? 'Gerekli' : null,
                 onSaved: (val) => _name = val ?? '',
               ),
               const SizedBox(height: 16),
-              if (_category != 'Soft Skills' && _category != 'Office')
+              if (!widget.isSoftSkillMode && _category != 'Soft Skills' && _category != 'Ofis')
                 CheckboxListTile(
                   title: const Text('Aktif Olarak Geliştiriyorum'),
                   subtitle: const Text('Bu teknolojiyi şu anda öğreniyor veya aktif kullanıyorsanız işaretleyin.'),

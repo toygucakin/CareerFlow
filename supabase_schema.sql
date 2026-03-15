@@ -182,6 +182,18 @@ CREATE POLICY "Users can manage their own communities" ON communities FOR ALL US
 DROP POLICY IF EXISTS "Users can manage own social media accounts" ON social_media;
 CREATE POLICY "Users can manage own social media accounts" ON social_media FOR ALL USING (auth.uid() = profile_id) WITH CHECK (auth.uid() = profile_id);
 
+-- Skills
+DROP POLICY IF EXISTS "Users can view their own skills" ON skills;
+CREATE POLICY "Users can view their own skills" ON skills FOR SELECT USING (profile_id = auth.uid());
+DROP POLICY IF EXISTS "Users can manage their own skills" ON skills;
+CREATE POLICY "Users can manage their own skills" ON skills FOR ALL USING (profile_id = auth.uid()) WITH CHECK (profile_id = auth.uid());
+
+-- Interests
+DROP POLICY IF EXISTS "Users can view their own interests" ON interests;
+CREATE POLICY "Users can view their own interests" ON interests FOR SELECT USING (profile_id = auth.uid());
+DROP POLICY IF EXISTS "Users can manage their own interests" ON interests;
+CREATE POLICY "Users can manage their own interests" ON interests FOR ALL USING (profile_id = auth.uid()) WITH CHECK (profile_id = auth.uid());
+
 -- Ensure columns exist for existing tables
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS scope TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS description TEXT;
