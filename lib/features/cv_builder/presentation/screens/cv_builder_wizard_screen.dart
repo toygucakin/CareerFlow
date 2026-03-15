@@ -35,11 +35,21 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
   }
 
   void _onStepTapped(int index) {
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    final diff = (_currentPageIndex - index).abs();
+    
+    // Eğer 1'den fazla adım atlanıyorsa (örn: 1'den 3'e), aradaki sayfaların çizilmesi (render)
+    // kasmaya sebep olduğu için Flutter PageView'in zayıf yönüdür. 
+    // Bu yüzden uzak atlamalarda doğrudan hedef sayfaya zıplıyoruz (animasyonsuz geçiş).
+    // Ancak sadece 1 adım ileri veya geri gidiliyorsa yumuşak animasyonu gösteriyoruz.
+    if (diff > 1) {
+      _pageController.jumpToPage(index);
+    } else {
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -98,11 +108,16 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
                 // Yüzdelik bar
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 8,
-                    backgroundColor: Colors.grey.shade200,
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2196F3)),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0, end: progress),
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, child) => LinearProgressIndicator(
+                      value: value,
+                      minHeight: 8,
+                      backgroundColor: Colors.grey.shade200,
+                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2196F3)),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
