@@ -7,6 +7,7 @@ import '../../../auth/domain/models/user_profile.dart';
 import '../../../../core/constants/turkey_data.dart';
 import '../../../cv_builder/domain/models/social_media.dart';
 import '../../../cv_builder/presentation/providers/social_media_provider.dart';
+import '../../../../core/providers/theme_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final DateTime? navigationStartTime;
@@ -132,6 +133,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         title: const Text('Kişisel Bilgiler'),
         elevation: 0,
         backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(
+            icon: Icon(
+              ref.watch(themeProvider) == ThemeMode.dark
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+            ),
+            onPressed: () {
+              final current = ref.read(themeProvider);
+              ref.read(themeProvider.notifier).state =
+                  current == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+            },
+          ),
+        ],
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 500),
