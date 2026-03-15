@@ -217,6 +217,132 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showTemplateSelection(context),
+        backgroundColor: const Color(0xFF2196F3),
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showTemplateSelection(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'CV Şablonu Seçin',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Kariyer hedeflerinize en uygun tasarımı seçerek başlayın.',
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 180,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _TemplateCard(
+                    title: 'Modern Tech',
+                    icon: Icons.article_outlined,
+                    color: Colors.blue,
+                    onTap: () => _startWithTemplate(context, 'modern_tech'),
+                  ),
+                  _TemplateCard(
+                    title: 'Professional',
+                    icon: Icons.business_center_outlined,
+                    color: Colors.indigo,
+                    onTap: () => _startWithTemplate(context, 'professional'),
+                  ),
+                  _TemplateCard(
+                    title: 'Creative Grid',
+                    icon: Icons.grid_view_rounded,
+                    color: Colors.purple,
+                    onTap: () => _startWithTemplate(context, 'creative_grid'),
+                  ),
+                  _TemplateCard(
+                    title: 'Minimalist',
+                    icon: Icons.notes_rounded,
+                    color: Colors.teal,
+                    onTap: () => _startWithTemplate(context, 'minimalist'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _startWithTemplate(BuildContext context, String templateId) {
+    Navigator.pop(context); // Close sheet
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CvBuilderWizardScreen(),
+      ),
+    );
+  }
+}
+
+class _TemplateCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _TemplateCard({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 130,
+        margin: const EdgeInsets.only(right: 16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: color),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Şablon',
+              style: TextStyle(fontSize: 10, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
