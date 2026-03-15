@@ -47,7 +47,7 @@ class SkillsInterestsScreen extends ConsumerWidget {
 
             const SizedBox(height: 32),
             const Text(
-              'Yeterlilikler & İlgi Alanları',
+              'Kişisel Beceriler & İlgi Alanları',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
             ),
             const Divider(),
@@ -56,7 +56,7 @@ class SkillsInterestsScreen extends ConsumerWidget {
             // Soft Skills Section
             _buildSectionHeader(
               context,
-              'Yeterlilikler (Soft Skills)',
+              'Kişisel Beceriler (Soft Skills)',
               Icons.psychology,
               () => Navigator.push(
                 context,

@@ -87,8 +87,8 @@ class _SkillFormScreenState extends ConsumerState<SkillFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.skillToEdit == null 
-            ? (widget.isSoftSkillMode ? 'Yeterlilik Ekle' : 'Teknik Yetenek Ekle') 
-            : (widget.isSoftSkillMode ? 'Yeterlilik Düzenle' : 'Teknik Yetenek Düzenle')),
+            ? (widget.isSoftSkillMode ? 'Kişisel Beceri Ekle' : 'Teknik Yetenek Ekle') 
+            : (widget.isSoftSkillMode ? 'Kişisel Beceri Düzenle' : 'Teknik Yetenek Düzenle')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
