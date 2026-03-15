@@ -51,6 +51,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   bool _isSaving = false;
   bool _isFormInitialized = false;
+  bool _isReady = false;
 
   @override
   void initState() {
@@ -64,6 +65,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     // Cache the sorted cities only once when the screen loads
     _sortedCities = turkeyCities.keys.toList()..sort();
+
+    // Sayfa geçiş animasyonunun (slide) kasılmasını önlemek için 
+    // ağır form bileşenlerinin çizimini animasyon bitimine erteliyoruz.
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _isReady = true;
+        });
+      }
+    });
   }
 
   @override
@@ -125,6 +136,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         data: (profile) {
           if (user == null)
             return const Center(child: Text('Lütfen giriş yapın.'));
+          
+          if (!_isReady) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Form hazırlanıyor...', style: TextStyle(color: Colors.grey)),
+                ],
+              ),
+            );
+          }
+
           final currentProfile = profile ?? UserProfile(id: user.id);
 
           if (!_isFormInitialized) {
