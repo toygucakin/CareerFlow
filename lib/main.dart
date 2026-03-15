@@ -14,6 +14,7 @@ import 'features/cv_builder/presentation/providers/language_provider.dart';
 import 'features/cv_builder/presentation/providers/project_provider.dart';
 import 'features/cv_builder/presentation/providers/community_provider.dart';
 import 'features/cv_builder/presentation/providers/experience_provider.dart';
+import 'features/cv_builder/presentation/screens/github_integration_screen.dart';
 import 'core/providers/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -194,6 +195,35 @@ class HomeScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 4,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const GitHubIntegrationScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.code),
+                  label: const Text(
+                    'GitHub ile Otonom Veri Çek',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: Color(0xFF2196F3), width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                 ),
               ),

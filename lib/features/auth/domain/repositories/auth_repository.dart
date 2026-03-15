@@ -4,6 +4,7 @@ import '../models/user_profile.dart';
 abstract class AuthRepository {
   Stream<AuthState> get authStateChanges;
   User? get currentUser;
+  String? get providerToken;
 
   Future<void> signUp({required String email, required String password});
   Future<void> signIn({required String email, required String password});
