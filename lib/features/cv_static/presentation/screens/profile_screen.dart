@@ -471,9 +471,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
       ),
     );
-   error: (err, stack) => Center(child: Text('Hata: $err')),
-      ),
-    );
   }
 
   void _showDatePicker() {
