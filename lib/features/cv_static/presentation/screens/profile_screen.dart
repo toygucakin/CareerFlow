@@ -46,7 +46,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late CountryData _selectedCountry;
   DateTime? _selectedBirthDate;
 
-  // Cached sorted list of cities to prevent performance issues
   late final List<String> _sortedCities;
 
   bool _isSaving = false;
@@ -61,20 +60,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _phoneController = TextEditingController();
     _cityController = TextEditingController();
     _districtController = TextEditingController();
-    _selectedCountry = _countryOptions.first; // Default Turkey
-
-    // Cache the sorted cities only once when the screen loads
+    _selectedCountry = _countryOptions.first;
     _sortedCities = turkeyCities.keys.toList()..sort();
-
-    // Sayfa geçiş animasyonunun (slide) kasılmasını önlemek için 
-    // ağır form bileşenlerinin çizimini animasyon bitimine erteliyoruz.
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _isReady = true;
-        });
-      }
-    });
+    _isReady = true;
   }
 
   @override
@@ -92,7 +80,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     setState(() => _isSaving = true);
     try {
-      // Remove mask characters (spaces) for saving to DB
       final unmaskedPhone = _phoneController.text.replaceAll(' ', '');
 
       final updatedProfile = currentProfile.copyWith(
@@ -116,45 +103,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Hata: ${e.toString()}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Hata: ${e.toString()}')),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
   }
 
-  Widget _buildLoadingState(String message) {
-    return Center(
-      key: const ValueKey('loading'),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 200,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: const LinearProgressIndicator(
-                minHeight: 6,
-                backgroundColor: Color(0xFF1A1A1A),
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2196F3)),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            message,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 1.1,
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _buildLoadingState() {
+    return const _ProfileShimmer();
   }
 
   @override
@@ -170,54 +129,35 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 500),
-        switchInCurve: Curves.easeIn,
-        switchOutCurve: Curves.easeOut,
         child: profileAsync.when(
           data: (profile) {
             if (user == null) {
-              return const Center(
-                key: ValueKey('error_no_user'),
-                child: Text('Lütfen giriş yapın.'),
-              );
+              return const Center(child: Text('Lütfen giriş yapın.'));
             }
-            
-            if (!_isReady) {
-              return _buildLoadingState('Profil Hazırlanıyor...');
-            }
+
+            if (!_isReady) return _buildLoadingState();
 
             final currentProfile = profile ?? UserProfile(id: user.id);
 
             if (!_isFormInitialized) {
               _firstNameController.text = currentProfile.firstName ?? '';
               _lastNameController.text = currentProfile.lastName ?? '';
-
-              // Ülke kodu ve telefon numarasını ayrıştırma
               String rawPhone = currentProfile.phone ?? '';
               if (rawPhone.startsWith('+')) {
                 bool found = false;
                 for (CountryData country in _countryOptions) {
                   if (rawPhone.startsWith(country.code)) {
                     _selectedCountry = country;
-                    // format the remaining parts according to the new mask
                     String numPart = rawPhone.substring(country.code.length);
-                    _phoneController.text = _formatWithMask(
-                      numPart,
-                      country.mask,
-                    );
+                    _phoneController.text = _formatWithMask(numPart, country.mask);
                     found = true;
                     break;
                   }
                 }
-                if (!found) {
-                  _phoneController.text = rawPhone;
-                }
+                if (!found) _phoneController.text = rawPhone;
               } else {
-                _phoneController.text = _formatWithMask(
-                  rawPhone,
-                  _selectedCountry.mask,
-                );
+                _phoneController.text = _formatWithMask(rawPhone, _selectedCountry.mask);
               }
-
               _cityController.text = currentProfile.city ?? '';
               _districtController.text = currentProfile.district ?? '';
               _selectedBirthDate = currentProfile.birthDate;
@@ -232,316 +172,237 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 break;
               }
             }
-            final districtItems = validCity != null
-                ? turkeyCities[validCity]!
-                : <String>[];
+            final districtItems = validCity != null ? turkeyCities[validCity]! : <String>[];
 
             return GestureDetector(
-              key: const ValueKey('content'),
               onTap: () => FocusScope.of(context).unfocus(),
               child: Form(
                 key: _formKey,
                 child: ListView(
                   padding: const EdgeInsets.all(24),
                   children: [
-                    TextFormField(
-                      controller: _firstNameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(labelText: 'İsim'),
-                      validator: (v) => v!.isEmpty ? 'Gerekli' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _lastNameController,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(labelText: 'Soy isim'),
-                      validator: (v) => v!.isEmpty ? 'Gerekli' : null,
-                    ),
+                    _buildNameSection(),
                     const SizedBox(height: 24),
-                    TextFormField(
-                      initialValue: user.email,
-                      readOnly: true,
-                      decoration: const InputDecoration(
-                        labelText: 'E-posta adresi',
-                        prefixIcon: Icon(Icons.email_outlined),
-                        helperText:
-                            'Oturum açtığınız e-posta adresi (değiştirilemez)',
-                      ),
-                    ),
+                    _buildEmailSection(user.email ?? ''),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      inputFormatters: [
-                        PhoneInputFormatter(mask: _selectedCountry.mask),
-                      ],
-                      decoration: InputDecoration(
-                        labelText: 'Telefon numarası',
-                        prefixIcon: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          margin: const EdgeInsets.only(right: 8),
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              right: BorderSide(color: Colors.grey, width: 1),
-                            ),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<CountryData>(
-                              value: _selectedCountry,
-                              items: _countryOptions.map((CountryData country) {
-                                return DropdownMenuItem<CountryData>(
-                                  value: country,
-                                  child: Text(
-                                    '${country.flag} ${country.code} ${country.name}',
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (CountryData? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedCountry = newValue;
-                                    // clear text or reformat existing to new mask if needed.
-                                    // For simplicity, we just clear to avoid mask clashing
-                                    _phoneController.clear();
-                                  });
-                                }
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      keyboardType: TextInputType.phone,
-                    ),
+                    _buildPhoneSection(),
                     const SizedBox(height: 16),
-                    InkWell(
-                      onTap: () => FocusScope.of(
-                        context,
-                      ).unfocus(), // First dismiss keyboard
-                      child: TextFormField(
-                        controller: TextEditingController(
-                          text: _selectedBirthDate != null
-                              // Show in DD/MM/YYYY format
-                              ? "${_selectedBirthDate!.day.toString().padLeft(2, '0')}/${_selectedBirthDate!.month.toString().padLeft(2, '0')}/${_selectedBirthDate!.year}"
-                              : '',
-                        ),
-                        readOnly: true,
-                        onTap: _showDatePicker,
-                        decoration: const InputDecoration(
-                          labelText: 'Doğum tarihi',
-                          prefixIcon: Icon(
-                            Icons.cake_outlined,
-                            color: Colors.pinkAccent,
-                          ),
-                          hintText: 'Gün/Ay/Yıl seçin',
-                        ),
-                        validator: (v) =>
-                            _selectedBirthDate == null ? 'Gerekli' : null,
-                      ),
-                    ),
+                    _buildBirthDateSection(),
                     const SizedBox(height: 16),
-                    Autocomplete<String>(
-                      initialValue: TextEditingValue(text: _cityController.text),
-                      optionsBuilder: (TextEditingValue textEditingValue) {
-                        if (textEditingValue.text.isEmpty) {
-                          return _sortedCities;
-                        }
-                        final lowerSearch = textEditingValue.text.toLowerCase();
-                        return _sortedCities.where((String city) {
-                          return city.toLowerCase().startsWith(lowerSearch);
-                        });
-                      },
-                      onSelected: (String selection) {
-                        setState(() {
-                          _cityController.text = selection;
-                          _districtController.clear();
-                        });
-                        FocusScope.of(
-                          context,
-                        ).unfocus(); // İmleci ve klavyeyi gizle
-                      },
-                      fieldViewBuilder:
-                          (context, controller, focusNode, onFieldSubmitted) {
-                            return TextFormField(
-                              controller: controller,
-                              focusNode: focusNode,
-                              decoration: const InputDecoration(
-                                labelText: 'Şehir',
-                                prefixIcon: Icon(Icons.location_city_outlined),
-                              ),
-                              onChanged: (v) {
-                                _cityController.text = v;
-                                if (_districtController.text.isNotEmpty) {
-                                  _districtController.clear();
-                                  setState(() {});
-                                }
-                              },
-                              validator: (v) => v!.isEmpty ? 'Gerekli' : null,
-                            );
-                          },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      key: ValueKey('district_${validCity ?? "none"}'),
-                      value:
-                          (_districtController.text.isNotEmpty &&
-                              districtItems.contains(_districtController.text))
-                          ? _districtController.text
-                          : null,
-                      decoration: InputDecoration(
-                        labelText: 'İlçe',
-                        prefixIcon: const Icon(Icons.map_outlined),
-                        hintText: validCity != null
-                            ? 'İlçe seçin'
-                            : 'Önce şehir seçin',
-                      ),
-                      items: validCity != null
-                          ? districtItems.map((String district) {
-                              return DropdownMenuItem<String>(
-                                value: district,
-                                child: Text(district),
-                              );
-                            }).toList()
-                          : null,
-                      onChanged: validCity == null
-                          ? null
-                          : (String? newValue) {
-                              if (newValue != null) {
-                                setState(
-                                  () => _districtController.text = newValue,
-                                );
-                              }
-                            },
-                      validator: (v) =>
-                          (v == null || v.isEmpty) ? 'Gerekli' : null,
-                    ),
+                    _buildLocationSection(validCity, districtItems),
                     const SizedBox(height: 24),
                     const Divider(),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Sosyal Medya & Linkler',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'LinkedIn, GitHub veya makale paylaştığın platformları ekleyerek profilini güçlendir.',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 16),
-                    OutlinedButton.icon(
-                      onPressed: _showSocialMediaManager,
-                      icon: const Icon(Icons.link),
-                      label: const Text('Sosyal Medya Hesaplarını Yönet'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
+                    _buildSocialMediaSection(),
                     const SizedBox(height: 40),
-                    const SizedBox(height: 40),
-                    ElevatedButton(
-                      onPressed: _isSaving
-                          ? null
-                          : () => _saveProfile(currentProfile),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2196F3),
-                        foregroundColor: Colors.white,
-                      ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text('Değişiklikleri Kaydet'),
-                    ),
+                    _buildSaveButton(currentProfile),
                   ],
                 ),
               ),
             );
           },
-          loading: () => _buildLoadingState('Veriler yükleniyor...'),
-          error: (err, stack) => Center(
-            key: const ValueKey('error'),
-            child: Text('Hata: $err'),
+          loading: () => _buildLoadingState(),
+          error: (err, stack) => Center(child: Text('Hata: $err')),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNameSection() {
+    return Column(
+      children: [
+        TextFormField(
+          controller: _firstNameController,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(labelText: 'İsim'),
+          validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _lastNameController,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(labelText: 'Soy isim'),
+          validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmailSection(String email) {
+    return TextFormField(
+      initialValue: email,
+      readOnly: true,
+      decoration: const InputDecoration(
+        labelText: 'E-posta adresi',
+        prefixIcon: Icon(Icons.email_outlined),
+        helperText: 'Oturum açtığınız e-posta adresi (değiştirilemez)',
+      ),
+    );
+  }
+
+  Widget _buildPhoneSection() {
+    return TextFormField(
+      controller: _phoneController,
+      inputFormatters: [PhoneInputFormatter(mask: _selectedCountry.mask)],
+      decoration: InputDecoration(
+        labelText: 'Telefon numarası',
+        prefixIcon: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          margin: const EdgeInsets.only(right: 8),
+          decoration: const BoxDecoration(border: Border(right: BorderSide(color: Colors.grey, width: 1))),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<CountryData>(
+              value: _selectedCountry,
+              items: _countryOptions.map((c) => DropdownMenuItem(value: c, child: Text('${c.flag} ${c.code} ${c.name}'))).toList(),
+              onChanged: (val) {
+                if (val != null) {
+                  setState(() {
+                    _selectedCountry = val;
+                    _phoneController.clear();
+                  });
+                }
+              },
+            ),
           ),
         ),
+      ),
+      keyboardType: TextInputType.phone,
+    );
+  }
+
+  Widget _buildBirthDateSection() {
+    return TextFormField(
+      controller: TextEditingController(
+        text: _selectedBirthDate != null ? "${_selectedBirthDate!.day.toString().padLeft(2, '0')}/${_selectedBirthDate!.month.toString().padLeft(2, '0')}/${_selectedBirthDate!.year}" : '',
+      ),
+      readOnly: true,
+      onTap: _showDatePicker,
+      decoration: const InputDecoration(
+        labelText: 'Doğum tarihi',
+        prefixIcon: Icon(Icons.cake_outlined, color: Colors.pinkAccent),
+        hintText: 'Gün/Ay/Yıl seçin',
+      ),
+      validator: (v) => _selectedBirthDate == null ? 'Gerekli' : null,
+    );
+  }
+
+  Widget _buildLocationSection(String? validCity, List<String> districtItems) {
+    return Column(
+      children: [
+        Autocomplete<String>(
+          initialValue: TextEditingValue(text: _cityController.text),
+          optionsBuilder: (val) {
+            if (val.text.isEmpty) return _sortedCities;
+            return _sortedCities.where((c) => c.toLowerCase().startsWith(val.text.toLowerCase()));
+          },
+          onSelected: (val) {
+            setState(() {
+              _cityController.text = val;
+              _districtController.clear();
+            });
+          },
+          fieldViewBuilder: (ctx, ctrl, node, onSub) {
+            return TextFormField(
+              controller: ctrl,
+              focusNode: node,
+              decoration: const InputDecoration(labelText: 'Şehir', prefixIcon: Icon(Icons.location_city_outlined)),
+              onChanged: (v) {
+                _cityController.text = v;
+                if (_districtController.text.isNotEmpty) {
+                  _districtController.clear();
+                  setState(() {});
+                }
+              },
+              validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          key: ValueKey('district_${validCity ?? "none"}'),
+          value: (_districtController.text.isNotEmpty && districtItems.contains(_districtController.text)) ? _districtController.text : null,
+          decoration: InputDecoration(
+            labelText: 'İlçe',
+            prefixIcon: const Icon(Icons.map_outlined),
+            hintText: validCity != null ? 'İlçe seçin' : 'Önce şehir seçin',
+          ),
+          items: validCity != null ? districtItems.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList() : null,
+          onChanged: validCity == null ? null : (v) => setState(() => _districtController.text = v!),
+          validator: (v) => (v == null || v.isEmpty) ? 'Gerekli' : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialMediaSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Sosyal Medya & Linkler', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        const Text('LinkedIn, GitHub veya makale paylaştığın platformları ekleyerek profilini güçlendir.', style: TextStyle(fontSize: 14, color: Colors.grey)),
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: _showSocialMediaManager,
+          icon: const Icon(Icons.link),
+          label: const Text('Sosyal Medya Hesaplarını Yönet'),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSaveButton(UserProfile currentProfile) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _isSaving ? null : () => _saveProfile(currentProfile),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2196F3),
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        child: _isSaving
+            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+            : const Text('Değişiklikleri Kaydet'),
       ),
     );
   }
 
   void _showDatePicker() {
     FocusScope.of(context).unfocus();
-
-    // Set initial date to either selected date or 20 years ago
-    final initialDate =
-        _selectedBirthDate ??
-        DateTime.now().subtract(const Duration(days: 365 * 20));
-    final minDate = DateTime.now().subtract(
-      const Duration(days: 365 * 100),
-    ); // Max age 100
-    final maxDate = DateTime.now().subtract(
-      const Duration(days: 365 * 13),
-    ); // Min age 13
-
+    final initialDate = _selectedBirthDate ?? DateTime.now().subtract(const Duration(days: 365 * 20));
+    final minDate = DateTime.now().subtract(const Duration(days: 365 * 100));
+    final maxDate = DateTime.now().subtract(const Duration(days: 365 * 13));
     DateTime tempSelectedDate = initialDate;
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext builder) {
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
         return SizedBox(
           height: 300,
           child: Column(
             children: [
-              // Header with Done button
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.black12, width: 1),
-                  ),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black12, width: 1))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text(
-                        'İptal',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    ),
-                    const Text(
-                      'Doğum Tarihi',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('İptal', style: TextStyle(color: Colors.grey, fontSize: 16))),
+                    const Text('Doğum Tarihi', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
                     TextButton(
                       onPressed: () {
                         setState(() => _selectedBirthDate = tempSelectedDate);
-                        Navigator.of(context).pop();
+                        Navigator.pop(ctx);
                       },
-                      child: const Text(
-                        'Bitti',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
+                      child: const Text('Bitti', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                   ],
                 ),
@@ -551,9 +412,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   initialDate: initialDate,
                   minimumDate: minDate,
                   maximumDate: maxDate,
-                  onDateChanged: (DateTime newDate) {
-                    tempSelectedDate = newDate;
-                  },
+                  onDateChanged: (val) => tempSelectedDate = val,
                 ),
               ),
             ],
@@ -572,7 +431,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  // Helper to pre-format data coming from DB
   String _formatWithMask(String text, String mask) {
     String cleanText = text.replaceAll(RegExp(r'\D'), '');
     String formattedText = '';
@@ -595,148 +453,88 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accountsAsync = ref.watch(socialMediaListProvider);
+    final socialMediaAsync = ref.watch(socialMediaListProvider);
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      decoration: const BoxDecoration(
+        color: Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Row(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Sosyal Medya Hesapları',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  onPressed: () => _showAddSocialMediaForm(context, ref),
-                  icon: const Icon(Icons.add_circle, color: Colors.blue, size: 32),
-                ),
+                const Text('Sosyal Medya Hesapları', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                IconButton(icon: const Icon(Icons.close, color: Colors.grey), onPressed: () => Navigator.pop(context)),
               ],
             ),
-          ),
-          const Divider(),
-          Expanded(
-            child: accountsAsync.when(
+            const SizedBox(height: 16),
+            socialMediaAsync.when(
               data: (accounts) {
                 if (accounts.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.link_off, size: 64, color: Colors.grey.withOpacity(0.5)),
-                        const SizedBox(height: 16),
-                        const Text('Henüz bir hesap eklenmemiş.', style: TextStyle(color: Colors.grey)),
-                      ],
-                    ),
-                  );
+                  return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 32), child: Text('Henüz bir hesap eklenmedi.', style: TextStyle(color: Colors.grey))));
                 }
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: accounts.length,
-                  itemBuilder: (context, index) {
-                    final account = accounts[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: ListTile(
-                        leading: _getPlatformIcon(account.platform),
-                        title: Text(account.platform.displayName),
-                        subtitle: Text(account.url, maxLines: 1, overflow: TextOverflow.ellipsis),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                          onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),
-                        ),
+                  separatorBuilder: (ctx, idx) => const Divider(color: Colors.white10),
+                  itemBuilder: (ctx, idx) {
+                    final account = accounts[idx];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: account.platform.color.withOpacity(0.1),
+                        child: Icon(account.platform.icon, color: account.platform.color, size: 20),
+                      ),
+                      title: Text(account.platform.displayName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      subtitle: Text(account.url, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                        onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),
                       ),
                     );
                   },
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Hata: $err')),
+              error: (err, _) => Center(child: Text('Hata: $err', style: const TextStyle(color: Colors.white))),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: SizedBox(
+            const SizedBox(height: 24),
+            SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Kapat'),
+              child: ElevatedButton.icon(
+                onPressed: () => _showAddDialog(context),
+                icon: const Icon(Icons.add),
+                label: const Text('Hesap Ekle'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2196F3),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _getPlatformIcon(SocialMediaPlatform platform) {
-    IconData iconData;
-    Color color;
-    switch (platform) {
-      case SocialMediaPlatform.linkedIn:
-        iconData = Icons.business_outlined;
-        color = Colors.blue.shade700;
-        break;
-      case SocialMediaPlatform.github:
-        iconData = Icons.code_outlined;
-        color = Colors.grey.shade900;
-        break;
-      case SocialMediaPlatform.medium:
-      case SocialMediaPlatform.devto:
-      case SocialMediaPlatform.hashnode:
-      case SocialMediaPlatform.substack:
-        iconData = Icons.article_outlined;
-        color = Colors.green;
-        break;
-      case SocialMediaPlatform.youtube:
-        iconData = Icons.play_circle_outline;
-        color = Colors.red;
-        break;
-      case SocialMediaPlatform.instagram:
-      case SocialMediaPlatform.facebook:
-      case SocialMediaPlatform.x:
-        iconData = Icons.share_outlined;
-        color = Colors.purple;
-        break;
-      default:
-        iconData = Icons.link_outlined;
-        color = Colors.blueGrey;
-    }
-    return CircleAvatar(
-      backgroundColor: color.withOpacity(0.1),
-      child: Icon(iconData, color: color),
-    );
-  }
-
-  void _showAddSocialMediaForm(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => _AddSocialMediaDialog(ref: ref),
-    );
+  void _showAddDialog(BuildContext context) {
+    showDialog(context: context, builder: (ctx) => const _AddSocialMediaDialog());
   }
 }
 
 class _AddSocialMediaDialog extends StatefulWidget {
-  final WidgetRef ref;
-  const _AddSocialMediaDialog({required this.ref});
-
+  const _AddSocialMediaDialog();
   @override
   State<_AddSocialMediaDialog> createState() => _AddSocialMediaDialogState();
 }
@@ -748,56 +546,49 @@ class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Hesap Ekle'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButtonFormField<SocialMediaPlatform>(
-              value: _selectedPlatform,
-              decoration: const InputDecoration(labelText: 'Platform'),
-              items: SocialMediaPlatform.values.map((p) {
-                return DropdownMenuItem(value: p, child: Text(p.displayName));
-              }).toList(),
-              onChanged: (val) {
-                if (val != null) setState(() => _selectedPlatform = val);
-              },
+    return Consumer(
+      builder: (ctx, ref, child) {
+        return AlertDialog(
+          title: const Text('Yeni Hesap Ekle'),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<SocialMediaPlatform>(
+                  value: _selectedPlatform,
+                  decoration: const InputDecoration(labelText: 'Platform'),
+                  items: SocialMediaPlatform.values.map((p) => DropdownMenuItem(value: p, child: Text(p.displayName))).toList(),
+                  onChanged: (val) => setState(() => _selectedPlatform = val!),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _urlController,
+                  decoration: const InputDecoration(labelText: 'Profil Linki', hintText: 'https://...'),
+                  validator: (v) => (v == null || v.isEmpty) ? 'Gerekli' : (!v.startsWith('http') ? 'Geçerli bir URL girin' : null),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _urlController,
-              decoration: const InputDecoration(
-                labelText: 'Profil Linki / URL',
-                hintText: 'https://...',
-              ),
-              validator: (v) => (v == null || v.isEmpty) ? 'Gerekli' : (!v.startsWith('http') ? 'Geçerli bir URL girin' : null),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('İptal')),
+            ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  final user = ref.read(authRepositoryProvider).currentUser;
+                  if (user != null) {
+                    await ref.read(socialMediaListProvider.notifier).addAccount(
+                      SocialMediaAccount(platform: _selectedPlatform, url: _urlController.text.trim(), profileId: user.id),
+                    );
+                    if (mounted) Navigator.pop(ctx);
+                  }
+                }
+              },
+              child: const Text('Ekle'),
             ),
           ],
-        ),
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('İptal')),
-        ElevatedButton(
-          onPressed: () async {
-            if (_formKey.currentState!.validate()) {
-              final recruiter = widget.ref.read(authRepositoryProvider).currentUser;
-              if (recruiter != null) {
-                await widget.ref.read(socialMediaListProvider.notifier).addAccount(
-                      SocialMediaAccount(
-                        platform: _selectedPlatform,
-                        url: _urlController.text.trim(),
-                        profileId: recruiter.id,
-                      ),
-                    );
-                if (mounted) Navigator.pop(context);
-              }
-            }
-          },
-          child: const Text('Ekle'),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -810,36 +601,22 @@ class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
 
 class PhoneInputFormatter extends TextInputFormatter {
   final String mask;
-
   PhoneInputFormatter({required this.mask});
-
   @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    // Only numbers
-    String cleanText = newValue.text.replaceAll(RegExp(r'\D'), '');
-
-    String formattedText = '';
-    int textIndex = 0;
-
+  TextEditingValue formatEditUpdate(TextEditingValue oldVal, TextEditingValue newVal) {
+    String clean = newVal.text.replaceAll(RegExp(r'\D'), '');
+    String formatted = '';
+    int idx = 0;
     for (int i = 0; i < mask.length; i++) {
-      if (textIndex >= cleanText.length) {
-        break;
-      }
+      if (idx >= clean.length) break;
       if (mask[i] == '#') {
-        formattedText += cleanText[textIndex];
-        textIndex++;
+        formatted += clean[idx];
+        idx++;
       } else {
-        formattedText += mask[i];
+        formatted += mask[i];
       }
     }
-
-    return TextEditingValue(
-      text: formattedText,
-      selection: TextSelection.collapsed(offset: formattedText.length),
-    );
+    return TextEditingValue(text: formatted, selection: TextSelection.collapsed(offset: formatted.length));
   }
 }
 
@@ -848,205 +625,118 @@ class _CustomDatePicker extends StatefulWidget {
   final DateTime minimumDate;
   final DateTime maximumDate;
   final ValueChanged<DateTime> onDateChanged;
-
-  const _CustomDatePicker({
-    required this.initialDate,
-    required this.minimumDate,
-    required this.maximumDate,
-    required this.onDateChanged,
-  });
-
+  const _CustomDatePicker({required this.initialDate, required this.minimumDate, required this.maximumDate, required this.onDateChanged});
   @override
   State<_CustomDatePicker> createState() => _CustomDatePickerState();
 }
 
 class _CustomDatePickerState extends State<_CustomDatePicker> {
-  late int _selectedDay;
-  late int _selectedMonth;
-  late int _selectedYear;
-
-  late FixedExtentScrollController _dayController;
-  late FixedExtentScrollController _monthController;
-  late FixedExtentScrollController _yearController;
-
-  final List<String> _months = [
-    'Ocak',
-    'Şubat',
-    'Mart',
-    'Nisan',
-    'Mayıs',
-    'Haziran',
-    'Temmuz',
-    'Ağustos',
-    'Eylül',
-    'Ekim',
-    'Kasım',
-    'Aralık',
-  ];
+  late int _day, _month, _year;
+  late FixedExtentScrollController _dayCtrl, _monthCtrl, _yearCtrl;
+  final List<String> _months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
 
   @override
   void initState() {
     super.initState();
-    _selectedDay = widget.initialDate.day;
-    _selectedMonth = widget.initialDate.month;
-    _selectedYear = widget.initialDate.year;
-
-    _dayController = FixedExtentScrollController(initialItem: _selectedDay - 1);
-    _monthController = FixedExtentScrollController(
-      initialItem: _selectedMonth - 1,
-    );
-    _yearController = FixedExtentScrollController(
-      initialItem: _selectedYear - widget.minimumDate.year,
-    );
+    _day = widget.initialDate.day;
+    _month = widget.initialDate.month;
+    _year = widget.initialDate.year;
+    _dayCtrl = FixedExtentScrollController(initialItem: _day - 1);
+    _monthCtrl = FixedExtentScrollController(initialItem: _month - 1);
+    _yearCtrl = FixedExtentScrollController(initialItem: _year - widget.minimumDate.year);
   }
 
-  @override
-  void dispose() {
-    _dayController.dispose();
-    _monthController.dispose();
-    _yearController.dispose();
-    super.dispose();
-  }
-
-  int get _daysInMonth =>
-      DateUtils.getDaysInMonth(_selectedYear, _selectedMonth);
-
-  void _onDateChanged() {
-    final daysInCurrentMonth = _daysInMonth;
-    if (_selectedDay > daysInCurrentMonth) {
-      _selectedDay = daysInCurrentMonth;
-      _dayController.jumpToItem(_selectedDay - 1);
+  void _onChanged() {
+    final max = DateUtils.getDaysInMonth(_year, _month);
+    if (_day > max) {
+      _day = max;
+      _dayCtrl.jumpToItem(_day - 1);
     }
-
-    // Ensure we don't exceed min/max dates
-    DateTime newDate = DateTime(_selectedYear, _selectedMonth, _selectedDay);
-    if (newDate.isBefore(widget.minimumDate)) {
-      newDate = widget.minimumDate;
-      _syncControllersToDate(newDate);
-    } else if (newDate.isAfter(widget.maximumDate)) {
-      newDate = widget.maximumDate;
-      _syncControllersToDate(newDate);
-    }
-
-    widget.onDateChanged(newDate);
+    widget.onDateChanged(DateTime(_year, _month, _day));
     setState(() {});
-  }
-
-  void _syncControllersToDate(DateTime date) {
-    _selectedYear = date.year;
-    _selectedMonth = date.month;
-    _selectedDay = date.day;
-    _yearController.jumpToItem(_selectedYear - widget.minimumDate.year);
-    _monthController.jumpToItem(_selectedMonth - 1);
-    _dayController.jumpToItem(_selectedDay - 1);
   }
 
   @override
   Widget build(BuildContext context) {
-    final int minYear = widget.minimumDate.year;
-    final int maxYear = widget.maximumDate.year;
-    final int yearsCount = maxYear - minYear + 1;
-
     return SizedBox(
       height: 180,
       child: CupertinoTheme(
-        data: const CupertinoThemeData(
-          brightness: Brightness.light,
-          textTheme: CupertinoTextThemeData(
-            pickerTextStyle: TextStyle(color: Colors.black, fontSize: 18),
-          ),
-        ),
+        data: const CupertinoThemeData(brightness: Brightness.light, textTheme: CupertinoTextThemeData(pickerTextStyle: TextStyle(color: Colors.black, fontSize: 18))),
         child: Row(
           children: [
-            // DAY PICKER
-            Expanded(
-              flex: 1,
-              child: CupertinoPicker.builder(
-                scrollController: _dayController,
-                itemExtent: 44,
-                magnification: 1.2,
-                useMagnifier: true,
-                squeeze: 1.15,
-                childCount: _daysInMonth,
-                onSelectedItemChanged: (index) {
-                  _selectedDay = index + 1;
-                  _onDateChanged();
-                },
-                itemBuilder: (context, index) {
-                  return Center(
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  );
-                },
-              ),
-            ),
-            // MONTH PICKER
-            Expanded(
-              flex: 2,
-              child: CupertinoPicker.builder(
-                scrollController: _monthController,
-                itemExtent: 44,
-                magnification: 1.2,
-                useMagnifier: true,
-                squeeze: 1.15,
-                childCount: 12,
-                onSelectedItemChanged: (index) {
-                  _selectedMonth = index + 1;
-                  _onDateChanged();
-                },
-                itemBuilder: (context, index) {
-                  return Center(
-                    child: Text(
-                      _months[index],
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  );
-                },
-              ),
-            ),
-            // YEAR PICKER
-            Expanded(
-              flex: 1,
-              child: CupertinoPicker.builder(
-                scrollController: _yearController,
-                itemExtent: 44,
-                magnification: 1.2,
-                useMagnifier: true,
-                squeeze: 1.15,
-                childCount: yearsCount,
-                onSelectedItemChanged: (index) {
-                  _selectedYear = minYear + index;
-                  _onDateChanged();
-                },
-                itemBuilder: (context, index) {
-                  return Center(
-                    child: Text(
-                      '${minYear + index}',
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  );
-                },
-              ),
-            ),
+            Expanded(child: CupertinoPicker.builder(scrollController: _dayCtrl, itemExtent: 44, onSelectedItemChanged: (i) { _day = i + 1; _onChanged(); }, childCount: DateUtils.getDaysInMonth(_year, _month), itemBuilder: (c, i) => Center(child: Text('${i + 1}')))),
+            Expanded(child: CupertinoPicker.builder(scrollController: _monthCtrl, itemExtent: 44, onSelectedItemChanged: (i) { _month = i + 1; _onChanged(); }, childCount: 12, itemBuilder: (c, i) => Center(child: Text(_months[i])))),
+            Expanded(child: CupertinoPicker.builder(scrollController: _yearCtrl, itemExtent: 44, onSelectedItemChanged: (i) { _year = widget.minimumDate.year + i; _onChanged(); }, childCount: widget.maximumDate.year - widget.minimumDate.year + 1, itemBuilder: (c, i) => Center(child: Text('${widget.minimumDate.year + i}')))),
           ],
         ),
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _dayCtrl.dispose(); _monthCtrl.dispose(); _yearCtrl.dispose();
+    super.dispose();
+  }
 }
 
 class CountryData {
-  final String code;
-  final String name;
-  final String flag;
-  final String mask;
+  final String code, name, flag, mask;
+  CountryData({required this.code, required this.name, required this.flag, required this.mask});
+}
 
-  CountryData({
-    required this.code,
-    required this.name,
-    required this.flag,
-    required this.mask,
-  });
+class _ProfileShimmer extends StatefulWidget {
+  const _ProfileShimmer();
+  @override
+  State<_ProfileShimmer> createState() => _ProfileShimmerState();
+}
+
+class _ProfileShimmerState extends State<_ProfileShimmer> with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  @override
+  void initState() { super.initState(); _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat(); }
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (ctx, child) => ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          _Skeleton(width: 80, height: 16, ctrl: _ctrl), const SizedBox(height: 12),
+          _Skeleton(height: 56, ctrl: _ctrl), const SizedBox(height: 16),
+          _Skeleton(width: 80, height: 16, ctrl: _ctrl), const SizedBox(height: 12),
+          _Skeleton(height: 56, ctrl: _ctrl), const SizedBox(height: 24),
+          _Skeleton(width: 120, height: 16, ctrl: _ctrl), const SizedBox(height: 12),
+          _Skeleton(height: 56, ctrl: _ctrl), const SizedBox(height: 16),
+          _Skeleton(width: 100, height: 16, ctrl: _ctrl), const SizedBox(height: 12),
+          _Skeleton(height: 56, ctrl: _ctrl), const SizedBox(height: 24),
+          const Divider(color: Colors.white10), const SizedBox(height: 16),
+          _Skeleton(width: 150, height: 20, ctrl: _ctrl), const SizedBox(height: 12),
+          _Skeleton(height: 100, ctrl: _ctrl), const SizedBox(height: 40),
+          _Skeleton(height: 56, borderRadius: 16, ctrl: _ctrl),
+        ],
+      ),
+    );
+  }
+}
+
+class _Skeleton extends StatelessWidget {
+  final double? width; final double height, borderRadius; final AnimationController ctrl;
+  const _Skeleton({this.width, required this.height, this.borderRadius = 8, required this.ctrl});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width ?? double.infinity, height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft, end: Alignment.bottomRight,
+          colors: const [Color(0xFF2C2C2C), Color(0xFF3D3D3D), Color(0xFF2C2C2C)],
+          stops: [0.0, ctrl.value, 1.0],
+        ),
+      ),
+    );
+  }
 }
