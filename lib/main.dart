@@ -15,9 +15,13 @@ import 'features/cv_builder/presentation/providers/project_provider.dart';
 import 'features/cv_builder/presentation/providers/community_provider.dart';
 import 'features/cv_builder/presentation/providers/experience_provider.dart';
 import 'core/providers/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize SharedPreferences
+  final sharedPrefs = await SharedPreferences.getInstance();
 
   // Supabase initialization with project credentials
   await Supabase.initialize(
@@ -26,7 +30,14 @@ void main() async {
         'SUPABASE_ANON_KEY_REMOVED',
   );
 
-  runApp(const ProviderScope(child: CareerFlowApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPrefs),
+      ],
+      child: const CareerFlowApp(),
+    ),
+  );
 }
 
 class CareerFlowApp extends ConsumerWidget {
@@ -112,19 +123,20 @@ class HomeScreen extends ConsumerWidget {
         title: const Text('CareerFlow'),
         centerTitle: true,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(6.0),
           child: Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
               shape: BoxShape.circle,
               border: Border.all(
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                width: 1,
+                width: 1.5,
               ),
             ),
             child: IconButton(
-              icon: const Icon(Icons.person_outline, size: 20),
+              icon: const Icon(Icons.person_outline, size: 24),
               padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
               onPressed: () {
             Navigator.push(
               context,
@@ -146,9 +158,7 @@ class HomeScreen extends ConsumerWidget {
                   : Icons.dark_mode_outlined,
             ),
             onPressed: () {
-              final current = ref.read(themeProvider);
-              ref.read(themeProvider.notifier).state =
-                  current == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+              ref.read(themeProvider.notifier).toggleTheme();
             },
           ),
         ],
