@@ -101,7 +101,11 @@ class HomeScreen extends ConsumerWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              MaterialPageRoute(
+                builder: (context) => ProfileScreen(
+                  navigationStartTime: DateTime.now(),
+                ),
+              ),
             );
           },
         ),

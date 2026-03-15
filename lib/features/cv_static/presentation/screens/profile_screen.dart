@@ -9,7 +9,8 @@ import '../../../cv_builder/domain/models/social_media.dart';
 import '../../../cv_builder/presentation/providers/social_media_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  const ProfileScreen({super.key});
+  final DateTime? navigationStartTime;
+  const ProfileScreen({super.key, this.navigationStartTime});
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -63,6 +64,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _selectedCountry = _countryOptions.first;
     _sortedCities = turkeyCities.keys.toList()..sort();
     _isReady = true;
+    
+    if (widget.navigationStartTime != null) {
+      final duration = DateTime.now().difference(widget.navigationStartTime!);
+      debugPrint('PERF: ProfileScreen opened in ${duration.inMilliseconds}ms');
+    }
   }
 
   @override
@@ -342,13 +348,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const SizedBox(height: 8),
         const Text('LinkedIn, GitHub veya makale paylaştığın platformları ekleyerek profilini güçlendir.', style: TextStyle(fontSize: 14, color: Colors.grey)),
         const SizedBox(height: 16),
-        OutlinedButton.icon(
-          onPressed: _showSocialMediaManager,
-          icon: const Icon(Icons.link),
-          label: const Text('Sosyal Medya Hesaplarını Yönet'),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _showSocialMediaManager,
+            icon: const Icon(Icons.link),
+            label: const Text('Sosyal Medya Hesaplarını Yönet'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
         ),
       ],
