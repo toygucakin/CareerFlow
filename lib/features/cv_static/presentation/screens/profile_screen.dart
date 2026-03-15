@@ -406,7 +406,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
         return SizedBox(
@@ -415,18 +415,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black12, width: 1))),
+                decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1))),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('İptal', style: TextStyle(color: Colors.grey, fontSize: 16))),
-                    const Text('Doğum Tarihi', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text('Doğum Tarihi', style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color, fontWeight: FontWeight.bold, fontSize: 16)),
                     TextButton(
                       onPressed: () {
                         setState(() => _selectedBirthDate = tempSelectedDate);
                         Navigator.pop(ctx);
                       },
-                      child: const Text('Bitti', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: Text('Bitti', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                   ],
                 ),
@@ -481,9 +481,9 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
 
     return Container(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      decoration: const BoxDecoration(
-        color: Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -494,7 +494,7 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Sosyal Medya Hesapları', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                Text('Sosyal Medya Hesapları', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleLarge?.color)),
                 IconButton(icon: const Icon(Icons.close, color: Colors.grey), onPressed: () => Navigator.pop(context)),
               ],
             ),
@@ -508,7 +508,7 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: accounts.length,
-                  separatorBuilder: (ctx, idx) => const Divider(color: Colors.white10),
+                  separatorBuilder: (ctx, idx) => const Divider(),
                   itemBuilder: (ctx, idx) {
                     final account = accounts[idx];
                     return ListTile(
@@ -517,7 +517,7 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
                         backgroundColor: account.platform.color.withOpacity(0.1),
                         child: Icon(account.platform.icon, color: account.platform.color, size: 20),
                       ),
-                      title: Text(account.platform.displayName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      title: Text(account.platform.displayName, style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color, fontWeight: FontWeight.bold)),
                       subtitle: Text(account.url, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
@@ -528,7 +528,7 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) => Center(child: Text('Hata: $err', style: const TextStyle(color: Colors.white))),
+              error: (err, _) => Center(child: Text('Hata: $err', style: TextStyle(color: Theme.of(context).colorScheme.error))),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -685,7 +685,15 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
     return SizedBox(
       height: 180,
       child: CupertinoTheme(
-        data: const CupertinoThemeData(brightness: Brightness.light, textTheme: CupertinoTextThemeData(pickerTextStyle: TextStyle(color: Colors.black, fontSize: 18))),
+        data: CupertinoThemeData(
+          brightness: Theme.of(context).brightness,
+          textTheme: CupertinoTextThemeData(
+            pickerTextStyle: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+              fontSize: 18,
+            ),
+          ),
+        ),
         child: Row(
           children: [
             Expanded(child: CupertinoPicker.builder(scrollController: _dayCtrl, itemExtent: 44, onSelectedItemChanged: (i) { _day = i + 1; _onChanged(); }, childCount: DateUtils.getDaysInMonth(_year, _month), itemBuilder: (c, i) => Center(child: Text('${i + 1}')))),
@@ -736,7 +744,7 @@ class _ProfileShimmerState extends State<_ProfileShimmer> with SingleTickerProvi
           _Skeleton(height: 56, ctrl: _ctrl), const SizedBox(height: 16),
           _Skeleton(width: 100, height: 16, ctrl: _ctrl), const SizedBox(height: 12),
           _Skeleton(height: 56, ctrl: _ctrl), const SizedBox(height: 24),
-          const Divider(color: Colors.white10), const SizedBox(height: 16),
+          const Divider(), const SizedBox(height: 16),
           _Skeleton(width: 150, height: 20, ctrl: _ctrl), const SizedBox(height: 12),
           _Skeleton(height: 100, ctrl: _ctrl), const SizedBox(height: 40),
           _Skeleton(height: 56, borderRadius: 16, ctrl: _ctrl),
@@ -757,7 +765,9 @@ class _Skeleton extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         gradient: LinearGradient(
           begin: Alignment.topLeft, end: Alignment.bottomRight,
-          colors: const [Color(0xFF2C2C2C), Color(0xFF3D3D3D), Color(0xFF2C2C2C)],
+          colors: Theme.of(context).brightness == Brightness.dark
+              ? const [Color(0xFF2C2C2C), Color(0xFF3D3D3D), Color(0xFF2C2C2C)]
+              : const [Color(0xFFE0E0E0), Color(0xFFF0F0F0), Color(0xFFE0E0E0)],
           stops: [0.0, ctrl.value, 1.0],
         ),
       ),
