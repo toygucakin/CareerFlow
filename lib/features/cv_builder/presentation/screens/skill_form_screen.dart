@@ -44,6 +44,24 @@ class _SkillFormScreenState extends ConsumerState<SkillFormScreen> {
     _isActiveDevelopment = widget.skillToEdit?.isActiveDevelopment ?? false;
   }
 
+  String _getHintText() {
+    if (widget.isSoftSkillMode || _category == 'Soft Skills') {
+      return 'Yetenek Adı (Örn: Proje Yönetimi, İletişim)';
+    }
+    switch (_category) {
+      case 'Araçlar':
+        return 'Yetenek Adı (Örn: Github, Docker, Postman)';
+      case 'Ofis':
+        return 'Yetenek Adı (Örn: Excel, PowerPoint)';
+      case 'Veritabanı':
+        return 'Yetenek Adı (Örn: PostgreSQL, Supabase)';
+      case 'Programlama':
+      case 'Web':
+      default:
+        return 'Yetenek Adı (Örn: Python, React)';
+    }
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
@@ -124,9 +142,7 @@ class _SkillFormScreenState extends ConsumerState<SkillFormScreen> {
               TextFormField(
                 initialValue: _name,
                 decoration: InputDecoration(
-                  labelText: widget.isSoftSkillMode 
-                      ? 'Yetenek Adı (Örn: Proje Yönetimi, İletişim)' 
-                      : 'Yetenek Adı (Örn: Python, React)',
+                  labelText: _getHintText(),
                   border: const OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val.isEmpty ? 'Gerekli' : null,
