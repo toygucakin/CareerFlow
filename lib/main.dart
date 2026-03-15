@@ -249,31 +249,31 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             SizedBox(
-              height: 180,
+              height: 220,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
                   _TemplateCard(
                     title: 'Modern Tech',
-                    icon: Icons.article_outlined,
+                    preview: const _ModernPreview(),
                     color: Colors.blue,
                     onTap: () => _startWithTemplate(context, 'modern_tech'),
                   ),
                   _TemplateCard(
                     title: 'Professional',
-                    icon: Icons.business_center_outlined,
+                    preview: const _ProfessionalPreview(),
                     color: Colors.indigo,
                     onTap: () => _startWithTemplate(context, 'professional'),
                   ),
                   _TemplateCard(
                     title: 'Creative Grid',
-                    icon: Icons.grid_view_rounded,
+                    preview: const _CreativePreview(),
                     color: Colors.purple,
                     onTap: () => _startWithTemplate(context, 'creative_grid'),
                   ),
                   _TemplateCard(
                     title: 'Minimalist',
-                    icon: Icons.notes_rounded,
+                    preview: const _MinimalistPreview(),
                     color: Colors.teal,
                     onTap: () => _startWithTemplate(context, 'minimalist'),
                   ),
@@ -300,13 +300,13 @@ class HomeScreen extends ConsumerWidget {
 
 class _TemplateCard extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final Widget preview;
   final Color color;
   final VoidCallback onTap;
 
   const _TemplateCard({
     required this.title,
-    required this.icon,
+    required this.preview,
     required this.color,
     required this.onTap,
   });
@@ -316,30 +316,216 @@ class _TemplateCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 130,
+        width: 140,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withOpacity(0.05)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: color.withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: color),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: color,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: preview,
               ),
             ),
-            const SizedBox(height: 4),
-            const Text(
-              'Şablon',
-              style: TextStyle(fontSize: 10, color: Colors.grey),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                ],
+              ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ModernPreview extends StatelessWidget {
+  const _ModernPreview();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey.shade300, width: 0.5),
+      ),
+      child: Row(
+        children: [
+          Container(width: 30, color: Colors.blue.shade50),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(height: 4, width: 40, color: Colors.blue.shade200),
+                  const SizedBox(height: 4),
+                  Container(height: 2, width: 50, color: Colors.grey.shade200),
+                  const SizedBox(height: 2),
+                  Container(height: 2, width: 30, color: Colors.grey.shade200),
+                  const Spacer(),
+                  Container(height: 30, width: double.infinity, color: Colors.grey.shade50),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfessionalPreview extends StatelessWidget {
+  const _ProfessionalPreview();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey.shade300, width: 0.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: Column(
+          children: [
+            Container(height: 6, width: 60, color: Colors.indigo.shade300),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(height: 2, width: 10, color: Colors.grey.shade300),
+                const SizedBox(width: 4),
+                Container(height: 2, width: 10, color: Colors.grey.shade300),
+                const SizedBox(width: 4),
+                Container(height: 2, width: 10, color: Colors.grey.shade300),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(height: 3, width: 25, color: Colors.indigo.shade100),
+            ),
+            const SizedBox(height: 4),
+            Container(height: 2, width: double.infinity, color: Colors.grey.shade100),
+            const SizedBox(height: 2),
+            Container(height: 2, width: double.infinity, color: Colors.grey.shade100),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(height: 3, width: 25, color: Colors.indigo.shade100),
+            ),
+            const SizedBox(height: 4),
+            Container(height: 40, width: double.infinity, color: Colors.grey.shade50),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CreativePreview extends StatelessWidget {
+  const _CreativePreview();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey.shade300, width: 0.5),
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 30,
+            width: double.infinity,
+            color: Colors.purple.shade50,
+            child: Center(child: Container(height: 15, width: 15, decoration: const BoxDecoration(color: Colors.purple, shape: BoxShape.circle))),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(height: 4, width: 30, color: Colors.purple.shade200),
+                        const SizedBox(height: 4),
+                        Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+                        const SizedBox(height: 4),
+                        Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(width: 30, color: Colors.purple.shade50),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MinimalistPreview extends StatelessWidget {
+  const _MinimalistPreview();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey.shade300, width: 0.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(height: 4, width: 50, color: Colors.black87),
+            const SizedBox(height: 8),
+            Container(height: 1, width: double.infinity, color: Colors.grey.shade200),
+            const SizedBox(height: 8),
+            Container(height: 2, width: 40, color: Colors.teal.shade200),
+            const SizedBox(height: 4),
+            Container(height: 40, width: double.infinity, color: Colors.grey.shade50),
+            const Spacer(),
+            Container(height: 2, width: 40, color: Colors.teal.shade200),
+            const SizedBox(height: 4),
+            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
           ],
         ),
       ),
