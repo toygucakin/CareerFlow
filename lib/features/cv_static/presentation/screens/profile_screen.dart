@@ -125,310 +125,353 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  Widget _buildLoadingState(String message) {
+    return Center(
+      key: const ValueKey('loading'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 200,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: const LinearProgressIndicator(
+                minHeight: 6,
+                backgroundColor: Color(0xFF1A1A1A),
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2196F3)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            message,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(currentUserProfileProvider);
     final user = ref.read(authRepositoryProvider).currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Kişisel Bilgiler')),
-      body: profileAsync.when(
-        data: (profile) {
-          if (user == null)
-            return const Center(child: Text('Lütfen giriş yapın.'));
-          
-          if (!_isReady) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Form hazırlanıyor...', style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            );
-          }
-
-          final currentProfile = profile ?? UserProfile(id: user.id);
-
-          if (!_isFormInitialized) {
-            _firstNameController.text = currentProfile.firstName ?? '';
-            _lastNameController.text = currentProfile.lastName ?? '';
-
-            // Ülke kodu ve telefon numarasını ayrıştırma
-            String rawPhone = currentProfile.phone ?? '';
-            if (rawPhone.startsWith('+')) {
-              bool found = false;
-              for (CountryData country in _countryOptions) {
-                if (rawPhone.startsWith(country.code)) {
-                  _selectedCountry = country;
-                  // format the remaining parts according to the new mask
-                  String numPart = rawPhone.substring(country.code.length);
-                  _phoneController.text = _formatWithMask(
-                    numPart,
-                    country.mask,
-                  );
-                  found = true;
-                  break;
-                }
-              }
-              if (!found) {
-                _phoneController.text = rawPhone;
-              }
-            } else {
-              _phoneController.text = _formatWithMask(
-                rawPhone,
-                _selectedCountry.mask,
+      appBar: AppBar(
+        title: const Text('Kişisel Bilgiler'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+      ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        switchInCurve: Curves.easeIn,
+        switchOutCurve: Curves.easeOut,
+        child: profileAsync.when(
+          data: (profile) {
+            if (user == null) {
+              return const Center(
+                key: ValueKey('error_no_user'),
+                child: Text('Lütfen giriş yapın.'),
               );
             }
-
-            _cityController.text = currentProfile.city ?? '';
-            _districtController.text = currentProfile.district ?? '';
-            _selectedBirthDate = currentProfile.birthDate;
-            _isFormInitialized = true;
-          }
-
-          final inputCity = _cityController.text.trim().toLowerCase();
-          String? validCity;
-          for (final city in _sortedCities) {
-            if (city.toLowerCase() == inputCity) {
-              validCity = city;
-              break;
+            
+            if (!_isReady) {
+              return _buildLoadingState('Profil Hazırlanıyor...');
             }
-          }
-          final districtItems = validCity != null
-              ? turkeyCities[validCity]!
-              : <String>[];
 
-          return GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  TextFormField(
-                    controller: _firstNameController,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(labelText: 'İsim'),
-                    validator: (v) => v!.isEmpty ? 'Gerekli' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _lastNameController,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(labelText: 'Soy isim'),
-                    validator: (v) => v!.isEmpty ? 'Gerekli' : null,
-                  ),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    initialValue: user.email,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'E-posta adresi',
-                      prefixIcon: Icon(Icons.email_outlined),
-                      helperText:
-                          'Oturum açtığınız e-posta adresi (değiştirilemez)',
+            final currentProfile = profile ?? UserProfile(id: user.id);
+
+            if (!_isFormInitialized) {
+              _firstNameController.text = currentProfile.firstName ?? '';
+              _lastNameController.text = currentProfile.lastName ?? '';
+
+              // Ülke kodu ve telefon numarasını ayrıştırma
+              String rawPhone = currentProfile.phone ?? '';
+              if (rawPhone.startsWith('+')) {
+                bool found = false;
+                for (CountryData country in _countryOptions) {
+                  if (rawPhone.startsWith(country.code)) {
+                    _selectedCountry = country;
+                    // format the remaining parts according to the new mask
+                    String numPart = rawPhone.substring(country.code.length);
+                    _phoneController.text = _formatWithMask(
+                      numPart,
+                      country.mask,
+                    );
+                    found = true;
+                    break;
+                  }
+                }
+                if (!found) {
+                  _phoneController.text = rawPhone;
+                }
+              } else {
+                _phoneController.text = _formatWithMask(
+                  rawPhone,
+                  _selectedCountry.mask,
+                );
+              }
+
+              _cityController.text = currentProfile.city ?? '';
+              _districtController.text = currentProfile.district ?? '';
+              _selectedBirthDate = currentProfile.birthDate;
+              _isFormInitialized = true;
+            }
+
+            final inputCity = _cityController.text.trim().toLowerCase();
+            String? validCity;
+            for (final city in _sortedCities) {
+              if (city.toLowerCase() == inputCity) {
+                validCity = city;
+                break;
+              }
+            }
+            final districtItems = validCity != null
+                ? turkeyCities[validCity]!
+                : <String>[];
+
+            return GestureDetector(
+              key: const ValueKey('content'),
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    TextFormField(
+                      controller: _firstNameController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(labelText: 'İsim'),
+                      validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _phoneController,
-                    inputFormatters: [
-                      PhoneInputFormatter(mask: _selectedCountry.mask),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Telefon numarası',
-                      prefixIcon: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        margin: const EdgeInsets.only(right: 8),
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            right: BorderSide(color: Colors.grey, width: 1),
-                          ),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<CountryData>(
-                            value: _selectedCountry,
-                            items: _countryOptions.map((CountryData country) {
-                              return DropdownMenuItem<CountryData>(
-                                value: country,
-                                child: Text(
-                                  '${country.flag} ${country.code} ${country.name}',
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (CountryData? newValue) {
-                              if (newValue != null) {
-                                setState(() {
-                                  _selectedCountry = newValue;
-                                  // clear text or reformat existing to new mask if needed.
-                                  // For simplicity, we just clear to avoid mask clashing
-                                  _phoneController.clear();
-                                });
-                              }
-                            },
-                          ),
-                        ),
-                      ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _lastNameController,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(labelText: 'Soy isim'),
+                      validator: (v) => v!.isEmpty ? 'Gerekli' : null,
                     ),
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 16),
-                  InkWell(
-                    onTap: () => FocusScope.of(
-                      context,
-                    ).unfocus(), // First dismiss keyboard
-                    child: TextFormField(
-                      controller: TextEditingController(
-                        text: _selectedBirthDate != null
-                            // Show in DD/MM/YYYY format
-                            ? "${_selectedBirthDate!.day.toString().padLeft(2, '0')}/${_selectedBirthDate!.month.toString().padLeft(2, '0')}/${_selectedBirthDate!.year}"
-                            : '',
-                      ),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      initialValue: user.email,
                       readOnly: true,
-                      onTap: _showDatePicker,
                       decoration: const InputDecoration(
-                        labelText: 'Doğum tarihi',
-                        prefixIcon: Icon(
-                          Icons.cake_outlined,
-                          color: Colors.pinkAccent,
-                        ),
-                        hintText: 'Gün/Ay/Yıl seçin',
+                        labelText: 'E-posta adresi',
+                        prefixIcon: Icon(Icons.email_outlined),
+                        helperText:
+                            'Oturum açtığınız e-posta adresi (değiştirilemez)',
                       ),
-                      validator: (v) =>
-                          _selectedBirthDate == null ? 'Gerekli' : null,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Autocomplete<String>(
-                    initialValue: TextEditingValue(text: _cityController.text),
-                    optionsBuilder: (TextEditingValue textEditingValue) {
-                      if (textEditingValue.text.isEmpty) {
-                        return _sortedCities;
-                      }
-                      final lowerSearch = textEditingValue.text.toLowerCase();
-                      return _sortedCities.where((String city) {
-                        return city.toLowerCase().startsWith(lowerSearch);
-                      });
-                    },
-                    onSelected: (String selection) {
-                      setState(() {
-                        _cityController.text = selection;
-                        _districtController.clear();
-                      });
-                      FocusScope.of(
-                        context,
-                      ).unfocus(); // İmleci ve klavyeyi gizle
-                    },
-                    fieldViewBuilder:
-                        (context, controller, focusNode, onFieldSubmitted) {
-                          return TextFormField(
-                            controller: controller,
-                            focusNode: focusNode,
-                            decoration: const InputDecoration(
-                              labelText: 'Şehir',
-                              prefixIcon: Icon(Icons.location_city_outlined),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _phoneController,
+                      inputFormatters: [
+                        PhoneInputFormatter(mask: _selectedCountry.mask),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'Telefon numarası',
+                        prefixIcon: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              right: BorderSide(color: Colors.grey, width: 1),
                             ),
-                            onChanged: (v) {
-                              _cityController.text = v;
-                              if (_districtController.text.isNotEmpty) {
-                                _districtController.clear();
-                                setState(() {});
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<CountryData>(
+                              value: _selectedCountry,
+                              items: _countryOptions.map((CountryData country) {
+                                return DropdownMenuItem<CountryData>(
+                                  value: country,
+                                  child: Text(
+                                    '${country.flag} ${country.code} ${country.name}',
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (CountryData? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    _selectedCountry = newValue;
+                                    // clear text or reformat existing to new mask if needed.
+                                    // For simplicity, we just clear to avoid mask clashing
+                                    _phoneController.clear();
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () => FocusScope.of(
+                        context,
+                      ).unfocus(), // First dismiss keyboard
+                      child: TextFormField(
+                        controller: TextEditingController(
+                          text: _selectedBirthDate != null
+                              // Show in DD/MM/YYYY format
+                              ? "${_selectedBirthDate!.day.toString().padLeft(2, '0')}/${_selectedBirthDate!.month.toString().padLeft(2, '0')}/${_selectedBirthDate!.year}"
+                              : '',
+                        ),
+                        readOnly: true,
+                        onTap: _showDatePicker,
+                        decoration: const InputDecoration(
+                          labelText: 'Doğum tarihi',
+                          prefixIcon: Icon(
+                            Icons.cake_outlined,
+                            color: Colors.pinkAccent,
+                          ),
+                          hintText: 'Gün/Ay/Yıl seçin',
+                        ),
+                        validator: (v) =>
+                            _selectedBirthDate == null ? 'Gerekli' : null,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Autocomplete<String>(
+                      initialValue: TextEditingValue(text: _cityController.text),
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return _sortedCities;
+                        }
+                        final lowerSearch = textEditingValue.text.toLowerCase();
+                        return _sortedCities.where((String city) {
+                          return city.toLowerCase().startsWith(lowerSearch);
+                        });
+                      },
+                      onSelected: (String selection) {
+                        setState(() {
+                          _cityController.text = selection;
+                          _districtController.clear();
+                        });
+                        FocusScope.of(
+                          context,
+                        ).unfocus(); // İmleci ve klavyeyi gizle
+                      },
+                      fieldViewBuilder:
+                          (context, controller, focusNode, onFieldSubmitted) {
+                            return TextFormField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              decoration: const InputDecoration(
+                                labelText: 'Şehir',
+                                prefixIcon: Icon(Icons.location_city_outlined),
+                              ),
+                              onChanged: (v) {
+                                _cityController.text = v;
+                                if (_districtController.text.isNotEmpty) {
+                                  _districtController.clear();
+                                  setState(() {});
+                                }
+                              },
+                              validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+                            );
+                          },
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      key: ValueKey('district_${validCity ?? "none"}'),
+                      value:
+                          (_districtController.text.isNotEmpty &&
+                              districtItems.contains(_districtController.text))
+                          ? _districtController.text
+                          : null,
+                      decoration: InputDecoration(
+                        labelText: 'İlçe',
+                        prefixIcon: const Icon(Icons.map_outlined),
+                        hintText: validCity != null
+                            ? 'İlçe seçin'
+                            : 'Önce şehir seçin',
+                      ),
+                      items: validCity != null
+                          ? districtItems.map((String district) {
+                              return DropdownMenuItem<String>(
+                                value: district,
+                                child: Text(district),
+                              );
+                            }).toList()
+                          : null,
+                      onChanged: validCity == null
+                          ? null
+                          : (String? newValue) {
+                              if (newValue != null) {
+                                setState(
+                                  () => _districtController.text = newValue,
+                                );
                               }
                             },
-                            validator: (v) => v!.isEmpty ? 'Gerekli' : null,
-                          );
-                        },
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    key: ValueKey('district_${validCity ?? "none"}'),
-                    value:
-                        (_districtController.text.isNotEmpty &&
-                            districtItems.contains(_districtController.text))
-                        ? _districtController.text
-                        : null,
-                    decoration: InputDecoration(
-                      labelText: 'İlçe',
-                      prefixIcon: const Icon(Icons.map_outlined),
-                      hintText: validCity != null
-                          ? 'İlçe seçin'
-                          : 'Önce şehir seçin',
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? 'Gerekli' : null,
                     ),
-                    items: validCity != null
-                        ? districtItems.map((String district) {
-                            return DropdownMenuItem<String>(
-                              value: district,
-                              child: Text(district),
-                            );
-                          }).toList()
-                        : null,
-                    onChanged: validCity == null
-                        ? null
-                        : (String? newValue) {
-                            if (newValue != null) {
-                              setState(
-                                () => _districtController.text = newValue,
-                              );
-                            }
-                          },
-                    validator: (v) =>
-                        (v == null || v.isEmpty) ? 'Gerekli' : null,
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Sosyal Medya & Linkler',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'LinkedIn, GitHub veya makale paylaştığın platformları ekleyerek profilini güçlendir.',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: _showSocialMediaManager,
-                    icon: const Icon(Icons.link),
-                    label: const Text('Sosyal Medya Hesaplarını Yönet'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Sosyal Medya & Linkler',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'LinkedIn, GitHub veya makale paylaştığın platformları ekleyerek profilini güçlendir.',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: _showSocialMediaManager,
+                      icon: const Icon(Icons.link),
+                      label: const Text('Sosyal Medya Hesaplarını Yönet'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 40),
-                  const SizedBox(height: 40),
-                  ElevatedButton(
-                    onPressed: _isSaving
-                        ? null
-                        : () => _saveProfile(currentProfile),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2196F3),
-                      foregroundColor: Colors.white,
+                    const SizedBox(height: 40),
+                    const SizedBox(height: 40),
+                    ElevatedButton(
+                      onPressed: _isSaving
+                          ? null
+                          : () => _saveProfile(currentProfile),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2196F3),
+                        foregroundColor: Colors.white,
+                      ),
+                      child: _isSaving
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Değişiklikleri Kaydet'),
                     ),
-                    child: _isSaving
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text('Değişiklikleri Kaydet'),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Hata: $err')),
+            );
+          },
+          loading: () => _buildLoadingState('Veriler yükleniyor...'),
+          error: (err, stack) => Center(
+            key: const ValueKey('error'),
+            child: Text('Hata: $err'),
+          ),
+        ),
+      ),
+    );
+   error: (err, stack) => Center(child: Text('Hata: $err')),
       ),
     );
   }
