@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/github_provider.dart';
+import '../providers/analysis_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import 'github_analysis_review_screen.dart';
 
 class GitHubIntegrationScreen extends ConsumerStatefulWidget {
   const GitHubIntegrationScreen({super.key});
@@ -211,9 +213,20 @@ class _GitHubIntegrationScreenState extends ConsumerState<GitHubIntegrationScree
   }
 
   Future<void> _syncSelectedRepos() async {
-    // Gelecekte analiz ve CV'ye aktarma mantığı buraya gelecek.
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Seçilen repolar analiz ediliyor... (Geliştirilme aşamasında)')),
-    );
+    final allReposAsync = ref.read(githubReposProvider);
+    
+    allReposAsync.whenData((repos) {
+      final selectedRepos = repos.where((r) => _selectedRepos.contains(r.fullName)).toList();
+      
+      if (selectedRepos.isEmpty) return;
+
+      // 1. DONT Trigger analysis here, pass it to the review screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GitHubAnalysisReviewScreen(selectedRepos: selectedRepos),
+        ),
+      );
+    });
   }
 }

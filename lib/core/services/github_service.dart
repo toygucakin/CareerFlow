@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../models/github/github_repo.dart';
 
@@ -33,6 +34,21 @@ class GithubService {
       final response = await _dio.get('/repos/$fullName/languages');
       return Map<String, int>.from(response.data);
     } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<String?> fetchRepoReadme(String fullName) async {
+    try {
+      final response = await _dio.get('/repos/$fullName/readme');
+      final content = response.data['content'] as String;
+      // GitHub base64 kodlanmış ve satır sonu karakterleri içeren bir string döner
+      final cleanContent = content.replaceAll('\n', '');
+      return utf8.decode(base64.decode(cleanContent));
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return null; // README yoksa hata fırlatma, null dön
+      }
       throw _handleError(e);
     }
   }

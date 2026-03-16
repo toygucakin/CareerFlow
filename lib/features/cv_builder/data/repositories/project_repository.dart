@@ -17,7 +17,12 @@ class ProjectRepository {
   }
 
   Future<Project> createProject(Project project) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) throw Exception('Kullanıcı girişi yapılmamış');
+
     final data = project.toJson()..remove('id');
+    data['profile_id'] = user.id;
+
     final response = await _supabase
         .from('projects')
         .insert(data)

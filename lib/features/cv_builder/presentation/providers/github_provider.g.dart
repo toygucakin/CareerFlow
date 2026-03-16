@@ -6,7 +6,7 @@ part of 'github_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$githubServiceHash() => r'fcdccdca340f0aa1eda3675ab4dcbbce696bbe1e';
+String _$githubServiceHash() => r'cc9bc31f6ad7ea99109e9783a83dda84026931a4';
 
 /// See also [githubService].
 @ProviderFor(githubService)
@@ -23,7 +23,7 @@ final githubServiceProvider = AutoDisposeProvider<GithubService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef GithubServiceRef = AutoDisposeProviderRef<GithubService>;
-String _$githubReposHash() => r'de6c58c0d695aacc8f055181c8d6c5dfecba0208';
+String _$githubReposHash() => r'ba0af78c7427ea4aa436f857182485f1e3861ce6';
 
 /// See also [githubRepos].
 @ProviderFor(githubRepos)
