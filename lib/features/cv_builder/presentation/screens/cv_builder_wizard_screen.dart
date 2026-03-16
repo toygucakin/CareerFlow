@@ -163,6 +163,7 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
                   _currentPageIndex = index;
                 });
               },
+              children: [
                 // Faz 1 (Hakkımda + Eğitim)
                 const EducationListScreen(isWizardMode: true),
                 

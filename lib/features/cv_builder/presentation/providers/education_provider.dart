@@ -115,4 +115,33 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
       ref.invalidateSelf();
     }
   }
+
+  Future<void> sortByDate() async {
+    final currentList = state.value;
+    if (currentList == null) return;
+
+    final List<Education> newList = List.from(currentList);
+    
+    // Sort by date: Newest first (descending)
+    newList.sort((a, b) {
+      final aDate = a.startDate ?? DateTime(1900);
+      final bDate = b.startDate ?? DateTime(1900);
+      return bDate.compareTo(aDate);
+    });
+
+    // Re-assign order indexes
+    final List<Education> updatedList = [];
+    for (int i = 0; i < newList.length; i++) {
+      updatedList.add(newList[i].copyWith(orderIndex: i));
+    }
+
+    state = AsyncValue.data(updatedList);
+
+    try {
+      final repo = ref.read(educationRepositoryProvider);
+      await repo.updateEducationOrder(updatedList);
+    } catch (e) {
+      ref.invalidateSelf();
+    }
+  }
 }

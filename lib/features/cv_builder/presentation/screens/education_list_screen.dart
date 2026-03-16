@@ -91,9 +91,19 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                     onChanged: (val) => _saveAboutMe(),
                   ),
                   const Divider(height: 48),
-                  const Text(
-                    'Eğitim Bilgileri',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Eğitim Bilgileri',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.sort_rounded, color: Colors.blue),
+                        tooltip: 'Tarihe Göre Sıralat',
+                        onPressed: () => ref.read(educationListProvider.notifier).sortByDate(),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                 ],
@@ -118,28 +128,33 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                 );
               }
 
-              return SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final edu = educations[index];
-                      final dateFormat = DateFormat('MMM yyyy', 'tr_TR');
+              return SliverReorderableList(
+                itemCount: educations.length,
+                onReorder: (oldIndex, newIndex) {
+                  ref.read(educationListProvider.notifier).reorderEducations(oldIndex, newIndex);
+                },
+                itemBuilder: (context, index) {
+                  final edu = educations[index];
+                  final dateFormat = DateFormat('MMM yyyy', 'tr_TR');
 
-                      String dateString = '';
-                      if (edu.startDate != null) {
-                        dateString += dateFormat.format(edu.startDate!);
-                        dateString += ' - ';
-                        if (edu.endDate != null) {
-                          dateString += dateFormat.format(edu.endDate!);
-                        } else {
-                          dateString += 'Devam Ediyor';
-                        }
-                      }
+                  String dateString = '';
+                  if (edu.startDate != null) {
+                    dateString += dateFormat.format(edu.startDate!);
+                    dateString += ' - ';
+                    if (edu.endDate != null) {
+                      dateString += dateFormat.format(edu.endDate!);
+                    } else {
+                      dateString += 'Devam Ediyor';
+                    }
+                  }
 
-                      return Card(
-                        key: ValueKey(edu.id ?? index),
-                        margin: const EdgeInsets.only(bottom: 12),
+                  return ReorderableDelayedDragStartListener(
+                    key: ValueKey(edu.id ?? index),
+                    index: index,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: Card(
+                        margin: EdgeInsets.zero,
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -223,14 +238,17 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                                   }
                                 },
                               ),
+                              ReorderableDragStartListener(
+                                index: index,
+                                child: const Icon(Icons.drag_indicator, color: Colors.grey),
+                              ),
                             ],
                           ),
                         ),
-                      );
-                    },
-                    childCount: educations.length,
-                  ),
-                ),
+                      ),
+                    ),
+                  );
+                },
               );
             },
             loading: () => const SliverToBoxAdapter(
