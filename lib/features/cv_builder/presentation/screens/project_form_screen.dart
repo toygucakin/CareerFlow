@@ -206,14 +206,35 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              ListTile(
-                title: const Text('Başlangıç Tarihi'),
-                subtitle: Text(_startDate == null ? 'Seçilmedi' : dateFormat.format(_startDate!)),
-                trailing: const Icon(Icons.calendar_today),
+              GestureDetector(
                 onTap: () => _showMonthYearPicker(context, true),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Başlangıç Tarihi',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _startDate == null ? 'Seçilmedi' : dateFormat.format(_startDate!),
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.calendar_today, color: Colors.grey),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -231,14 +252,35 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
               ),
               if (!_isOngoing) ...[
                 const SizedBox(height: 8),
-                ListTile(
-                  title: const Text('Bitiş Tarihi'),
-                  subtitle: Text(_endDate == null ? 'Seçilmedi' : dateFormat.format(_endDate!)),
-                  trailing: const Icon(Icons.calendar_today),
+                GestureDetector(
                   onTap: () => _showMonthYearPicker(context, false),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.grey.shade400),
-                    borderRadius: BorderRadius.circular(4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade400),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Bitiş Tarihi',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _endDate == null ? 'Seçilmedi' : dateFormat.format(_endDate!),
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.calendar_today, color: Colors.grey),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -304,7 +346,7 @@ class _MonthYearPickerInternalState extends State<_MonthYearPickerInternal> {
     'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
   ];
   final int _startYear = 1950;
-  final int _endYear = DateTime.now().year + 50;
+  final int _endYear = DateTime.now().year;
 
   @override
   void initState() {
@@ -343,7 +385,7 @@ class _MonthYearPickerInternalState extends State<_MonthYearPickerInternal> {
                   _month = i + 1;
                   _onChanged();
                 },
-                childCount: 12,
+                childCount: _year == _endYear ? DateTime.now().month : 12,
                 itemBuilder: (c, i) => Center(child: Text(_months[i])),
               ),
             ),
@@ -353,7 +395,12 @@ class _MonthYearPickerInternalState extends State<_MonthYearPickerInternal> {
                 itemExtent: 44,
                 onSelectedItemChanged: (i) {
                   _year = _startYear + i;
+                  if (_year == _endYear && _month > DateTime.now().month) {
+                    _month = DateTime.now().month;
+                    _monthCtrl.jumpToItem(_month - 1);
+                  }
                   _onChanged();
+                  setState(() {});
                 },
                 childCount: _endYear - _startYear + 1,
                 itemBuilder: (c, i) => Center(child: Text('${_startYear + i}')),
