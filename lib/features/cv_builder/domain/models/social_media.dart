@@ -32,8 +32,55 @@ class SocialMediaAccount with _$SocialMediaAccount {
     required String url,
   }) = _SocialMediaAccount;
 
+  const SocialMediaAccount._();
+
   factory SocialMediaAccount.fromJson(Map<String, dynamic> json) =>
       _$SocialMediaAccountFromJson(json);
+
+  String get username {
+    if (url.isEmpty) return '';
+    try {
+      final uri = Uri.parse(url);
+      final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+
+      if (pathSegments.isEmpty) return url;
+
+      switch (platform) {
+        case SocialMediaPlatform.linkedIn:
+          // https://www.linkedin.com/in/username/
+          if (pathSegments.length >= 2 && pathSegments[0] == 'in') {
+            return pathSegments[1];
+          }
+          return pathSegments.last;
+        case SocialMediaPlatform.github:
+        case SocialMediaPlatform.instagram:
+        case SocialMediaPlatform.medium:
+        case SocialMediaPlatform.x:
+        case SocialMediaPlatform.behance:
+        case SocialMediaPlatform.dribbble:
+        case SocialMediaPlatform.devto:
+        case SocialMediaPlatform.hashnode:
+          // https://platform.com/username
+          return pathSegments.first;
+        case SocialMediaPlatform.facebook:
+          // https://facebook.com/username or https://facebook.com/profile.php?id=...
+          if (pathSegments.first == 'profile.php') {
+            return uri.queryParameters['id'] ?? pathSegments.first;
+          }
+          return pathSegments.first;
+        case SocialMediaPlatform.youtube:
+          // https://youtube.com/@username
+          if (pathSegments.first.startsWith('@')) {
+            return pathSegments.first.substring(1);
+          }
+          return pathSegments.first;
+        default:
+          return pathSegments.last;
+      }
+    } catch (e) {
+      return url;
+    }
+  }
 }
 
 extension SocialMediaPlatformExtension on SocialMediaPlatform {

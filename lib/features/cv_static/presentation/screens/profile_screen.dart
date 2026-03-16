@@ -9,6 +9,7 @@ import '../../../cv_builder/domain/models/social_media.dart';
 import '../../../cv_builder/presentation/providers/social_media_provider.dart';
 import '../../../../core/providers/theme_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final DateTime? navigationStartTime;
@@ -538,8 +539,14 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
                         backgroundColor: account.platform.color.withOpacity(0.1),
                         child: FaIcon(account.platform.icon, color: account.platform.color, size: 18),
                       ),
-                      title: Text(account.platform.displayName, style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color, fontWeight: FontWeight.bold)),
-                      subtitle: Text(account.url, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      title: Text(account.username, style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color, fontWeight: FontWeight.bold)),
+                      subtitle: Text(account.platform.displayName, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      onTap: () async {
+                        final uri = Uri.parse(account.url);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
+                      },
                       trailing: IconButton(
                         icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
                         onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),

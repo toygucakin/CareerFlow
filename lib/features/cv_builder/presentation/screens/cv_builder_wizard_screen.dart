@@ -26,7 +26,7 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
     'Sertifika',
     'Projeler', 
     'Deneyim',
-    'Beceriler' 
+    'Beceriler'
   ];
 
   @override
