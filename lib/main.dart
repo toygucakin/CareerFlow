@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/auth/presentation/screens/auth_screen.dart';
@@ -21,14 +22,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
   // Initialize SharedPreferences
   final sharedPrefs = await SharedPreferences.getInstance();
 
-  // Supabase initialization with project credentials
+  // Supabase initialization with project credentials from environment variables
   await Supabase.initialize(
-    url: 'https://REMOVED.supabase.co',
-    anonKey:
-        'SUPABASE_ANON_KEY_REMOVED',
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
 
   runApp(
