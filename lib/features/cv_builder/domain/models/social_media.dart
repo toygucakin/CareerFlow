@@ -75,7 +75,7 @@ class SocialMediaAccount with _$SocialMediaAccount {
           }
           return pathSegments.first;
         case SocialMediaPlatform.website:
-          // https://toygucakin.com -> toygucakin
+          // https://toygucakin.com -> toygucakin.com
           // kariyer.net -> kariyer.net
           String host = uri.host.toLowerCase();
           if (host.isEmpty) {
@@ -84,16 +84,6 @@ class SocialMediaAccount with _$SocialMediaAccount {
             if (host.endsWith('/')) host = host.substring(0, host.length - 1);
           } else {
             if (host.startsWith('www.')) host = host.substring(4);
-          }
-          
-          final hostParts = host.split('.');
-          if (hostParts.length == 2) {
-             // toygucakin.com -> toygucakin olsun (kullanıcı isteği)
-             // Ancak kariyer.net -> kariyer.net kalsın (kullanıcı isteği)
-             if (hostParts.last == 'com') {
-               return hostParts.first;
-             }
-             return host; // Diğer durumlarda ( .net, .org vb.) tam ismi koru
           }
           return host.isNotEmpty ? host : url;
         default:
