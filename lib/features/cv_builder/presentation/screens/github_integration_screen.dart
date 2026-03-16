@@ -16,6 +16,9 @@ class _GitHubIntegrationScreenState extends ConsumerState<GitHubIntegrationScree
 
   @override
   Widget build(BuildContext context) {
+    // Watch auth state changes to ensure UI refreshes after deep link redirect
+    ref.watch(authStateChangesProvider);
+    
     final reposAsync = ref.watch(githubReposProvider);
     final authRepo = ref.watch(authRepositoryProvider);
     final isConnected = authRepo.providerToken != null;

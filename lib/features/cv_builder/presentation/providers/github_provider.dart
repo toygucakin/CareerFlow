@@ -7,6 +7,9 @@ part 'github_provider.g.dart';
 
 @riverpod
 GithubService githubService(GithubServiceRef ref) {
+  // Watch auth state changes to ensure we react to new tokens
+  ref.watch(authStateChangesProvider);
+  
   final authRepo = ref.watch(authRepositoryProvider);
   final token = authRepo.providerToken;
   return GithubService(token);
@@ -14,6 +17,9 @@ GithubService githubService(GithubServiceRef ref) {
 
 @riverpod
 Future<List<GithubRepo>> githubRepos(GithubReposRef ref) async {
+  // Watch auth state changes to trigger repo fetch when session is updated
+  ref.watch(authStateChangesProvider);
+  
   final service = ref.watch(githubServiceProvider);
   final authRepo = ref.watch(authRepositoryProvider);
   
