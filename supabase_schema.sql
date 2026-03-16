@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   district TEXT,
   email TEXT,
   birth_date DATE,
+  about_me TEXT,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -205,5 +206,8 @@ ALTER TABLE education ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 
 ALTER TABLE communities ADD COLUMN IF NOT EXISTS start_date DATE;
 ALTER TABLE communities ADD COLUMN IF NOT EXISTS end_date DATE;
+
+-- Hakkımda kolonunu ekle
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS about_me TEXT;
 
 
