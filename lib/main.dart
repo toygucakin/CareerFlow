@@ -236,12 +236,12 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Welcome, Developer',
+              'Hoş Geldin, Geliştirici',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Your autonomous CV engine is ready.',
+              'Otonom CV motorun hazır.',
               style: TextStyle(color: Colors.grey),
             ),
           ],
