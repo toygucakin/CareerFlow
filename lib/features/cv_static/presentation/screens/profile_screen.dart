@@ -509,81 +509,83 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Sosyal Medya Hesapları', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleLarge?.color)),
-                IconButton(icon: const Icon(Icons.close, color: Colors.grey), onPressed: () => Navigator.pop(context)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            socialMediaAsync.when(
-              data: (accounts) {
-                if (accounts.isEmpty) {
-                  return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 32), child: Text('Henüz bir hesap eklenmedi.', style: TextStyle(color: Colors.grey))));
-                }
-                return ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: accounts.length,
-                  separatorBuilder: (ctx, idx) => const Divider(),
-                  itemBuilder: (ctx, idx) {
-                    final account = accounts[idx];
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor: account.platform.color.withOpacity(0.1),
-                        child: FaIcon(account.platform.icon, color: account.platform.color, size: 18),
-                      ),
-                      title: Text(account.username, style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color, fontWeight: FontWeight.bold)),
-                      subtitle: Text(account.platform.displayName, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      onTap: () async {
-                        final uri = Uri.parse(account.url);
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri, mode: LaunchMode.externalApplication);
-                        }
-                      },
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.blue),
-                            onPressed: () => _showEditDialog(context, account),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                            onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) => Center(child: Text('Hata: $err', style: TextStyle(color: Theme.of(context).colorScheme.error))),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _showAddDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('Hesap Ekle'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2196F3),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Sosyal Medya Hesapları', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleLarge?.color)),
+                  IconButton(icon: const Icon(Icons.close, color: Colors.grey), onPressed: () => Navigator.pop(context)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              socialMediaAsync.when(
+                data: (accounts) {
+                  if (accounts.isEmpty) {
+                    return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 32), child: Text('Henüz bir hesap eklenmedi.', style: TextStyle(color: Colors.grey))));
+                  }
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: accounts.length,
+                    separatorBuilder: (ctx, idx) => const Divider(),
+                    itemBuilder: (ctx, idx) {
+                      final account = accounts[idx];
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          backgroundColor: account.platform.color.withOpacity(0.1),
+                          child: FaIcon(account.platform.icon, color: account.platform.color, size: 18),
+                        ),
+                        title: Text(account.username, style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color, fontWeight: FontWeight.bold)),
+                        subtitle: Text(account.platform.displayName, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        onTap: () async {
+                          final uri = Uri.parse(account.url);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.blue),
+                              onPressed: () => _showEditDialog(context, account),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                              onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, _) => Center(child: Text('Hata: $err', style: TextStyle(color: Theme.of(context).colorScheme.error))),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showAddDialog(context),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Hesap Ekle'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2196F3),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -623,35 +625,50 @@ class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
       builder: (ctx, ref, child) {
         return AlertDialog(
           title: Text(widget.accountToEdit != null ? 'Hesabı Düzenle' : 'Yeni Hesap Ekle'),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<SocialMediaPlatform>(
-                  value: _selectedPlatform,
-                  decoration: const InputDecoration(labelText: 'Platform'),
-                  items: SocialMediaPlatform.values.map((p) {
-                    return DropdownMenuItem(
-                      value: p,
-                      child: Row(
-                        children: [
-                          FaIcon(p.icon, color: p.color, size: 16),
-                          const SizedBox(width: 12),
-                          Text(p.displayName),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (val) => setState(() => _selectedPlatform = val!),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _urlController,
-                  decoration: const InputDecoration(labelText: 'Profil Linki', hintText: 'https://...'),
-                  validator: (v) => (v == null || v.isEmpty) ? 'Gerekli' : (!v.startsWith('http') ? 'Geçerli bir URL girin' : null),
-                ),
-              ],
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<SocialMediaPlatform>(
+                    value: _selectedPlatform,
+                    decoration: const InputDecoration(
+                      labelText: 'Platform',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.share),
+                    ),
+                    items: SocialMediaPlatform.values.map((platform) {
+                      return DropdownMenuItem(
+                        value: platform,
+                        child: Row(
+                          children: [
+                            FaIcon(platform.icon, color: platform.color, size: 18),
+                            const SizedBox(width: 12),
+                            Text(platform.displayName),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (val) => setState(() => _selectedPlatform = val!),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _urlController,
+                    decoration: const InputDecoration(
+                      labelText: 'Profil Linki',
+                      hintText: 'https://...',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.link),
+                    ),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) return 'Lütfen bir link girin';
+                      if (!val.startsWith('http')) return 'Geçerli bir URL girin (http/https)';
+                      return null;
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
