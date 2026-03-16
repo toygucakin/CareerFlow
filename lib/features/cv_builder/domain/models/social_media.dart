@@ -43,10 +43,9 @@ class SocialMediaAccount with _$SocialMediaAccount {
       final uri = Uri.parse(url);
       final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
 
-      if (pathSegments.isEmpty) return url;
-
       switch (platform) {
         case SocialMediaPlatform.linkedIn:
+          if (pathSegments.isEmpty) return url;
           // https://www.linkedin.com/in/username/
           if (pathSegments.length >= 2 && pathSegments[0] == 'in') {
             return pathSegments[1];
@@ -60,15 +59,18 @@ class SocialMediaAccount with _$SocialMediaAccount {
         case SocialMediaPlatform.dribbble:
         case SocialMediaPlatform.devto:
         case SocialMediaPlatform.hashnode:
+          if (pathSegments.isEmpty) return url;
           // https://platform.com/username
           return pathSegments.first;
         case SocialMediaPlatform.facebook:
+          if (pathSegments.isEmpty) return url;
           // https://facebook.com/username or https://facebook.com/profile.php?id=...
           if (pathSegments.first == 'profile.php') {
             return uri.queryParameters['id'] ?? pathSegments.first;
           }
           return pathSegments.first;
         case SocialMediaPlatform.youtube:
+          if (pathSegments.isEmpty) return url;
           // https://youtube.com/@username
           if (pathSegments.first.startsWith('@')) {
             return pathSegments.first.substring(1);
@@ -87,6 +89,7 @@ class SocialMediaAccount with _$SocialMediaAccount {
           }
           return host.isNotEmpty ? host : url;
         default:
+          if (pathSegments.isEmpty) return url;
           return pathSegments.last;
       }
     } catch (e) {
