@@ -1,6 +1,7 @@
 class AnalyzedProject {
   final String repoFullName;
   final String title;
+  final String scope;
   final String description;
   final List<String> technologies;
   final DateTime? startDate;
@@ -9,6 +10,7 @@ class AnalyzedProject {
   AnalyzedProject({
     required this.repoFullName,
     required this.title,
+    required this.scope,
     required this.description,
     required this.technologies,
     this.startDate,
@@ -17,12 +19,14 @@ class AnalyzedProject {
 
   AnalyzedProject copyWith({
     String? title,
+    String? scope,
     String? description,
     List<String>? technologies,
   }) {
     return AnalyzedProject(
       repoFullName: repoFullName,
       title: title ?? this.title,
+      scope: scope ?? this.scope,
       description: description ?? this.description,
       technologies: technologies ?? this.technologies,
       startDate: startDate,

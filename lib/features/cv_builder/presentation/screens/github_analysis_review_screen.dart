@@ -108,6 +108,21 @@ class _GitHubAnalysisReviewScreenState extends ConsumerState<GitHubAnalysisRevie
                 ),
               ],
             ),
+            TextFormField(
+              initialValue: project.scope,
+              decoration: const InputDecoration(
+                labelText: 'Proje Kapsamı (Örn: Mobil Uygulama)',
+                border: InputBorder.none,
+                labelStyle: TextStyle(color: Colors.blue),
+                prefixIcon: Icon(Icons.category_outlined, size: 16),
+              ),
+              style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.grey),
+              onChanged: (val) {
+                ref.read(analysisNotifierProvider.notifier).updateProject(
+                  index, project.copyWith(scope: val),
+                );
+              },
+            ),
             const Divider(),
             TextFormField(
               initialValue: project.description,
@@ -179,6 +194,7 @@ class _GitHubAnalysisReviewScreenState extends ConsumerState<GitHubAnalysisRevie
         // 1. Add as Project
         await projectNotifier.addProject(Project(
           name: ap.title, // 'title' was changed to 'name' in Project model
+          scope: ap.scope, // Save the AI generated scope
           description: ap.description,
           technologies: ap.technologies.join(', '), // Convert List<String> to String
           startDate: ap.startDate,
