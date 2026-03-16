@@ -547,9 +547,18 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
                           await launchUrl(uri, mode: LaunchMode.externalApplication);
                         }
                       },
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                        onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.blue),
+                            onPressed: () => _showEditDialog(context, account),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                            onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -583,25 +592,37 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
   void _showAddDialog(BuildContext context) {
     showDialog(context: context, builder: (ctx) => const _AddSocialMediaDialog());
   }
+
+  void _showEditDialog(BuildContext context, SocialMediaAccount account) {
+    showDialog(context: context, builder: (ctx) => _AddSocialMediaDialog(accountToEdit: account));
+  }
 }
 
 class _AddSocialMediaDialog extends StatefulWidget {
-  const _AddSocialMediaDialog();
+  final SocialMediaAccount? accountToEdit;
+  const _AddSocialMediaDialog({this.accountToEdit});
   @override
   State<_AddSocialMediaDialog> createState() => _AddSocialMediaDialogState();
 }
 
 class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
-  SocialMediaPlatform _selectedPlatform = SocialMediaPlatform.linkedIn;
-  final _urlController = TextEditingController();
+  late SocialMediaPlatform _selectedPlatform;
+  late final TextEditingController _urlController;
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPlatform = widget.accountToEdit?.platform ?? SocialMediaPlatform.linkedIn;
+    _urlController = TextEditingController(text: widget.accountToEdit?.url ?? '');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (ctx, ref, child) {
         return AlertDialog(
-          title: const Text('Yeni Hesap Ekle'),
+          title: Text(widget.accountToEdit != null ? 'Hesabı Düzenle' : 'Yeni Hesap Ekle'),
           content: Form(
             key: _formKey,
             child: Column(
@@ -640,14 +661,24 @@ class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
                 if (_formKey.currentState!.validate()) {
                   final user = ref.read(authRepositoryProvider).currentUser;
                   if (user != null) {
-                    await ref.read(socialMediaListProvider.notifier).addAccount(
-                      SocialMediaAccount(platform: _selectedPlatform, url: _urlController.text.trim(), profileId: user.id),
+                    final account = SocialMediaAccount(
+                      id: widget.accountToEdit?.id,
+                      platform: _selectedPlatform,
+                      url: _urlController.text.trim(),
+                      profileId: user.id,
                     );
+
+                    if (widget.accountToEdit != null) {
+                      await ref.read(socialMediaListProvider.notifier).updateAccount(account);
+                    } else {
+                      await ref.read(socialMediaListProvider.notifier).addAccount(account);
+                    }
+                    
                     if (mounted) Navigator.pop(ctx);
                   }
                 }
               },
-              child: const Text('Ekle'),
+              child: Text(widget.accountToEdit != null ? 'Güncelle' : 'Ekle'),
             ),
           ],
         );
