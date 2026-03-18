@@ -44,7 +44,7 @@ class _RippleEffectState extends State<_RippleEffect>
     );
 
     _radiusAnimation = Tween<double>(begin: 0.0, end: 60.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.outShips),
+      CurvedAnimation(parent: _controller, curve: EffectCurves.outShips),
     );
 
     _opacityAnimation = Tween<double>(begin: 0.6, end: 0.0).animate(
@@ -112,7 +112,7 @@ class _RipplePainter extends CustomPainter {
 }
 
 // Custom curve for a slightly more "elastic" feel
-class Curves {
+class EffectCurves {
   static const Curve outShips = _OutShipsCurve();
 }
 

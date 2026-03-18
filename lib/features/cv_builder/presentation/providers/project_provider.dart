@@ -10,8 +10,8 @@ final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
 
 final projectListProvider =
     AsyncNotifierProvider<ProjectListNotifier, List<Project>>(() {
-      return ProjectListNotifier();
-    });
+  return ProjectListNotifier();
+});
 
 class ProjectListNotifier extends AsyncNotifier<List<Project>> {
   @override
@@ -23,7 +23,6 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
     list.sort((a, b) {
       if (a.orderIndex != null && b.orderIndex != null)
         return a.orderIndex!.compareTo(b.orderIndex!);
-      // Use date as fallback structure
       return (b.startDate ?? DateTime.now()).compareTo(
         a.startDate ?? DateTime.now(),
       );
@@ -32,29 +31,28 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
   }
 
   Future<void> addProject(Project project) async {
-    final previousState = state;
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(projectRepositoryProvider);
       final newItem = await repo.createProject(project);
-      final currentList = state.value ?? [];
-      final newList = [...currentList, newItem];
-      newList.sort((a, b) {
-        if (a.orderIndex != null && b.orderIndex != null)
-          return a.orderIndex!.compareTo(b.orderIndex!);
-        return (b.startDate ?? DateTime.now()).compareTo(
-          a.startDate ?? DateTime.now(),
-        );
-      });
-      return newList;
-    });
-    if (state.hasError) {
-      state = previousState;
+      if (state.hasValue) {
+        final newList = [...state.value!, newItem];
+        newList.sort((a, b) {
+          if (a.orderIndex != null && b.orderIndex != null)
+            return a.orderIndex!.compareTo(b.orderIndex!);
+          return (b.startDate ?? DateTime.now()).compareTo(
+            a.startDate ?? DateTime.now(),
+          );
+        });
+        state = AsyncValue.data(newList);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> updateProject(Project project) async {
-    final previousState = state;
-    
     if (!state.hasValue) return;
     
     final currentList = state.value!;

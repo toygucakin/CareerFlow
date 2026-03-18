@@ -31,36 +31,34 @@ class ExperienceListNotifier extends AsyncNotifier<List<Experience>> {
   }
 
   Future<void> addExperience(Experience experience) async {
-    final previousState = state;
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(experienceRepositoryProvider);
       final newItem = await repo.createExperience(experience);
-      final currentList = state.value ?? [];
-      final newList = [...currentList, newItem];
-      newList.sort((a, b) {
-        if (a.orderIndex != null && b.orderIndex != null)
-          return a.orderIndex!.compareTo(b.orderIndex!);
-        return (b.startDate ?? DateTime.now()).compareTo(
-          a.startDate ?? DateTime.now(),
-        );
-      });
-      return newList;
-    });
-    if (state.hasError) {
-      state = previousState;
+      if (state.hasValue) {
+        final newList = [...state.value!, newItem];
+        newList.sort((a, b) {
+          if (a.orderIndex != null && b.orderIndex != null)
+            return a.orderIndex!.compareTo(b.orderIndex!);
+          return (b.startDate ?? DateTime.now()).compareTo(
+            a.startDate ?? DateTime.now(),
+          );
+        });
+        state = AsyncValue.data(newList);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> updateExperience(Experience experience) async {
-    final previousState = state;
     if (!state.hasValue) return;
 
-    // Optimistic update
     final currentList = state.value!;
-    final newList = currentList
-        .map((e) => e.id == experience.id ? experience : e)
-        .toList();
-    state = AsyncValue.data(newList);
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == experience.id ? experience : e).toList(),
+    );
 
     try {
       final repo = ref.read(experienceRepositoryProvider);
@@ -73,7 +71,6 @@ class ExperienceListNotifier extends AsyncNotifier<List<Experience>> {
   Future<void> deleteExperience(int id) async {
     if (!state.hasValue) return;
 
-    // Optimistic delete
     final currentList = state.value!;
     state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
 

@@ -18,7 +18,6 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
   Future<List<Education>> build() async {
     final user = ref.read(authRepositoryProvider).currentUser;
     if (user == null) return [];
-
     final repo = ref.read(educationRepositoryProvider);
     final list = await repo.getEducations(user.id);
     list.sort((a, b) {
@@ -33,30 +32,29 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
   }
 
   Future<void> addEducation(Education education) async {
-    final previousState = state;
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(educationRepositoryProvider);
-      final newEdu = await repo.createEducation(education);
-      final currentList = state.value ?? [];
-      final newList = [...currentList, newEdu];
-      newList.sort((a, b) {
-        if (a.orderIndex != null && b.orderIndex != null) {
-          return a.orderIndex!.compareTo(b.orderIndex!);
-        }
-        return (b.startDate ?? DateTime.now()).compareTo(
-          a.startDate ?? DateTime.now(),
-        );
-      });
-      return newList;
-    });
-    if (state.hasError) {
-      state = previousState;
+      final newItem = await repo.createEducation(education);
+      if (state.hasValue) {
+        final newList = [...state.value!, newItem];
+        newList.sort((a, b) {
+          if (a.orderIndex != null && b.orderIndex != null) {
+            return a.orderIndex!.compareTo(b.orderIndex!);
+          }
+          return (b.startDate ?? DateTime.now()).compareTo(
+            a.startDate ?? DateTime.now(),
+          );
+        });
+        state = AsyncValue.data(newList);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> updateEducation(Education education) async {
-    final previousState = state;
-    
     if (!state.hasValue) return;
 
     final currentList = state.value!;
@@ -90,58 +88,22 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
     final currentList = state.value;
     if (currentList == null) return;
 
-    // Prevent UI jank by updating state immediately
     final List<Education> newList = List.from(currentList);
+    if (oldIndex < newIndex) newIndex -= 1;
 
-    if (oldIndex < newIndex) {
-      newIndex -= 1;
-    }
-
-    final Education item = newList.removeAt(oldIndex);
+    final item = newList.removeAt(oldIndex);
     newList.insert(newIndex, item);
 
-    // Assign sorted indexes
-    final List<Education> updatedList = [];
-    for (int i = 0; i < newList.length; i++) {
-      updatedList.add(newList[i].copyWith(orderIndex: i));
-    }
-
-    // Save to state to skip loading screen flash
-    state = AsyncValue.data(updatedList);
-
-    try {
-      final repo = ref.read(educationRepositoryProvider);
-      await repo.updateEducationOrder(updatedList);
-    } catch (e) {
-      // Revert on failure
-      ref.invalidateSelf();
-    }
-  }
-
-  Future<void> sortByDate() async {
-    final currentList = state.value;
-    if (currentList == null) return;
-
-    final List<Education> newList = List.from(currentList);
-    
-    // Sort by date: Newest first (descending)
-    newList.sort((a, b) {
-      final aDate = a.startDate ?? DateTime(1900);
-      final bDate = b.startDate ?? DateTime(1900);
-      return bDate.compareTo(aDate);
-    });
-
-    // Re-assign order indexes
     final List<Education> updatedList = [];
     for (int i = 0; i < newList.length; i++) {
       updatedList.add(newList[i].copyWith(orderIndex: i));
     }
 
     state = AsyncValue.data(updatedList);
-
     try {
-      final repo = ref.read(educationRepositoryProvider);
-      await repo.updateEducationOrder(updatedList);
+      await ref
+          .read(educationRepositoryProvider)
+          .updateEducationOrder(updatedList);
     } catch (e) {
       ref.invalidateSelf();
     }

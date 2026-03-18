@@ -1,43 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/models/cv/skill.dart';
+import '../../data/repositories/skill_repository.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
-final skillListProvider = StateNotifierProvider<SkillListNotifier, AsyncValue<List<Skill>>>((ref) {
+final skillRepositoryProvider = Provider<SkillRepository>((ref) {
+  return SkillRepository(Supabase.instance.client);
+});
+
+final skillListProvider =
+    AsyncNotifierProvider<SkillListNotifier, List<Skill>>(() {
   return SkillListNotifier();
 });
 
-class SkillListNotifier extends StateNotifier<AsyncValue<List<Skill>>> {
-  SkillListNotifier() : super(const AsyncValue.loading()) {
-    fetchSkills();
-  }
-
-  final _supabase = Supabase.instance.client;
-
-  Future<void> fetchSkills({bool showLoading = true}) async {
-    try {
-      if (showLoading) {
-        state = const AsyncValue.loading();
-      }
-      final user = _supabase.auth.currentUser;
-      if (user == null) {
-        state = const AsyncValue.data([]);
-        return;
-      }
-
-      final response = await _supabase
-          .from('skills')
-          .select()
-          .eq('profile_id', user.id)
-          .order('sort_order', ascending: true);
-
-      final skills = (response as List)
-          .map((json) => Skill.fromJson(json))
-          .toList();
-          
-      state = AsyncValue.data(skills);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+class SkillListNotifier extends AsyncNotifier<List<Skill>> {
+  @override
+  Future<List<Skill>> build() async {
+    final user = ref.read(authRepositoryProvider).currentUser;
+    if (user == null) return [];
+    final repo = ref.read(skillRepositoryProvider);
+    final list = await repo.getSkills(user.id);
+    list.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
+    return list;
   }
 
   Future<void> addSkill(Skill skill) async {
@@ -51,7 +35,6 @@ class SkillListNotifier extends StateNotifier<AsyncValue<List<Skill>>> {
       }
     } catch (e) {
       ref.invalidateSelf();
-      // Error handling by the UI
     }
   }
 
@@ -73,4 +56,17 @@ class SkillListNotifier extends StateNotifier<AsyncValue<List<Skill>>> {
   }
 
   Future<void> deleteSkill(int id) async {
+    if (!state.hasValue) return;
+    
+    // Optimistic delete
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+
+    try {
+      final repo = ref.read(skillRepositoryProvider);
+      await repo.deleteSkill(id);
+    } catch (e) {
+      ref.invalidateSelf();
+    }
+  }
 }
