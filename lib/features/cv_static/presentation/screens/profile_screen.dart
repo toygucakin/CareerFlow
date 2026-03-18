@@ -9,6 +9,8 @@ import '../../../cv_builder/domain/models/social_media.dart';
 import '../../../cv_builder/presentation/providers/social_media_provider.dart';
 import '../../../../core/providers/theme_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/widgets/deletion_effect.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   final DateTime? navigationStartTime;
@@ -30,18 +32,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     CountryData(
       code: '+90',
       name: 'Türkiye',
+      shortCode: 'TR',
       flag: '🇹🇷',
       mask: '### ### ## ##',
     ),
     CountryData(
       code: '+1',
       name: 'Amerika',
+      shortCode: 'US',
       flag: '🇺🇸',
       mask: '### ### ####',
     ),
     CountryData(
       code: '+49',
       name: 'Almanya',
+      shortCode: 'DE',
       flag: '🇩🇪',
       mask: '#### ########',
     ),
@@ -128,6 +133,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(currentUserProfileProvider);
     final user = ref.read(authRepositoryProvider).currentUser;
+
+    // Prefetch social media list to avoid loading delay
+    if (user != null) {
+      ref.watch(socialMediaListProvider);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -264,18 +274,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           margin: const EdgeInsets.only(right: 8),
           decoration: const BoxDecoration(border: Border(right: BorderSide(color: Colors.grey, width: 1))),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<CountryData>(
-              value: _selectedCountry,
-              items: _countryOptions.map((c) => DropdownMenuItem(value: c, child: Text('${c.flag} ${c.code} ${c.name}'))).toList(),
-              onChanged: (val) {
-                if (val != null) {
-                  setState(() {
-                    _selectedCountry = val;
-                    _phoneController.clear();
-                  });
-                }
-              },
+          child: PopupMenuButton<CountryData>(
+            position: PopupMenuPosition.under,
+            elevation: 8,
+            offset: const Offset(0, 8),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            onSelected: (val) {
+              setState(() {
+                _selectedCountry = val;
+                _phoneController.clear();
+              });
+            },
+            itemBuilder: (context) {
+              final tr = _countryOptions.firstWhere((c) => c.code == '+90');
+              final us = _countryOptions.firstWhere((c) => c.code == '+1' || c.name.contains('Amerika'));
+              final de = _countryOptions.firstWhere((c) => c.code == '+49' || c.name.contains('Almanya'));
+
+              final sortedMenu = [tr, de, us];
+              
+              return sortedMenu.map((c) => PopupMenuItem(
+                value: c,
+                child: Row(
+                  children: [
+                    Text('(${c.shortCode})', style: TextStyle(fontWeight: FontWeight.w500, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                    const SizedBox(width: 8),
+                    Text(c.code, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              )).toList();
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('(${_selectedCountry.shortCode})', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: 13)),
+                const SizedBox(width: 4),
+                Text(_selectedCountry.code, style: const TextStyle(fontSize: 13)),
+                const Icon(Icons.arrow_drop_down, size: 20, color: Colors.grey),
+              ],
             ),
           ),
         ),
@@ -444,7 +479,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const _SocialMediaManagerSheet(),
+      builder: (context) => const _SocialMediaManagerSheetHost(),
     );
   }
 
@@ -493,11 +528,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 }
 
-class _SocialMediaManagerSheet extends ConsumerWidget {
-  const _SocialMediaManagerSheet();
+class _SocialMediaManagerSheetHost extends ConsumerStatefulWidget {
+  const _SocialMediaManagerSheetHost();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SocialMediaManagerSheetHost> createState() =>
+      _SocialMediaManagerSheetHostState();
+}
+
+class _SocialMediaManagerSheetHostState
+    extends ConsumerState<_SocialMediaManagerSheetHost> {
+  final Set<int> _deletingIds = {};
+
+  @override
+  Widget build(BuildContext context) {
     final socialMediaAsync = ref.watch(socialMediaListProvider);
 
     return Container(
@@ -508,66 +552,142 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Sosyal Medya Hesapları', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleLarge?.color)),
-                IconButton(icon: const Icon(Icons.close, color: Colors.grey), onPressed: () => Navigator.pop(context)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            socialMediaAsync.when(
-              data: (accounts) {
-                if (accounts.isEmpty) {
-                  return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 32), child: Text('Henüz bir hesap eklenmedi.', style: TextStyle(color: Colors.grey))));
-                }
-                return ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: accounts.length,
-                  separatorBuilder: (ctx, idx) => const Divider(),
-                  itemBuilder: (ctx, idx) {
-                    final account = accounts[idx];
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor: account.platform.color.withOpacity(0.1),
-                        child: FaIcon(account.platform.icon, color: account.platform.color, size: 18),
-                      ),
-                      title: Text(account.platform.displayName, style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color, fontWeight: FontWeight.bold)),
-                      subtitle: Text(account.url, style: const TextStyle(color: Colors.grey, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                        onPressed: () => ref.read(socialMediaListProvider.notifier).deleteAccount(account.id!),
-                      ),
-                    );
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) => Center(child: Text('Hata: $err', style: TextStyle(color: Theme.of(context).colorScheme.error))),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _showAddDialog(context),
-                icon: const Icon(Icons.add),
-                label: const Text('Hesap Ekle'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2196F3),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Sosyal Medya Hesapları',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).textTheme.titleLarge?.color)),
+                  IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.pop(context)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              socialMediaAsync.when(
+                data: (accounts) {
+                  if (accounts.isEmpty) {
+                    return const Center(
+                        child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 32),
+                            child: Text('Henüz bir hesap eklenmedi.',
+                                style: TextStyle(color: Colors.grey))));
+                  }
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: accounts.length,
+                    separatorBuilder: (ctx, idx) => const Divider(),
+                    itemBuilder: (ctx, idx) {
+                      final account = accounts[idx];
+                      final isDeleting =
+                          account.id != null && _deletingIds.contains(account.id);
+
+                      return AnimatedSlide(
+                        offset: isDeleting ? const Offset(-1.2, 0) : Offset.zero,
+                        duration: const Duration(milliseconds: 350),
+                        curve: Curves.easeInCubic,
+                        child: AnimatedOpacity(
+                          opacity: isDeleting ? 0.0 : 1.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: CircleAvatar(
+                              backgroundColor:
+                                  account.platform.color.withOpacity(0.1),
+                              child: FaIcon(account.platform.icon,
+                                  color: account.platform.color, size: 18),
+                            ),
+                            title: Text(account.username,
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.color,
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Text(account.platform.displayName,
+                                style: const TextStyle(
+                                    color: Colors.grey, fontSize: 12),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis),
+                            onTap: () async {
+                              final uri = Uri.parse(account.url);
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(uri,
+                                    mode: LaunchMode.externalApplication);
+                              }
+                            },
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit_outlined,
+                                      size: 20, color: Colors.blue),
+                                  onPressed: () => _showEditDialog(context, account),
+                                ),
+                                Builder(
+                                  builder: (buttonContext) => IconButton(
+                                    icon: const Icon(Icons.delete_outline,
+                                        color: Colors.redAccent, size: 20),
+                                    onPressed: () async {
+                                      final RenderBox renderBox =
+                                          buttonContext.findRenderObject()
+                                              as RenderBox;
+                                      final position = renderBox.localToGlobal(
+                                          renderBox.size.center(Offset.zero));
+
+                                      DeletionEffect.show(context, position);
+                                      setState(() {
+                                        _deletingIds.add(account.id!);
+                                      });
+
+                                      await Future.delayed(
+                                          const Duration(milliseconds: 350));
+
+                                      if (mounted) {
+                                        await ref
+                                            .read(socialMediaListProvider.notifier)
+                                            .deleteAccount(account.id!);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, _) => Center(child: Text('Hata: $err', style: TextStyle(color: Theme.of(context).colorScheme.error))),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showAddDialog(context),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Hesap Ekle'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2196F3),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -576,54 +696,81 @@ class _SocialMediaManagerSheet extends ConsumerWidget {
   void _showAddDialog(BuildContext context) {
     showDialog(context: context, builder: (ctx) => const _AddSocialMediaDialog());
   }
+
+  void _showEditDialog(BuildContext context, SocialMediaAccount account) {
+    showDialog(context: context, builder: (ctx) => _AddSocialMediaDialog(accountToEdit: account));
+  }
 }
 
 class _AddSocialMediaDialog extends StatefulWidget {
-  const _AddSocialMediaDialog();
+  final SocialMediaAccount? accountToEdit;
+  const _AddSocialMediaDialog({this.accountToEdit});
   @override
   State<_AddSocialMediaDialog> createState() => _AddSocialMediaDialogState();
 }
 
 class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
-  SocialMediaPlatform _selectedPlatform = SocialMediaPlatform.linkedIn;
-  final _urlController = TextEditingController();
+  late SocialMediaPlatform _selectedPlatform;
+  late final TextEditingController _urlController;
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedPlatform = widget.accountToEdit?.platform ?? SocialMediaPlatform.linkedIn;
+    _urlController = TextEditingController(text: widget.accountToEdit?.url ?? '');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (ctx, ref, child) {
         return AlertDialog(
-          title: const Text('Yeni Hesap Ekle'),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<SocialMediaPlatform>(
-                  value: _selectedPlatform,
-                  decoration: const InputDecoration(labelText: 'Platform'),
-                  items: SocialMediaPlatform.values.map((p) {
-                    return DropdownMenuItem(
-                      value: p,
-                      child: Row(
-                        children: [
-                          FaIcon(p.icon, color: p.color, size: 16),
-                          const SizedBox(width: 12),
-                          Text(p.displayName),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (val) => setState(() => _selectedPlatform = val!),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _urlController,
-                  decoration: const InputDecoration(labelText: 'Profil Linki', hintText: 'https://...'),
-                  validator: (v) => (v == null || v.isEmpty) ? 'Gerekli' : (!v.startsWith('http') ? 'Geçerli bir URL girin' : null),
-                ),
-              ],
+          title: Text(widget.accountToEdit != null ? 'Hesabı Düzenle' : 'Yeni Hesap Ekle'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<SocialMediaPlatform>(
+                    value: _selectedPlatform,
+                    decoration: const InputDecoration(
+                      labelText: 'Platform',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.share),
+                    ),
+                    items: SocialMediaPlatform.values.map((platform) {
+                      return DropdownMenuItem(
+                        value: platform,
+                        child: Row(
+                          children: [
+                            FaIcon(platform.icon, color: platform.color, size: 18),
+                            const SizedBox(width: 12),
+                            Text(platform.displayName),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (val) => setState(() => _selectedPlatform = val!),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _urlController,
+                    decoration: const InputDecoration(
+                      labelText: 'Profil Linki',
+                      hintText: 'https://...',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.link),
+                    ),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) return 'Lütfen bir link girin';
+                      if (!val.startsWith('http')) return 'Geçerli bir URL girin (http/https)';
+                      return null;
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -633,14 +780,24 @@ class _AddSocialMediaDialogState extends State<_AddSocialMediaDialog> {
                 if (_formKey.currentState!.validate()) {
                   final user = ref.read(authRepositoryProvider).currentUser;
                   if (user != null) {
-                    await ref.read(socialMediaListProvider.notifier).addAccount(
-                      SocialMediaAccount(platform: _selectedPlatform, url: _urlController.text.trim(), profileId: user.id),
+                    final account = SocialMediaAccount(
+                      id: widget.accountToEdit?.id,
+                      platform: _selectedPlatform,
+                      url: _urlController.text.trim(),
+                      profileId: user.id,
                     );
+
+                    if (widget.accountToEdit != null) {
+                      await ref.read(socialMediaListProvider.notifier).updateAccount(account);
+                    } else {
+                      await ref.read(socialMediaListProvider.notifier).addAccount(account);
+                    }
+                    
                     if (mounted) Navigator.pop(ctx);
                   }
                 }
               },
-              child: const Text('Ekle'),
+              child: Text(widget.accountToEdit != null ? 'Güncelle' : 'Ekle'),
             ),
           ],
         );
@@ -745,8 +902,8 @@ class _CustomDatePickerState extends State<_CustomDatePicker> {
 }
 
 class CountryData {
-  final String code, name, flag, mask;
-  CountryData({required this.code, required this.name, required this.flag, required this.mask});
+  final String code, name, shortCode, flag, mask;
+  CountryData({required this.code, required this.name, required this.shortCode, required this.flag, required this.mask});
 }
 
 class _ProfileShimmer extends StatefulWidget {

@@ -32,8 +32,70 @@ class SocialMediaAccount with _$SocialMediaAccount {
     required String url,
   }) = _SocialMediaAccount;
 
+  const SocialMediaAccount._();
+
   factory SocialMediaAccount.fromJson(Map<String, dynamic> json) =>
       _$SocialMediaAccountFromJson(json);
+
+  String get username {
+    if (url.isEmpty) return '';
+    try {
+      final uri = Uri.parse(url);
+      final pathSegments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+
+      switch (platform) {
+        case SocialMediaPlatform.linkedIn:
+          if (pathSegments.isEmpty) return url;
+          // https://www.linkedin.com/in/username/
+          if (pathSegments.length >= 2 && pathSegments[0] == 'in') {
+            return pathSegments[1];
+          }
+          return pathSegments.last;
+        case SocialMediaPlatform.github:
+        case SocialMediaPlatform.instagram:
+        case SocialMediaPlatform.medium:
+        case SocialMediaPlatform.x:
+        case SocialMediaPlatform.behance:
+        case SocialMediaPlatform.dribbble:
+        case SocialMediaPlatform.devto:
+        case SocialMediaPlatform.hashnode:
+          if (pathSegments.isEmpty) return url;
+          // https://platform.com/username
+          return pathSegments.first;
+        case SocialMediaPlatform.facebook:
+          if (pathSegments.isEmpty) return url;
+          // https://facebook.com/username or https://facebook.com/profile.php?id=...
+          if (pathSegments.first == 'profile.php') {
+            return uri.queryParameters['id'] ?? pathSegments.first;
+          }
+          return pathSegments.first;
+        case SocialMediaPlatform.youtube:
+          if (pathSegments.isEmpty) return url;
+          // https://youtube.com/@username
+          if (pathSegments.first.startsWith('@')) {
+            return pathSegments.first.substring(1);
+          }
+          return pathSegments.first;
+        case SocialMediaPlatform.website:
+          // https://toygucakin.com -> toygucakin.com
+          // kariyer.net -> kariyer.net
+          String host = uri.host.toLowerCase();
+          if (host.isEmpty) {
+            // Eğer tam URL parse edilemediyse (örn: protocol yoksa) temizleyip döndür
+            host = url.replaceAll(RegExp(r'https?://'), '').replaceAll('www.', '');
+            if (host.endsWith('/')) host = host.substring(0, host.length - 1);
+          } else {
+            if (host.startsWith('www.')) host = host.substring(4);
+          }
+          return host.isNotEmpty ? host : url;
+        default:
+          if (pathSegments.isEmpty) return url;
+          return pathSegments.last;
+      }
+    } catch (e) {
+      return url;
+    }
+  }
 }
 
 extension SocialMediaPlatformExtension on SocialMediaPlatform {

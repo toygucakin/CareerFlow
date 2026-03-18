@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../../core/models/github/github_repo.dart';
 import '../../../../core/models/github/analyzed_project.dart';
 import '../../../../core/services/github_service.dart';
@@ -37,7 +38,7 @@ class AutonomousAnalysisService {
     try {
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
-        apiKey: 'GEMINI_API_KEY_REMOVED',
+        apiKey: dotenv.env['GEMINI_API_KEY'] ?? '',
       );
       
       final truncatedReadme = (readme != null && readme.length > 5000) ? readme.substring(0, 5000) : (readme ?? 'README dosyası bulunamadı.');

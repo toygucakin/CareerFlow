@@ -26,7 +26,7 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
     'Sertifika',
     'Projeler', 
     'Deneyim',
-    'Beceriler' 
+    'Beceriler'
   ];
 
   @override
@@ -164,7 +164,7 @@ class _CvBuilderWizardScreenState extends ConsumerState<CvBuilderWizardScreen> {
                 });
               },
               children: [
-                // Faz 1
+                // Faz 1 (Hakkımda + Eğitim)
                 const EducationListScreen(isWizardMode: true),
                 
                 // Faz 2

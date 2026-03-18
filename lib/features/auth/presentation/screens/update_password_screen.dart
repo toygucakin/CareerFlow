@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../main.dart';
+import '../../../../core/localization/locale_provider.dart';
 
 class UpdatePasswordScreen extends ConsumerStatefulWidget {
   const UpdatePasswordScreen({super.key});
@@ -29,15 +30,17 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (password.isEmpty || password.length < 6) {
+      final loc = ref.read(appLocalizationsProvider);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Şifre en az 6 karakter olmalıdır.')),
+        SnackBar(content: Text(loc.translate('password_min_length'))),
       );
       return;
     }
 
     if (password != confirmPassword) {
+      final loc = ref.read(appLocalizationsProvider);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Şifreler eşleşmiyor.')),
+        SnackBar(content: Text(loc.translate('passwords_dont_match'))),
       );
       return;
     }
@@ -50,9 +53,10 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
       );
 
       if (mounted) {
+        final loc = ref.read(appLocalizationsProvider);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Şifreniz başarıyla güncellendi!'),
+          SnackBar(
+            content: Text(loc.translate('password_updated')),
             backgroundColor: Colors.green,
           ),
         );
@@ -75,8 +79,9 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = ref.watch(appLocalizationsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Yeni Şifre Belirle')),
+      appBar: AppBar(title: Text(loc.translate('update_password'))),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -86,17 +91,17 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
             children: [
               const Icon(Icons.lock_reset, size: 80, color: Color(0xFF2196F3)),
               const SizedBox(height: 24),
-              const Text(
-                'Lütfen hesabınız için yeni bir şifre belirleyin.',
+              Text(
+                loc.translate('set_new_password_msg'),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
+                style: const TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 32),
               TextField(
                 controller: _passwordController,
                 obscureText: _obscureText,
                 decoration: InputDecoration(
-                  labelText: 'Yeni Şifre',
+                  labelText: loc.translate('new_password'),
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -112,9 +117,9 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
               TextField(
                 controller: _confirmPasswordController,
                 obscureText: _obscureText,
-                decoration: const InputDecoration(
-                  labelText: 'Şifreyi Onayla',
-                  prefixIcon: Icon(Icons.lock_outline),
+                decoration: InputDecoration(
+                  labelText: loc.translate('confirm_password'),
+                  prefixIcon: const Icon(Icons.lock_outline),
                 ),
               ),
               const SizedBox(height: 32),
@@ -138,7 +143,7 @@ class _UpdatePasswordScreenState extends ConsumerState<UpdatePasswordScreen> {
                             color: Colors.white,
                           ),
                         )
-                        : const Text('Şifreyi Güncelle'),
+                        : Text(loc.translate('update_password')),
               ),
             ],
           ),

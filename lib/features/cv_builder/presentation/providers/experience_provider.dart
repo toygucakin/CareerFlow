@@ -31,51 +31,55 @@ class ExperienceListNotifier extends AsyncNotifier<List<Experience>> {
   }
 
   Future<void> addExperience(Experience experience) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(experienceRepositoryProvider);
       final newItem = await repo.createExperience(experience);
-      final currentList = state.value ?? [];
-      final newList = [...currentList, newItem];
-      newList.sort((a, b) {
-        if (a.orderIndex != null && b.orderIndex != null)
-          return a.orderIndex!.compareTo(b.orderIndex!);
-        return (b.startDate ?? DateTime.now()).compareTo(
-          a.startDate ?? DateTime.now(),
-        );
-      });
-      return newList;
-    });
+      if (state.hasValue) {
+        final newList = [...state.value!, newItem];
+        newList.sort((a, b) {
+          if (a.orderIndex != null && b.orderIndex != null)
+            return a.orderIndex!.compareTo(b.orderIndex!);
+          return (b.startDate ?? DateTime.now()).compareTo(
+            a.startDate ?? DateTime.now(),
+          );
+        });
+        state = AsyncValue.data(newList);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> updateExperience(Experience experience) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    if (!state.hasValue) return;
+
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == experience.id ? experience : e).toList(),
+    );
+
+    try {
       final repo = ref.read(experienceRepositoryProvider);
-      final updatedItem = await repo.updateExperience(experience);
-      final currentList = state.value ?? [];
-      final newList = currentList
-          .map((e) => e.id == updatedItem.id ? updatedItem : e)
-          .toList();
-      newList.sort((a, b) {
-        if (a.orderIndex != null && b.orderIndex != null)
-          return a.orderIndex!.compareTo(b.orderIndex!);
-        return (b.startDate ?? DateTime.now()).compareTo(
-          a.startDate ?? DateTime.now(),
-        );
-      });
-      return newList;
-    });
+      await repo.updateExperience(experience);
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> deleteExperience(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    if (!state.hasValue) return;
+
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+
+    try {
       final repo = ref.read(experienceRepositoryProvider);
       await repo.deleteExperience(id);
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
-    });
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> reorderExperiences(int oldIndex, int newIndex) async {

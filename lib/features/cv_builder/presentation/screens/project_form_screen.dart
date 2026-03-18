@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/project.dart';
 import '../providers/project_provider.dart';
@@ -50,23 +51,83 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
     super.dispose();
   }
 
-  Future<void> _selectDate(BuildContext context, bool isStart) async {
-    final DateTime? picked = await showDatePicker(
+  void _showMonthYearPicker(BuildContext context, bool isStart) {
+    FocusScope.of(context).unfocus();
+    final initialDate = (isStart ? _startDate : _endDate) ?? DateTime.now();
+    DateTime tempDate = initialDate;
+
+    showModalBottomSheet(
       context: context,
-      initialDate: (isStart ? _startDate : _endDate) ?? DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2101),
-      locale: const Locale('tr', 'TR'),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SizedBox(
+          height: 300,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Theme.of(context).dividerColor,
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text(
+                        'İptal',
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      ),
+                    ),
+                    Text(
+                      isStart ? 'Başlangıç Tarihi' : 'Bitiş Tarihi',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          if (isStart) {
+                            _startDate = tempDate;
+                          } else {
+                            _endDate = tempDate;
+                          }
+                        });
+                        Navigator.pop(ctx);
+                      },
+                      child: Text(
+                        'Bitti',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: _MonthYearPickerInternal(
+                  initialDate: initialDate,
+                  onDateChanged: (date) => tempDate = date,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
-    if (picked != null) {
-      setState(() {
-        if (isStart) {
-          _startDate = picked;
-        } else {
-          _endDate = picked;
-        }
-      });
-    }
   }
 
   Future<void> _save() async {
@@ -110,7 +171,7 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd MMMM yyyy', 'tr_TR');
+    final dateFormat = DateFormat('MMMM yyyy', 'tr_TR');
 
     return Scaffold(
       appBar: AppBar(
@@ -145,14 +206,35 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              ListTile(
-                title: const Text('Başlangıç Tarihi'),
-                subtitle: Text(_startDate == null ? 'Seçilmedi' : dateFormat.format(_startDate!)),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: () => _selectDate(context, true),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(4),
+              GestureDetector(
+                onTap: () => _showMonthYearPicker(context, true),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Başlangıç Tarihi',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _startDate == null ? 'Seçilmedi' : dateFormat.format(_startDate!),
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.calendar_today, color: Colors.grey),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -170,14 +252,35 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
               ),
               if (!_isOngoing) ...[
                 const SizedBox(height: 8),
-                ListTile(
-                  title: const Text('Bitiş Tarihi'),
-                  subtitle: Text(_endDate == null ? 'Seçilmedi' : dateFormat.format(_endDate!)),
-                  trailing: const Icon(Icons.calendar_today),
-                  onTap: () => _selectDate(context, false),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.grey.shade400),
-                    borderRadius: BorderRadius.circular(4),
+                GestureDetector(
+                  onTap: () => _showMonthYearPicker(context, false),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade400),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Bitiş Tarihi',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _endDate == null ? 'Seçilmedi' : dateFormat.format(_endDate!),
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.calendar_today, color: Colors.grey),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -219,5 +322,100 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
         ),
       ),
     );
+  }
+}
+
+class _MonthYearPickerInternal extends StatefulWidget {
+  final DateTime initialDate;
+  final ValueChanged<DateTime> onDateChanged;
+
+  const _MonthYearPickerInternal({
+    required this.initialDate,
+    required this.onDateChanged,
+  });
+
+  @override
+  State<_MonthYearPickerInternal> createState() => _MonthYearPickerInternalState();
+}
+
+class _MonthYearPickerInternalState extends State<_MonthYearPickerInternal> {
+  late int _month, _year;
+  late FixedExtentScrollController _monthCtrl, _yearCtrl;
+  final List<String> _months = [
+    'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+  ];
+  final int _startYear = 1950;
+  final int _endYear = DateTime.now().year;
+
+  @override
+  void initState() {
+    super.initState();
+    _month = widget.initialDate.month;
+    _year = widget.initialDate.year;
+    _monthCtrl = FixedExtentScrollController(initialItem: _month - 1);
+    _yearCtrl = FixedExtentScrollController(initialItem: _year - _startYear);
+  }
+
+  void _onChanged() {
+    widget.onDateChanged(DateTime(_year, _month));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 180,
+      child: CupertinoTheme(
+        data: CupertinoThemeData(
+          brightness: Theme.of(context).brightness,
+          textTheme: CupertinoTextThemeData(
+            pickerTextStyle: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: CupertinoPicker.builder(
+                scrollController: _monthCtrl,
+                itemExtent: 44,
+                onSelectedItemChanged: (i) {
+                  _month = i + 1;
+                  _onChanged();
+                },
+                childCount: _year == _endYear ? DateTime.now().month : 12,
+                itemBuilder: (c, i) => Center(child: Text(_months[i])),
+              ),
+            ),
+            Expanded(
+              child: CupertinoPicker.builder(
+                scrollController: _yearCtrl,
+                itemExtent: 44,
+                onSelectedItemChanged: (i) {
+                  _year = _startYear + i;
+                  if (_year == _endYear && _month > DateTime.now().month) {
+                    _month = DateTime.now().month;
+                    _monthCtrl.jumpToItem(_month - 1);
+                  }
+                  _onChanged();
+                  setState(() {});
+                },
+                childCount: _endYear - _startYear + 1,
+                itemBuilder: (c, i) => Center(child: Text('${_startYear + i}')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _monthCtrl.dispose();
+    _yearCtrl.dispose();
+    super.dispose();
   }
 }

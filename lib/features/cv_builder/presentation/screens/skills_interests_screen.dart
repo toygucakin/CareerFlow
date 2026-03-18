@@ -5,6 +5,7 @@ import '../../../../core/models/cv/interest.dart';
 import '../providers/skill_provider.dart';
 import '../providers/interest_provider.dart';
 import '../providers/language_provider.dart';
+import '../../../../core/widgets/deletion_effect.dart';
 import 'skill_form_screen.dart';
 import 'interest_form_screen.dart';
 import 'language_form_screen.dart';
@@ -36,13 +37,25 @@ class SkillsInterestsScreen extends ConsumerWidget {
             const Divider(),
             const SizedBox(height: 16),
             
-            skillsAsync.when(
-              data: (skills) {
-                final techSkills = skills.where((s) => s.category != 'Soft Skills').toList();
-                return _buildCategorizedSkills(context, ref, techSkills);
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Text('Hata: $e'),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: skillsAsync.when(
+                data: (skills) {
+                  final techSkills = skills.where((s) => s.category != 'Soft Skills').toList();
+                  return _buildCategorizedSkills(context, ref, techSkills);
+                },
+                loading: () => const Center(
+                  key: ValueKey('loading'),
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (e, s) => Center(
+                  key: const ValueKey('error'),
+                  child: Text('Hata: $e'),
+                ),
+              ),
             ),
 
             const SizedBox(height: 32),
@@ -187,25 +200,30 @@ class SkillsInterestsScreen extends ConsumerWidget {
   }
 
   Widget _buildSkillChip(BuildContext context, WidgetRef ref, Skill skill) {
-    return InputChip(
-      label: Text(
-        skill.isActiveDevelopment ? '${skill.name} (Aktif Geliştirici)' : skill.name,
-      ),
-      deleteIcon: const Icon(Icons.close, size: 16),
-      onDeleted: () {
-        ref.read(skillListProvider.notifier).deleteSkill(skill.id!);
-      },
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SkillFormScreen(skillToEdit: skill),
-          ),
-        );
-      },
-      backgroundColor: skill.isActiveDevelopment ? Colors.blue.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
-      side: BorderSide(
-        color: skill.isActiveDevelopment ? Colors.blue : Colors.grey.shade300,
+    return Builder(
+      builder: (chipContext) => InputChip(
+        label: Text(
+          skill.isActiveDevelopment ? '${skill.name} (Aktif Geliştirici)' : skill.name,
+        ),
+        deleteIcon: const Icon(Icons.close, size: 16),
+        onDeleted: () {
+          final RenderBox renderBox = chipContext.findRenderObject() as RenderBox;
+          final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+          DeletionEffect.show(context, position);
+          ref.read(skillListProvider.notifier).deleteSkill(skill.id!);
+        },
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SkillFormScreen(skillToEdit: skill),
+            ),
+          );
+        },
+        backgroundColor: skill.isActiveDevelopment ? Colors.blue.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+        side: BorderSide(
+          color: skill.isActiveDevelopment ? Colors.blue : Colors.grey.shade300,
+        ),
       ),
     );
   }
@@ -232,9 +250,16 @@ class SkillsInterestsScreen extends ConsumerWidget {
                 icon: const Icon(Icons.edit, size: 18),
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SkillFormScreen(skillToEdit: skill, isSoftSkillMode: true))),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-                onPressed: () => ref.read(skillListProvider.notifier).deleteSkill(skill.id!),
+              Builder(
+                builder: (buttonContext) => IconButton(
+                  icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                  onPressed: () {
+                    final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
+                    final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+                    DeletionEffect.show(context, position);
+                    ref.read(skillListProvider.notifier).deleteSkill(skill.id!);
+                  },
+                ),
               ),
             ],
           ),
@@ -265,9 +290,16 @@ class SkillsInterestsScreen extends ConsumerWidget {
                 icon: const Icon(Icons.edit, size: 18),
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LanguageFormScreen(languageToEdit: lang))),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-                onPressed: () => ref.read(languageListProvider.notifier).deleteLanguage(lang.id!),
+              Builder(
+                builder: (buttonContext) => IconButton(
+                  icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                  onPressed: () {
+                    final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
+                    final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+                    DeletionEffect.show(context, position);
+                    ref.read(languageListProvider.notifier).deleteLanguage(lang.id!);
+                  },
+                ),
               ),
             ],
           ),
@@ -298,9 +330,16 @@ class SkillsInterestsScreen extends ConsumerWidget {
                 icon: const Icon(Icons.edit, size: 18),
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => InterestFormScreen(interestToEdit: interest))),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-                onPressed: () => ref.read(interestListProvider.notifier).deleteInterest(interest.id!),
+              Builder(
+                builder: (buttonContext) => IconButton(
+                  icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                  onPressed: () {
+                    final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
+                    final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+                    DeletionEffect.show(context, position);
+                    ref.read(interestListProvider.notifier).deleteInterest(interest.id!);
+                  },
+                ),
               ),
             ],
           ),

@@ -16,6 +16,7 @@ final socialMediaListProvider =
 class SocialMediaListNotifier extends AsyncNotifier<List<SocialMediaAccount>> {
   @override
   Future<List<SocialMediaAccount>> build() async {
+    ref.keepAlive();
     final user = ref.read(authRepositoryProvider).currentUser;
     if (user == null) return [];
 
@@ -24,36 +25,48 @@ class SocialMediaListNotifier extends AsyncNotifier<List<SocialMediaAccount>> {
   }
 
   Future<void> addAccount(SocialMediaAccount account) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(socialMediaRepositoryProvider);
       final newAccount = await repo.createSocialMediaAccount(account);
-      final currentList = state.value ?? [];
-      return [...currentList, newAccount];
-    });
+      if (state.hasValue) {
+        state = AsyncValue.data([...state.value!, newAccount]);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> updateAccount(SocialMediaAccount account) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final repo = ref.read(socialMediaRepositoryProvider);
-      final updatedAccount = await repo.updateSocialMediaAccount(account);
+    if (!state.hasValue) return;
+    
+    // Optimistic update
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == account.id ? account : e).toList(),
+    );
 
-      final currentList = state.value ?? [];
-      return currentList
-          .map((e) => e.id == updatedAccount.id ? updatedAccount : e)
-          .toList();
-    });
+    try {
+      final repo = ref.read(socialMediaRepositoryProvider);
+      await repo.updateSocialMediaAccount(account);
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> deleteAccount(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    if (!state.hasValue) return;
+    
+    // Optimistic delete
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+
+    try {
       final repo = ref.read(socialMediaRepositoryProvider);
       await repo.deleteSocialMediaAccount(id);
-
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
-    });
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 }

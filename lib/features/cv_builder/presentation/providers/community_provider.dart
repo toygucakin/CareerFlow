@@ -25,39 +25,51 @@ class CommunityListNotifier extends AsyncNotifier<List<Community>> {
   }
 
   Future<void> addCommunity(Community community) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(communityRepositoryProvider);
       final newItem = await repo.createCommunity(community);
-      final currentList = state.value ?? [];
-      final newList = [...currentList, newItem];
-      newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
-      return newList;
-    });
+      if (state.hasValue) {
+        final newList = [...state.value!, newItem];
+        newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
+        state = AsyncValue.data(newList);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> updateCommunity(Community community) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    if (!state.hasValue) return;
+    
+    // Optimistic update
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == community.id ? community : e).toList(),
+    );
+
+    try {
       final repo = ref.read(communityRepositoryProvider);
-      final updatedItem = await repo.updateCommunity(community);
-      final currentList = state.value ?? [];
-      final newList = currentList
-          .map((e) => e.id == updatedItem.id ? updatedItem : e)
-          .toList();
-      newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
-      return newList;
-    });
+      await repo.updateCommunity(community);
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> deleteCommunity(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    if (!state.hasValue) return;
+    
+    // Optimistic delete
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+
+    try {
       final repo = ref.read(communityRepositoryProvider);
       await repo.deleteCommunity(id);
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
-    });
+    } catch (e) {
+      ref.invalidateSelf();
+    }
   }
 
   Future<void> reorderCommunities(int oldIndex, int newIndex) async {

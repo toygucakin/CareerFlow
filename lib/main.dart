@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/auth/presentation/screens/auth_screen.dart';
@@ -21,14 +22,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+
   // Initialize SharedPreferences
   final sharedPrefs = await SharedPreferences.getInstance();
 
-  // Supabase initialization with project credentials
+  // Supabase initialization with project credentials from environment variables
   await Supabase.initialize(
-    url: 'https://REMOVED.supabase.co',
-    anonKey:
-        'SUPABASE_ANON_KEY_REMOVED',
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
   );
 
   runApp(
@@ -199,35 +202,6 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const GitHubIntegrationScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.code),
-                  label: const Text(
-                    'GitHub ile Otonom Veri Çek',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Color(0xFF2196F3), width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-              ),
-            ),
             const SizedBox(height: 64),
             const Icon(
               Icons.rocket_launch_rounded,
@@ -236,12 +210,12 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Welcome, Developer',
+              'Hoş Geldin, Geliştirici',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Your autonomous CV engine is ready.',
+              'Otonom CV motorun hazır.',
               style: TextStyle(color: Colors.grey),
             ),
           ],

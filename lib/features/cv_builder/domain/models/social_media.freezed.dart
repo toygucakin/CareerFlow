@@ -158,13 +158,13 @@ class __$$SocialMediaAccountImplCopyWithImpl<$Res>
 /// @nodoc
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class _$SocialMediaAccountImpl implements _SocialMediaAccount {
+class _$SocialMediaAccountImpl extends _SocialMediaAccount {
   const _$SocialMediaAccountImpl({
     this.id,
     @JsonKey(name: 'profile_id') this.profileId,
     required this.platform,
     required this.url,
-  });
+  }) : super._();
 
   factory _$SocialMediaAccountImpl.fromJson(Map<String, dynamic> json) =>
       _$$SocialMediaAccountImplFromJson(json);
@@ -218,13 +218,14 @@ class _$SocialMediaAccountImpl implements _SocialMediaAccount {
   }
 }
 
-abstract class _SocialMediaAccount implements SocialMediaAccount {
+abstract class _SocialMediaAccount extends SocialMediaAccount {
   const factory _SocialMediaAccount({
     final int? id,
     @JsonKey(name: 'profile_id') final String? profileId,
     required final SocialMediaPlatform platform,
     required final String url,
   }) = _$SocialMediaAccountImpl;
+  const _SocialMediaAccount._() : super._();
 
   factory _SocialMediaAccount.fromJson(Map<String, dynamic> json) =
       _$SocialMediaAccountImpl.fromJson;

@@ -1,79 +1,95 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/models/cv/skill.dart';
+import '../../data/repositories/skill_repository.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
-final skillListProvider = StateNotifierProvider<SkillListNotifier, AsyncValue<List<Skill>>>((ref) {
+final skillRepositoryProvider = Provider<SkillRepository>((ref) {
+  return SkillRepository(Supabase.instance.client);
+});
+
+final skillListProvider =
+    AsyncNotifierProvider<SkillListNotifier, List<Skill>>(() {
   return SkillListNotifier();
 });
 
-class SkillListNotifier extends StateNotifier<AsyncValue<List<Skill>>> {
-  SkillListNotifier() : super(const AsyncValue.loading()) {
-    fetchSkills();
-  }
-
-  final _supabase = Supabase.instance.client;
-
-  Future<void> fetchSkills() async {
-    try {
-      state = const AsyncValue.loading();
-      final user = _supabase.auth.currentUser;
-      if (user == null) {
-        state = const AsyncValue.data([]);
-        return;
-      }
-
-      final response = await _supabase
-          .from('skills')
-          .select()
-          .eq('profile_id', user.id)
-          .order('sort_order', ascending: true);
-
-      final skills = (response as List)
-          .map((json) => Skill.fromJson(json))
-          .toList();
-          
-      state = AsyncValue.data(skills);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
+class SkillListNotifier extends AsyncNotifier<List<Skill>> {
+  @override
+  Future<List<Skill>> build() async {
+    final user = ref.read(authRepositoryProvider).currentUser;
+    if (user == null) return [];
+    final repo = ref.read(skillRepositoryProvider);
+    final list = await repo.getSkills(user.id);
+    list.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
+    return list;
   }
 
   Future<void> addSkill(Skill skill) async {
     try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      final data = skill.toJson();
-      data['profile_id'] = user.id;
-
-      await _supabase.from('skills').insert(data);
-      await fetchSkills(); // Refresh the list
+      final repo = ref.read(skillRepositoryProvider);
+      final newItem = await repo.createSkill(skill);
+      if (state.hasValue) {
+        state = AsyncValue.data([...state.value!, newItem]);
+      } else {
+        ref.invalidateSelf();
+      }
     } catch (e) {
-      rethrow;
+      ref.invalidateSelf();
     }
   }
 
   Future<void> updateSkill(Skill skill) async {
+    if (!state.hasValue) return;
+    
+    // Optimistic update
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == skill.id ? skill : e).toList(),
+    );
+
     try {
-      if (skill.id == null) throw Exception('Skill ID is null');
-      
-      await _supabase
-          .from('skills')
-          .update(skill.toJson())
-          .eq('id', skill.id!);
-          
-      await fetchSkills(); // Refresh the list
+      final repo = ref.read(skillRepositoryProvider);
+      await repo.updateSkill(skill);
     } catch (e) {
-      rethrow;
+      ref.invalidateSelf();
     }
   }
 
   Future<void> deleteSkill(int id) async {
+    if (!state.hasValue) return;
+    
+    // Optimistic delete
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+
     try {
-      await _supabase.from('skills').delete().eq('id', id);
-      await fetchSkills(); // Refresh the list
+      final repo = ref.read(skillRepositoryProvider);
+      await repo.deleteSkill(id);
     } catch (e) {
-      rethrow;
+      ref.invalidateSelf();
+    }
+  }
+
+  Future<void> reorderSkills(int oldIndex, int newIndex) async {
+    final currentList = state.value;
+    if (currentList == null) return;
+
+    final List<Skill> newList = List.from(currentList);
+    if (oldIndex < newIndex) newIndex -= 1;
+
+    final item = newList.removeAt(oldIndex);
+    newList.insert(newIndex, item);
+
+    final List<Skill> updatedList = [];
+    for (int i = 0; i < newList.length; i++) {
+      updatedList.add(newList[i].copyWith(orderIndex: i));
+    }
+
+    state = AsyncValue.data(updatedList);
+    try {
+      await ref.read(skillRepositoryProvider).updateSkillOrder(updatedList);
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 }

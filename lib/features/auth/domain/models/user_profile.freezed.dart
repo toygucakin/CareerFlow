@@ -29,6 +29,7 @@ mixin _$UserProfile {
   String? get district => throw _privateConstructorUsedError;
   DateTime? get birthDate => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
+  String? get aboutMe => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfile to a JSON map.
@@ -57,6 +58,7 @@ abstract class $UserProfileCopyWith<$Res> {
     String? district,
     DateTime? birthDate,
     String? email,
+    String? aboutMe,
     DateTime? updatedAt,
   });
 }
@@ -84,6 +86,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? district = freezed,
     Object? birthDate = freezed,
     Object? email = freezed,
+    Object? aboutMe = freezed,
     Object? updatedAt = freezed,
   }) {
     return _then(
@@ -120,6 +123,10 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.email
                 : email // ignore: cast_nullable_to_non_nullable
                       as String?,
+            aboutMe: freezed == aboutMe
+                ? _value.aboutMe
+                : aboutMe // ignore: cast_nullable_to_non_nullable
+                      as String?,
             updatedAt: freezed == updatedAt
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -148,6 +155,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     String? district,
     DateTime? birthDate,
     String? email,
+    String? aboutMe,
     DateTime? updatedAt,
   });
 }
@@ -174,6 +182,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? district = freezed,
     Object? birthDate = freezed,
     Object? email = freezed,
+    Object? aboutMe = freezed,
     Object? updatedAt = freezed,
   }) {
     return _then(
@@ -210,6 +219,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.email
             : email // ignore: cast_nullable_to_non_nullable
                   as String?,
+        aboutMe: freezed == aboutMe
+            ? _value.aboutMe
+            : aboutMe // ignore: cast_nullable_to_non_nullable
+                  as String?,
         updatedAt: freezed == updatedAt
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -232,6 +245,7 @@ class _$UserProfileImpl implements _UserProfile {
     this.district,
     this.birthDate,
     this.email,
+    this.aboutMe,
     this.updatedAt,
   });
 
@@ -255,11 +269,13 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   final String? email;
   @override
+  final String? aboutMe;
+  @override
   final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, birthDate: $birthDate, email: $email, updatedAt: $updatedAt)';
+    return 'UserProfile(id: $id, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, birthDate: $birthDate, email: $email, aboutMe: $aboutMe, updatedAt: $updatedAt)';
   }
 
   @override
@@ -279,6 +295,7 @@ class _$UserProfileImpl implements _UserProfile {
             (identical(other.birthDate, birthDate) ||
                 other.birthDate == birthDate) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.aboutMe, aboutMe) || other.aboutMe == aboutMe) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt));
   }
@@ -295,6 +312,7 @@ class _$UserProfileImpl implements _UserProfile {
     district,
     birthDate,
     email,
+    aboutMe,
     updatedAt,
   );
 
@@ -322,6 +340,7 @@ abstract class _UserProfile implements UserProfile {
     final String? district,
     final DateTime? birthDate,
     final String? email,
+    final String? aboutMe,
     final DateTime? updatedAt,
   }) = _$UserProfileImpl;
 
@@ -344,6 +363,8 @@ abstract class _UserProfile implements UserProfile {
   DateTime? get birthDate;
   @override
   String? get email;
+  @override
+  String? get aboutMe;
   @override
   DateTime? get updatedAt;
 
