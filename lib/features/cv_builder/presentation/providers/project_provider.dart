@@ -55,54 +55,32 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
   Future<void> updateProject(Project project) async {
     final previousState = state;
     
-    // Optimistic update
-    if (state.hasValue) {
-      final currentList = state.value!;
-      final newList = currentList
-          .map((e) => e.id == project.id ? project : e)
-          .toList();
-      state = AsyncValue.data(newList);
-    }
-
-    state = await AsyncValue.guard(() async {
-      final repo = ref.read(projectRepositoryProvider);
-      final updatedItem = await repo.updateProject(project);
-      final currentList = state.value ?? [];
-      final newList = currentList
-          .map((e) => e.id == updatedItem.id ? updatedItem : e)
-          .toList();
-      newList.sort((a, b) {
-        if (a.orderIndex != null && b.orderIndex != null)
-          return a.orderIndex!.compareTo(b.orderIndex!);
-        return (b.startDate ?? DateTime.now()).compareTo(
-          a.startDate ?? DateTime.now(),
-        );
-      });
-      return newList;
-    });
+    if (!state.hasValue) return;
     
-    if (state.hasError) {
-      state = previousState;
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == project.id ? project : e).toList(),
+    );
+
+    try {
+      final repo = ref.read(projectRepositoryProvider);
+      await repo.updateProject(project);
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> deleteProject(int id) async {
-    final previousState = state;
-    
-    // Optimistic delete
-    if (state.hasValue) {
-      final currentList = state.value!;
-      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
-    }
+    if (!state.hasValue) return;
 
-    final success = await AsyncValue.guard(() async {
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+
+    try {
       final repo = ref.read(projectRepositoryProvider);
       await repo.deleteProject(id);
-      return state.value ?? [];
-    });
-    
-    if (success.hasError) {
-      state = previousState;
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 

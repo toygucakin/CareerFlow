@@ -24,61 +24,48 @@ class SocialMediaListNotifier extends AsyncNotifier<List<SocialMediaAccount>> {
   }
 
   Future<void> addAccount(SocialMediaAccount account) async {
-    final previousState = state;
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(socialMediaRepositoryProvider);
       final newAccount = await repo.createSocialMediaAccount(account);
-      final currentList = state.value ?? [];
-      return [...currentList, newAccount];
-    });
-    if (state.hasError) {
-      state = previousState;
+      if (state.hasValue) {
+        state = AsyncValue.data([...state.value!, newAccount]);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> updateAccount(SocialMediaAccount account) async {
-    final previousState = state;
+    if (!state.hasValue) return;
     
     // Optimistic update
-    if (state.hasValue) {
-      final currentList = state.value!;
-      state = AsyncValue.data(
-        currentList.map((e) => e.id == account.id ? account : e).toList(),
-      );
-    }
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == account.id ? account : e).toList(),
+    );
 
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(socialMediaRepositoryProvider);
-      final updatedAccount = await repo.updateSocialMediaAccount(account);
-
-      final currentList = state.value ?? [];
-      return currentList
-          .map((e) => e.id == updatedAccount.id ? updatedAccount : e)
-          .toList();
-    });
-
-    if (state.hasError) {
-      state = previousState;
+      await repo.updateSocialMediaAccount(account);
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> deleteAccount(int id) async {
-    final previousState = state;
+    if (!state.hasValue) return;
     
     // Optimistic delete
-    if (state.hasValue) {
-      final currentList = state.value!;
-      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
-    }
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
 
-    final result = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(socialMediaRepositoryProvider);
       await repo.deleteSocialMediaAccount(id);
-      return state.value ?? [];
-    });
-
-    if (result.hasError) {
-      state = previousState;
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 }

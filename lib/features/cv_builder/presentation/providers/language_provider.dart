@@ -25,65 +25,50 @@ class LanguageListNotifier extends AsyncNotifier<List<Language>> {
   }
 
   Future<void> addLanguage(Language language) async {
-    final previousState = state;
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(languageRepositoryProvider);
       final newItem = await repo.createLanguage(language);
-      final currentList = state.value ?? [];
-      final newList = [...currentList, newItem];
-      newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
-      return newList;
-    });
-    if (state.hasError) {
-      state = previousState;
+      if (state.hasValue) {
+        final newList = [...state.value!, newItem];
+        newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
+        state = AsyncValue.data(newList);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> updateLanguage(Language language) async {
-    final previousState = state;
+    if (!state.hasValue) return;
     
     // Optimistic update
-    if (state.hasValue) {
-      final currentList = state.value!;
-      final newList = currentList
-          .map((e) => e.id == language.id ? language : e)
-          .toList();
-      state = AsyncValue.data(newList);
-    }
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == language.id ? language : e).toList(),
+    );
 
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(languageRepositoryProvider);
-      final updatedItem = await repo.updateLanguage(language);
-      final currentList = state.value ?? [];
-      final newList = currentList
-          .map((e) => e.id == updatedItem.id ? updatedItem : e)
-          .toList();
-      newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
-      return newList;
-    });
-
-    if (state.hasError) {
-      state = previousState;
+      await repo.updateLanguage(language);
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> deleteLanguage(int id) async {
-    final previousState = state;
+    if (!state.hasValue) return;
     
     // Optimistic delete
-    if (state.hasValue) {
-      final currentList = state.value!;
-      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
-    }
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
 
-    final result = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(languageRepositoryProvider);
       await repo.deleteLanguage(id);
-      return state.value ?? [];
-    });
-
-    if (result.hasError) {
-      state = previousState;
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 

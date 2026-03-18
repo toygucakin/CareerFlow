@@ -25,64 +25,50 @@ class CourseListNotifier extends AsyncNotifier<List<Course>> {
   }
 
   Future<void> addCourse(Course course) async {
-    final previousState = state;
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(courseRepositoryProvider);
       final newItem = await repo.createCourse(course);
-      final currentList = state.value ?? [];
-      final newList = [...currentList, newItem];
-      newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
-      return newList;
-    });
-    if (state.hasError) {
-      state = previousState;
+      if (state.hasValue) {
+        final newList = [...state.value!, newItem];
+        newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
+        state = AsyncValue.data(newList);
+      } else {
+        ref.invalidateSelf();
+      }
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> updateCourse(Course course) async {
-    final previousState = state;
+    if (!state.hasValue) return;
     
-    // Optimistic update
-    if (state.hasValue) {
-      final currentList = state.value!;
-      state = AsyncValue.data(
-        currentList.map((e) => e.id == course.id ? course : e).toList(),
-      );
-    }
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == course.id ? course : e).toList(),
+    );
 
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(courseRepositoryProvider);
-      final updatedItem = await repo.updateCourse(course);
-      final currentList = state.value ?? [];
-      final newList = currentList
-          .map((e) => e.id == updatedItem.id ? updatedItem : e)
-          .toList();
-      newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
-      return newList;
-    });
-
-    if (state.hasError) {
-      state = previousState;
+      await repo.updateCourse(course);
+      // Data will be sorted correctly on next build/fetch if needed, 
+      // but here we just update for UI.
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> deleteCourse(int id) async {
-    final previousState = state;
+    if (!state.hasValue) return;
     
-    // Optimistic delete
-    if (state.hasValue) {
-      final currentList = state.value!;
-      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
-    }
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
 
-    final result = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(courseRepositoryProvider);
       await repo.deleteCourse(id);
-      return state.value ?? [];
-    });
-
-    if (result.hasError) {
-      state = previousState;
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 

@@ -57,56 +57,32 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
   Future<void> updateEducation(Education education) async {
     final previousState = state;
     
-    // Optimistic update
-    if (state.hasValue) {
-      final currentList = state.value!;
-      final newList = currentList
-          .map((e) => e.id == education.id ? education : e)
-          .toList();
-      state = AsyncValue.data(newList);
-    }
+    if (!state.hasValue) return;
 
-    state = await AsyncValue.guard(() async {
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == education.id ? education : e).toList(),
+    );
+
+    try {
       final repo = ref.read(educationRepositoryProvider);
-      final updatedEdu = await repo.updateEducation(education);
-
-      final currentList = state.value ?? [];
-      final newList = currentList
-          .map((e) => e.id == updatedEdu.id ? updatedEdu : e)
-          .toList();
-      newList.sort((a, b) {
-        if (a.orderIndex != null && b.orderIndex != null) {
-          return a.orderIndex!.compareTo(b.orderIndex!);
-        }
-        return (b.startDate ?? DateTime.now()).compareTo(
-          a.startDate ?? DateTime.now(),
-        );
-      });
-      return newList;
-    });
-
-    if (state.hasError) {
-      state = previousState;
+      await repo.updateEducation(education);
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> deleteEducation(int id) async {
-    final previousState = state;
-    
-    // Optimistic delete
-    if (state.hasValue) {
-      final currentList = state.value!;
-      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
-    }
+    if (!state.hasValue) return;
 
-    final result = await AsyncValue.guard(() async {
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+
+    try {
       final repo = ref.read(educationRepositoryProvider);
       await repo.deleteEducation(id);
-      return state.value ?? [];
-    });
-
-    if (result.hasError) {
-      state = previousState;
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 

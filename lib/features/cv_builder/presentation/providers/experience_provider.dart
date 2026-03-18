@@ -53,55 +53,35 @@ class ExperienceListNotifier extends AsyncNotifier<List<Experience>> {
 
   Future<void> updateExperience(Experience experience) async {
     final previousState = state;
-    
+    if (!state.hasValue) return;
+
     // Optimistic update
-    if (state.hasValue) {
-      final currentList = state.value!;
-      final newList = currentList
-          .map((e) => e.id == experience.id ? experience : e)
-          .toList();
-      state = AsyncValue.data(newList);
-    }
+    final currentList = state.value!;
+    final newList = currentList
+        .map((e) => e.id == experience.id ? experience : e)
+        .toList();
+    state = AsyncValue.data(newList);
 
-    state = await AsyncValue.guard(() async {
+    try {
       final repo = ref.read(experienceRepositoryProvider);
-      final updatedItem = await repo.updateExperience(experience);
-      final currentList = state.value ?? [];
-      final newList = currentList
-          .map((e) => e.id == updatedItem.id ? updatedItem : e)
-          .toList();
-      newList.sort((a, b) {
-        if (a.orderIndex != null && b.orderIndex != null)
-          return a.orderIndex!.compareTo(b.orderIndex!);
-        return (b.startDate ?? DateTime.now()).compareTo(
-          a.startDate ?? DateTime.now(),
-        );
-      });
-      return newList;
-    });
-
-    if (state.hasError) {
-      state = previousState;
+      await repo.updateExperience(experience);
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 
   Future<void> deleteExperience(int id) async {
-    final previousState = state;
-    
-    // Optimistic delete
-    if (state.hasValue) {
-      final currentList = state.value!;
-      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
-    }
+    if (!state.hasValue) return;
 
-    final result = await AsyncValue.guard(() async {
+    // Optimistic delete
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+
+    try {
       final repo = ref.read(experienceRepositoryProvider);
       await repo.deleteExperience(id);
-      return state.value ?? [];
-    });
-
-    if (result.hasError) {
-      state = previousState;
+    } catch (e) {
+      ref.invalidateSelf();
     }
   }
 

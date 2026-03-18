@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 
 class DeletionEffect {
@@ -7,7 +6,7 @@ class DeletionEffect {
     late OverlayEntry entry;
 
     entry = OverlayEntry(
-      builder: (context) => _ParticleBurst(
+      builder: (context) => _RippleEffect(
         position: position,
         onFinished: () => entry.remove(),
       ),
@@ -17,47 +16,40 @@ class DeletionEffect {
   }
 }
 
-class _ParticleBurst extends StatefulWidget {
+class _RippleEffect extends StatefulWidget {
   final Offset position;
   final VoidCallback onFinished;
 
-  const _ParticleBurst({
+  const _RippleEffect({
     required this.position,
     required this.onFinished,
   });
 
   @override
-  State<_ParticleBurst> createState() => _ParticleBurstState();
+  State<_RippleEffect> createState() => _RippleEffectState();
 }
 
-class _ParticleBurstState extends State<_ParticleBurst>
+class _RippleEffectState extends State<_RippleEffect>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final List<_Particle> _particles = [];
-  final Random _random = Random();
+  late Animation<double> _radiusAnimation;
+  late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 400),
     );
 
-    // Create 15-20 random particles
-    for (int i = 0; i < 18; i++) {
-      final angle = _random.nextDouble() * 2 * pi;
-      final speed = 1.5 + _random.nextDouble() * 2.5;
-      final size = 4.0 + _random.nextDouble() * 8.0;
-      final color = Colors.blue.withOpacity(0.4 + _random.nextDouble() * 0.5);
-      
-      _particles.add(_Particle(
-        angle: angle,
-        speed: speed,
-        size: size,
-        color: color,
-      ));
-    }
+    _radiusAnimation = Tween<double>(begin: 0.0, end: 60.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.outShips),
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0.6, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
 
     _controller.forward().then((_) => widget.onFinished());
   }
@@ -74,10 +66,10 @@ class _ParticleBurstState extends State<_ParticleBurst>
       animation: _controller,
       builder: (context, child) {
         return CustomPaint(
-          painter: _ParticlePainter(
+          painter: _RipplePainter(
             position: widget.position,
-            particles: _particles,
-            progress: _controller.value,
+            radius: _radiusAnimation.value,
+            opacity: _opacityAnimation.value,
           ),
           child: const SizedBox.expand(),
         );
@@ -86,46 +78,48 @@ class _ParticleBurstState extends State<_ParticleBurst>
   }
 }
 
-class _Particle {
-  final double angle;
-  final double speed;
-  final double size;
-  final Color color;
-
-  _Particle({
-    required this.angle,
-    required this.speed,
-    required this.size,
-    required this.color,
-  });
-}
-
-class _ParticlePainter extends CustomPainter {
+class _RipplePainter extends CustomPainter {
   final Offset position;
-  final List<_Particle> particles;
-  final double progress;
+  final double radius;
+  final double opacity;
 
-  _ParticlePainter({
+  _RipplePainter({
     required this.position,
-    required this.particles,
-    required this.progress,
+    required this.radius,
+    required this.opacity,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (final particle in particles) {
-      final distance = progress * particle.speed * 80.0;
-      final x = position.dx + cos(particle.angle) * distance;
-      final y = position.dy + sin(particle.angle) * distance;
-      
-      final opacity = (1.0 - progress).clamp(0.0, 1.0);
-      final paint = Paint()..color = particle.color.withOpacity(particle.color.opacity * opacity);
-      
-      // Draw a "bubble" (circle)
-      canvas.drawCircle(Offset(x, y), particle.size * (1.0 + progress), paint);
-    }
+    if (opacity <= 0) return;
+
+    final paint = Paint()
+      ..color = Colors.blue.withOpacity(opacity)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(position, radius, paint);
+
+    final borderPaint = Paint()
+      ..color = Colors.blue.withOpacity(opacity * 1.5).withAlpha((opacity * 1.5 * 255).toInt().clamp(0, 255))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    canvas.drawCircle(position, radius, borderPaint);
   }
 
   @override
-  bool shouldRepaint(covariant _ParticlePainter oldDelegate) => true;
+  bool shouldRepaint(covariant _RipplePainter oldDelegate) => true;
+}
+
+// Custom curve for a slightly more "elastic" feel
+class Curves {
+  static const Curve outShips = _OutShipsCurve();
+}
+
+class _OutShipsCurve extends Curve {
+  const _OutShipsCurve();
+  @override
+  double transformInternal(double t) {
+    return 1.0 - (1.0 - t) * (1.0 - t); // Simple quad out
+  }
 }

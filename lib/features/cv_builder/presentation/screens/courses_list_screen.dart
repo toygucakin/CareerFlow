@@ -20,7 +20,6 @@ class CoursesListScreen extends ConsumerWidget {
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: coursesAsync.when(
-          key: ValueKey(coursesAsync.hasValue ? 'data' : 'loading'),
           data: (courses) {
             if (courses.isEmpty) {
               return const Center(

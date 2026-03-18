@@ -41,7 +41,6 @@ class InterestListNotifier extends StateNotifier<AsyncValue<List<Interest>>> {
   }
 
   Future<void> addInterest(Interest interest) async {
-    final previousState = state;
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) throw Exception('User not logged in');
@@ -52,50 +51,41 @@ class InterestListNotifier extends StateNotifier<AsyncValue<List<Interest>>> {
       await _supabase.from('interests').insert(data);
       await fetchInterests(showLoading: false);
     } catch (e) {
-      state = previousState;
-      rethrow;
+      await fetchInterests(showLoading: false);
     }
   }
 
   Future<void> updateInterest(Interest interest) async {
-    final previousState = state;
+    if (!state.hasValue) return;
+    
+    // Optimistic update
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((i) => i.id == interest.id ? interest : i).toList(),
+    );
+
     try {
       if (interest.id == null) throw Exception('Interest ID is null');
-      
-      // Optimistic update
-      if (state.hasValue) {
-        final currentList = state.value!;
-        state = AsyncValue.data(
-          currentList.map((i) => i.id == interest.id ? interest : i).toList(),
-        );
-      }
-
       await _supabase
           .from('interests')
           .update(interest.toJson())
           .eq('id', interest.id!);
-          
-      await fetchInterests(showLoading: false);
     } catch (e) {
-      state = previousState;
-      rethrow;
+      await fetchInterests(showLoading: false);
     }
   }
 
   Future<void> deleteInterest(int id) async {
-    final previousState = state;
-    try {
-      // Optimistic delete
-      if (state.hasValue) {
-        final currentList = state.value!;
-        state = AsyncValue.data(currentList.where((i) => i.id != id).toList());
-      }
+    if (!state.hasValue) return;
 
+    // Optimistic delete
+    final currentList = state.value!;
+    state = AsyncValue.data(currentList.where((i) => i.id != id).toList());
+
+    try {
       await _supabase.from('interests').delete().eq('id', id);
-      await fetchInterests(showLoading: false);
     } catch (e) {
-      state = previousState;
-      rethrow;
+      await fetchInterests(showLoading: false);
     }
   }
 }

@@ -41,65 +41,36 @@ class SkillListNotifier extends StateNotifier<AsyncValue<List<Skill>>> {
   }
 
   Future<void> addSkill(Skill skill) async {
-    final previousState = state;
     try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      final data = skill.toJson();
-      data['profile_id'] = user.id;
-
-      await _supabase.from('skills').insert(data);
-      await fetchSkills(showLoading: false); // Refresh silently
+      final repo = ref.read(skillRepositoryProvider);
+      final newItem = await repo.createSkill(skill);
+      if (state.hasValue) {
+        state = AsyncValue.data([...state.value!, newItem]);
+      } else {
+        ref.invalidateSelf();
+      }
     } catch (e) {
-      state = previousState;
-      rethrow;
+      ref.invalidateSelf();
+      // Error handling by the UI
     }
   }
 
   Future<void> updateSkill(Skill skill) async {
-    final previousState = state;
-    try {
-      if (skill.id == null) throw Exception('Skill ID is null');
-      
-      // Optimistic update
-      if (state.hasValue) {
-        final currentList = state.value!;
-        state = AsyncValue.data(
-          currentList.map((s) => s.id == skill.id ? skill : s).toList(),
-        );
-      }
+    if (!state.hasValue) return;
+    
+    // Optimistic update
+    final currentList = state.value!;
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == skill.id ? skill : e).toList(),
+    );
 
-      await _supabase
-          .from('skills')
-          .update(skill.toJson())
-          .eq('id', skill.id!);
-          
-      await fetchSkills(showLoading: false); // Refresh silently
+    try {
+      final repo = ref.read(skillRepositoryProvider);
+      await repo.updateSkill(skill);
     } catch (e) {
-      state = previousState;
-      rethrow;
+      ref.invalidateSelf();
     }
   }
 
   Future<void> deleteSkill(int id) async {
-    final previousState = state;
-    try {
-      // Optimistic delete
-      if (state.hasValue) {
-        final currentList = state.value!;
-        state = AsyncValue.data(
-          currentList.where((s) => s.id != id).toList(),
-        );
-      }
-
-      await _supabase.from('skills').delete().eq('id', id);
-      // No need to fetchSkills(showLoading: false) here if we trust the delete was successful 
-      // but it's safer to refresh silently.
-      await fetchSkills(showLoading: false);
-    } catch (e) {
-      state = previousState;
-      rethrow;
-    }
-  }
 }
