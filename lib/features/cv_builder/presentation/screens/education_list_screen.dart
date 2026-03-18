@@ -276,6 +276,7 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                                 child: const Icon(Icons.drag_indicator, color: Colors.grey),
                               ),
                             ],
+                            ),
                           ),
                         ),
                       ),
