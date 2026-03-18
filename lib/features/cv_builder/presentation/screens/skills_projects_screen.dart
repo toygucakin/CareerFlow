@@ -5,6 +5,8 @@ import '../providers/community_provider.dart';
 import '../../../../core/widgets/deletion_effect.dart';
 import 'project_form_screen.dart';
 import 'community_form_screen.dart';
+import '../../domain/models/project.dart';
+import '../../domain/models/community.dart';
 import 'package:intl/intl.dart';
 
 class SkillsProjectsScreen extends ConsumerWidget {
