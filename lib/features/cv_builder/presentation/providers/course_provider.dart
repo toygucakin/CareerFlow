@@ -25,7 +25,7 @@ class CourseListNotifier extends AsyncNotifier<List<Course>> {
   }
 
   Future<void> addCourse(Course course) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
     state = await AsyncValue.guard(() async {
       final repo = ref.read(courseRepositoryProvider);
       final newItem = await repo.createCourse(course);
@@ -34,10 +34,22 @@ class CourseListNotifier extends AsyncNotifier<List<Course>> {
       newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
       return newList;
     });
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> updateCourse(Course course) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
+    
+    // Optimistic update
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(
+        currentList.map((e) => e.id == course.id ? course : e).toList(),
+      );
+    }
+
     state = await AsyncValue.guard(() async {
       final repo = ref.read(courseRepositoryProvider);
       final updatedItem = await repo.updateCourse(course);
@@ -48,16 +60,30 @@ class CourseListNotifier extends AsyncNotifier<List<Course>> {
       newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
       return newList;
     });
+
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> deleteCourse(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final previousState = state;
+    
+    // Optimistic delete
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+    }
+
+    final result = await AsyncValue.guard(() async {
       final repo = ref.read(courseRepositoryProvider);
       await repo.deleteCourse(id);
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
+      return state.value ?? [];
     });
+
+    if (result.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> reorderCourses(int oldIndex, int newIndex) async {

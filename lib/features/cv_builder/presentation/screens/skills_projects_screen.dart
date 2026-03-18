@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/project_provider.dart';
 import '../providers/community_provider.dart';
+import '../../../../core/widgets/deletion_effect.dart';
 import 'project_form_screen.dart';
 import 'community_form_screen.dart';
 import 'package:intl/intl.dart';
@@ -153,11 +154,16 @@ class SkillsProjectsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () => ref
-                      .read(projectListProvider.notifier)
-                      .deleteProject(proj.id!),
+                trailing: Builder(
+                  builder: (buttonContext) => IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () {
+                      final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
+                      final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+                      DeletionEffect.show(context, position);
+                      ref.read(projectListProvider.notifier).deleteProject(proj.id!);
+                    },
+                  ),
                 ),
                 onTap: () => Navigator.push(
                   context,
@@ -200,11 +206,16 @@ class SkillsProjectsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () => ref
-                      .read(communityListProvider.notifier)
-                      .deleteCommunity(club.id!),
+                trailing: Builder(
+                  builder: (buttonContext) => IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () {
+                      final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
+                      final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+                      DeletionEffect.show(context, position);
+                      ref.read(communityListProvider.notifier).deleteCommunity(club.id!);
+                    },
+                  ),
                 ),
                 onTap: () => Navigator.push(
                   context,

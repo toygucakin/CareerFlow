@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/experience_provider.dart';
 import 'experience_form_screen.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/widgets/deletion_effect.dart';
 
 class ExperienceListScreen extends ConsumerWidget {
   final bool isWizardMode;
@@ -104,42 +105,50 @@ class ExperienceListScreen extends ConsumerWidget {
                             );
                           },
                         ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
-                          ),
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Silmeyi Onayla'),
-                                content: const Text(
-                                  'Bu iş deneyimini silmek istediğinize emin misiniz?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text('İptal'),
+                        Builder(
+                          builder: (buttonContext) => IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                            ),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Silmeyi Onayla'),
+                                  content: const Text(
+                                    'Bu iş deneyimini silmek istediğinize emin misiniz?',
                                   ),
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context, true),
-                                    child: const Text(
-                                      'Sil',
-                                      style: TextStyle(color: Colors.red),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text('İptal'),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text(
+                                        'Sil',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
 
-                            if (confirm == true && exp.id != null) {
-                              ref
-                                  .read(experienceListProvider.notifier)
-                                  .deleteExperience(exp.id!);
-                            }
-                          },
+                              if (confirm == true && exp.id != null) {
+                                final RenderBox renderBox = buttonContext
+                                    .findRenderObject() as RenderBox;
+                                final position = renderBox.localToGlobal(
+                                    renderBox.size.center(Offset.zero));
+                                DeletionEffect.show(context, position);
+                                ref
+                                    .read(experienceListProvider.notifier)
+                                    .deleteExperience(exp.id!);
+                              }
+                            },
+                          ),
                         ),
                         const SizedBox(width: 8),
                         const Icon(Icons.drag_indicator, color: Colors.grey),

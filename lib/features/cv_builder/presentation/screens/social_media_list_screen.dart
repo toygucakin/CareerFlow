@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/models/social_media.dart';
 import '../providers/social_media_provider.dart';
 import 'social_media_form_screen.dart';
+import '../../../../core/widgets/deletion_effect.dart';
 
 class SocialMediaListScreen extends ConsumerWidget {
   final bool isWizardMode;
@@ -96,9 +97,16 @@ class SocialMediaListScreen extends ConsumerWidget {
                           icon: const Icon(Icons.edit, size: 20),
                           onPressed: () => _navigateToEdit(context, account),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-                          onPressed: () => _deleteAccount(ref, account),
+                        Builder(
+                          builder: (buttonContext) => IconButton(
+                            icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                            onPressed: () {
+                              final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
+                              final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+                              DeletionEffect.show(context, position);
+                              _deleteAccount(ref, account);
+                            },
+                          ),
                         ),
                       ],
                     ),

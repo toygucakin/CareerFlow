@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/education_provider.dart';
 import 'education_form_screen.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/widgets/deletion_effect.dart';
 
 import '../../../auth/presentation/providers/auth_provider.dart';
 
@@ -201,43 +202,51 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                                   );
                                 },
                               ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () async {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Silmeyi Onayla'),
-                                      content: const Text(
-                                        'Bu eğitim bilgisini silmek istediğinize emin misiniz?',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: const Text('İptal'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, true),
-                                          child: const Text(
-                                            'Sil',
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                        ),
-                                      ],
+                              Builder(
+                                  builder: (buttonContext) => IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red,
                                     ),
-                                  );
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Silmeyi Onayla'),
+                                          content: const Text(
+                                            'Bu eğitim bilgisini silmek istediğinize emin misiniz?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                              child: const Text('İptal'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, true),
+                                              child: const Text(
+                                                'Sil',
+                                                style: TextStyle(color: Colors.red),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
 
-                                  if (confirm == true && edu.id != null) {
-                                    ref
-                                        .read(educationListProvider.notifier)
-                                        .deleteEducation(edu.id!);
-                                  }
-                                },
-                              ),
+                                      if (confirm == true && edu.id != null) {
+                                        final RenderBox renderBox = buttonContext
+                                            .findRenderObject() as RenderBox;
+                                        final position = renderBox.localToGlobal(
+                                            renderBox.size.center(Offset.zero));
+                                        DeletionEffect.show(context, position);
+                                        ref
+                                            .read(educationListProvider.notifier)
+                                            .deleteEducation(edu.id!);
+                                      }
+                                    },
+                                  ),
+                                ),
                               ReorderableDragStartListener(
                                 index: index,
                                 child: const Icon(Icons.drag_indicator, color: Colors.grey),
