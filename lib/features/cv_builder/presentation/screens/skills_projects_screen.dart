@@ -127,34 +127,59 @@ class SkillsProjectsScreen extends ConsumerWidget {
   }
 
 
-  Widget _buildProjectList(BuildContext context, WidgetRef ref, List list) {
-    if (list.isEmpty)
-      return const Text(
-        'Proje bilgisi eklenmemiş.',
-        style: TextStyle(color: Colors.grey),
+  Widget _buildProjectList(BuildContext context, WidgetRef ref, List<Project> list) {
+    if (list.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        child: Text(
+          'Proje bilgisi eklenmemiş.',
+          style: TextStyle(color: Colors.grey),
+        ),
       );
-    return Column(
-      children: list
-          .map(
-            (proj) => Card(
-              child: ListTile(
-                title: Text(
-                  proj.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+    }
+
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: list.length,
+      onReorder: (oldIndex, newIndex) {
+        ref.read(projectListProvider.notifier).reorderProjects(oldIndex, newIndex);
+      },
+      itemBuilder: (context, index) {
+        final proj = list[index];
+        return Card(
+          key: ValueKey(proj.id ?? index),
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            title: Text(
+              proj.name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (proj.scope != null && proj.scope!.isNotEmpty)
+                  Text(proj.scope!),
+                const SizedBox(height: 2),
+                Text(
+                  _formatDateRange(proj.startDate, proj.endDate),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (proj.scope != null && proj.scope!.isNotEmpty)
-                      Text(proj.scope!),
-                    const SizedBox(height: 2),
-                    Text(
-                      _formatDateRange(proj.startDate, proj.endDate),
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ],
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProjectFormScreen(projectToEdit: proj),
                     ),
-                  ],
+                  ),
                 ),
-                trailing: Builder(
+                Builder(
                   builder: (buttonContext) => IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.red),
                     onPressed: () {
@@ -165,48 +190,74 @@ class SkillsProjectsScreen extends ConsumerWidget {
                     },
                   ),
                 ),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ProjectFormScreen(projectToEdit: proj),
+                ReorderableDragStartListener(
+                  index: index,
+                  child: const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Icon(Icons.drag_indicator, color: Colors.grey),
                   ),
                 ),
-              ),
+              ],
             ),
-          )
-          .toList(),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildCommunityList(BuildContext context, WidgetRef ref, List list) {
-    if (list.isEmpty)
-      return const Text(
-        'Topluluk bilgisi eklenmemiş.',
-        style: TextStyle(color: Colors.grey),
+  Widget _buildCommunityList(BuildContext context, WidgetRef ref, List<Community> list) {
+    if (list.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        child: Text(
+          'Topluluk bilgisi eklenmemiş.',
+          style: TextStyle(color: Colors.grey),
+        ),
       );
-    return Column(
-      children: list
-          .map(
-            (club) => Card(
-              child: ListTile(
-                title: Text(
-                  club.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+    }
+
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: list.length,
+      onReorder: (oldIndex, newIndex) {
+        ref.read(communityListProvider.notifier).reorderCommunities(oldIndex, newIndex);
+      },
+      itemBuilder: (context, index) {
+        final club = list[index];
+        return Card(
+          key: ValueKey(club.id ?? index),
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            title: Text(
+              club.name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (club.role != null && club.role!.isNotEmpty)
+                  Text(club.role!),
+                const SizedBox(height: 2),
+                Text(
+                  _formatDateRange(club.startDate, club.endDate),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (club.role != null && club.role!.isNotEmpty)
-                      Text(club.role!),
-                    const SizedBox(height: 2),
-                    Text(
-                      _formatDateRange(club.startDate, club.endDate),
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ],
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CommunityFormScreen(communityToEdit: club),
                     ),
-                  ],
+                  ),
                 ),
-                trailing: Builder(
+                Builder(
                   builder: (buttonContext) => IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.red),
                     onPressed: () {
@@ -217,17 +268,18 @@ class SkillsProjectsScreen extends ConsumerWidget {
                     },
                   ),
                 ),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CommunityFormScreen(communityToEdit: club),
+                ReorderableDragStartListener(
+                  index: index,
+                  child: const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Icon(Icons.drag_indicator, color: Colors.grey),
                   ),
                 ),
-              ),
+              ],
             ),
-          )
-          .toList(),
+          ),
+        );
+      },
     );
   }
 }
