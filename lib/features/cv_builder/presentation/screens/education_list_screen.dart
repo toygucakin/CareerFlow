@@ -17,6 +17,7 @@ class EducationListScreen extends ConsumerStatefulWidget {
 
 class _EducationListScreenState extends ConsumerState<EducationListScreen> {
   late final TextEditingController _aboutMeController;
+  final Set<int> _deletingIds = {};
 
   @override
   void initState() {
@@ -149,14 +150,23 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                     }
                   }
 
+                  final isDeleting = edu.id != null && _deletingIds.contains(edu.id);
+
                   return ReorderableDelayedDragStartListener(
                     key: ValueKey(edu.id ?? index),
                     index: index,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      child: Card(
-                        margin: EdgeInsets.zero,
-                        child: ListTile(
+                    child: AnimatedSlide(
+                      offset: isDeleting ? const Offset(-1.2, 0) : Offset.zero,
+                      duration: const Duration(milliseconds: 350),
+                      curve: Curves.easeInCubic,
+                      child: AnimatedOpacity(
+                        opacity: isDeleting ? 0.0 : 1.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          child: Card(
+                            margin: EdgeInsets.zero,
+                            child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 8,
@@ -239,10 +249,24 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                                             .findRenderObject() as RenderBox;
                                         final position = renderBox.localToGlobal(
                                             renderBox.size.center(Offset.zero));
+                                        
+                                        // Start Animations
                                         DeletionEffect.show(context, position);
-                                        ref
-                                            .read(educationListProvider.notifier)
-                                            .deleteEducation(edu.id!);
+                                        setState(() {
+                                          _deletingIds.add(edu.id!);
+                                        });
+
+                                        // Wait for slide animation to complete
+                                        await Future.delayed(const Duration(milliseconds: 350));
+                                        
+                                        if (mounted) {
+                                          await ref
+                                              .read(educationListProvider.notifier)
+                                              .deleteEducation(edu.id!);
+                                          
+                                          // Note: _deletingIds is cleaned up when the 
+                                          // list item is removed from the DOM by provider
+                                        }
                                       }
                                     },
                                   ),
