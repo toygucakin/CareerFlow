@@ -45,4 +45,11 @@ class InterestRepository {
   Future<void> deleteInterest(int id) async {
     await _supabase.from('interests').delete().eq('id', id);
   }
+
+  Future<void> updateInterestOrder(List<Interest> interests) async {
+    final List<Map<String, dynamic>> dataToUpdate = interests
+        .map((e) => e.toJson())
+        .toList();
+    await _supabase.from('interests').upsert(dataToUpdate);
+  }
 }

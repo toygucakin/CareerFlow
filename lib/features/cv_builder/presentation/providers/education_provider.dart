@@ -108,4 +108,28 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
       ref.invalidateSelf();
     }
   }
+
+  Future<void> sortByDate() async {
+    final currentList = state.value;
+    if (currentList == null) return;
+
+    final List<Education> newList = List.from(currentList);
+    newList.sort((a, b) {
+      return (b.startDate ?? DateTime.now()).compareTo(
+        a.startDate ?? DateTime.now(),
+      );
+    });
+
+    final List<Education> updatedList = [];
+    for (int i = 0; i < newList.length; i++) {
+      updatedList.add(newList[i].copyWith(orderIndex: i));
+    }
+
+    state = AsyncValue.data(updatedList);
+    try {
+      await ref.read(educationRepositoryProvider).updateEducationOrder(updatedList);
+    } catch (e) {
+      ref.invalidateSelf();
+    }
+  }
 }

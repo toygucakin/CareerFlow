@@ -69,4 +69,27 @@ class SkillListNotifier extends AsyncNotifier<List<Skill>> {
       ref.invalidateSelf();
     }
   }
+
+  Future<void> reorderSkills(int oldIndex, int newIndex) async {
+    final currentList = state.value;
+    if (currentList == null) return;
+
+    final List<Skill> newList = List.from(currentList);
+    if (oldIndex < newIndex) newIndex -= 1;
+
+    final item = newList.removeAt(oldIndex);
+    newList.insert(newIndex, item);
+
+    final List<Skill> updatedList = [];
+    for (int i = 0; i < newList.length; i++) {
+      updatedList.add(newList[i].copyWith(orderIndex: i));
+    }
+
+    state = AsyncValue.data(updatedList);
+    try {
+      await ref.read(skillRepositoryProvider).updateSkillOrder(updatedList);
+    } catch (e) {
+      ref.invalidateSelf();
+    }
+  }
 }

@@ -45,4 +45,11 @@ class SkillRepository {
   Future<void> deleteSkill(int id) async {
     await _supabase.from('skills').delete().eq('id', id);
   }
+
+  Future<void> updateSkillOrder(List<Skill> skills) async {
+    final List<Map<String, dynamic>> dataToUpdate = skills
+        .map((e) => e.toJson())
+        .toList();
+    await _supabase.from('skills').upsert(dataToUpdate);
+  }
 }

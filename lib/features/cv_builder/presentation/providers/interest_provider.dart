@@ -67,4 +67,27 @@ class InterestListNotifier extends AsyncNotifier<List<Interest>> {
       ref.invalidateSelf();
     }
   }
+
+  Future<void> reorderInterests(int oldIndex, int newIndex) async {
+    final currentList = state.value;
+    if (currentList == null) return;
+
+    final List<Interest> newList = List.from(currentList);
+    if (oldIndex < newIndex) newIndex -= 1;
+
+    final item = newList.removeAt(oldIndex);
+    newList.insert(newIndex, item);
+
+    final List<Interest> updatedList = [];
+    for (int i = 0; i < newList.length; i++) {
+      updatedList.add(newList[i].copyWith(orderIndex: i));
+    }
+
+    state = AsyncValue.data(updatedList);
+    try {
+      await ref.read(interestRepositoryProvider).updateInterestOrder(updatedList);
+    } catch (e) {
+      ref.invalidateSelf();
+    }
+  }
 }
