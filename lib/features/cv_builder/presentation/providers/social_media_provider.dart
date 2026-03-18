@@ -16,6 +16,7 @@ final socialMediaListProvider =
 class SocialMediaListNotifier extends AsyncNotifier<List<SocialMediaAccount>> {
   @override
   Future<List<SocialMediaAccount>> build() async {
+    ref.keepAlive();
     final user = ref.read(authRepositoryProvider).currentUser;
     if (user == null) return [];
 

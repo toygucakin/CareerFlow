@@ -5,17 +5,23 @@ import '../providers/social_media_provider.dart';
 import 'social_media_form_screen.dart';
 import '../../../../core/widgets/deletion_effect.dart';
 
-class SocialMediaListScreen extends ConsumerWidget {
+class SocialMediaListScreen extends ConsumerStatefulWidget {
   final bool isWizardMode;
-
   const SocialMediaListScreen({super.key, this.isWizardMode = false});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SocialMediaListScreen> createState() => _SocialMediaListScreenState();
+}
+
+class _SocialMediaListScreenState extends ConsumerState<SocialMediaListScreen> {
+  final Set<int> _deletingIds = {};
+
+  @override
+  Widget build(BuildContext context) {
     final accountsAsync = ref.watch(socialMediaListProvider);
 
     return Scaffold(
-      appBar: isWizardMode
+      appBar: widget.isWizardMode
           ? null
           : AppBar(title: const Text('Sosyal Medya Hesapları')),
       body: AnimatedSwitcher(
@@ -32,7 +38,7 @@ class SocialMediaListScreen extends ConsumerWidget {
           ),
         ),
       ),
-      floatingActionButton: !isWizardMode
+      floatingActionButton: !widget.isWizardMode
           ? FloatingActionButton(
               onPressed: () => _navigateToAdd(context),
               child: const Icon(Icons.add),
@@ -44,7 +50,7 @@ class SocialMediaListScreen extends ConsumerWidget {
   Widget _buildContent(BuildContext context, WidgetRef ref, List<SocialMediaAccount> accounts) {
     return Column(
       children: [
-        if (isWizardMode)
+        if (widget.isWizardMode)
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -78,37 +84,58 @@ class SocialMediaListScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemBuilder: (context, index) {
                 final account = accounts[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    leading: Icon(account.platform.icon, color: account.platform.color),
-                    title: Text(account.username),
-                    subtitle: Text(
-                      account.url,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, size: 20),
-                          onPressed: () => _navigateToEdit(context, account),
+                final isDeleting = account.id != null && _deletingIds.contains(account.id);
+
+                return AnimatedSlide(
+                  key: ValueKey(account.id ?? index),
+                  offset: isDeleting ? const Offset(-1.2, 0) : Offset.zero,
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeInCubic,
+                  child: AnimatedOpacity(
+                    opacity: isDeleting ? 0.0 : 1.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: ListTile(
+                        leading: Icon(account.platform.icon, color: account.platform.color),
+                        title: Text(account.username),
+                        subtitle: Text(
+                          account.url,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12),
                         ),
-                        Builder(
-                          builder: (buttonContext) => IconButton(
-                            icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-                            onPressed: () {
-                              final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
-                              final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
-                              DeletionEffect.show(context, position);
-                              _deleteAccount(ref, account);
-                            },
-                          ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, size: 20, color: Colors.blue),
+                              onPressed: () => _navigateToEdit(context, account),
+                            ),
+                            Builder(
+                              builder: (buttonContext) => IconButton(
+                                icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                                onPressed: () async {
+                                  final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
+                                  final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
+                                  
+                                  DeletionEffect.show(context, position);
+                                  setState(() {
+                                    _deletingIds.add(account.id!);
+                                  });
+
+                                  await Future.delayed(const Duration(milliseconds: 350));
+                                  
+                                  if (mounted) {
+                                    _deleteAccount(ref, account);
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 );
