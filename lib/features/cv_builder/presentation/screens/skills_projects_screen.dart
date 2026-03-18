@@ -9,10 +9,16 @@ import '../../domain/models/project.dart';
 import '../../domain/models/community.dart';
 import 'package:intl/intl.dart';
 
-class SkillsProjectsScreen extends ConsumerWidget {
+class SkillsProjectsScreen extends ConsumerStatefulWidget {
   final bool isWizardMode;
-
   const SkillsProjectsScreen({super.key, this.isWizardMode = false});
+
+  @override
+  ConsumerState<SkillsProjectsScreen> createState() => _SkillsProjectsScreenState();
+}
+
+class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
+  final Set<int> _deletingIds = {};
 
   String _formatDateRange(DateTime? start, DateTime? end) {
     if (start == null) return '';
@@ -27,14 +33,13 @@ class SkillsProjectsScreen extends ConsumerWidget {
     return range;
   }
 
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final projectsAsync = ref.watch(projectListProvider);
     final communitiesAsync = ref.watch(communityListProvider);
 
     return Scaffold(
-      appBar: isWizardMode
+      appBar: widget.isWizardMode
           ? null
           : AppBar(title: const Text('Projeler ve Topluluklar')),
       body: SingleChildScrollView(
@@ -128,8 +133,8 @@ class SkillsProjectsScreen extends ConsumerWidget {
     );
   }
 
-
-  Widget _buildProjectList(BuildContext context, WidgetRef ref, List<Project> list) {
+  Widget _buildProjectList(
+      BuildContext context, WidgetRef ref, List<Project> list) {
     if (list.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -145,61 +150,88 @@ class SkillsProjectsScreen extends ConsumerWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: list.length,
       onReorder: (oldIndex, newIndex) {
-        ref.read(projectListProvider.notifier).reorderProjects(oldIndex, newIndex);
+        ref
+            .read(projectListProvider.notifier)
+            .reorderProjects(oldIndex, newIndex);
       },
       itemBuilder: (context, index) {
         final proj = list[index];
-        return Card(
+        final isDeleting = proj.id != null && _deletingIds.contains(proj.id);
+
+        return AnimatedSlide(
           key: ValueKey(proj.id ?? index),
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            title: Text(
-              proj.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (proj.scope != null && proj.scope!.isNotEmpty)
-                  Text(proj.scope!),
-                const SizedBox(height: 2),
-                Text(
-                  _formatDateRange(proj.startDate, proj.endDate),
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+          offset: isDeleting ? const Offset(-1.2, 0) : Offset.zero,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInCubic,
+          child: AnimatedOpacity(
+            opacity: isDeleting ? 0.0 : 1.0,
+            duration: const Duration(milliseconds: 300),
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                title: Text(
+                  proj.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined, color: Colors.blue),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProjectFormScreen(projectToEdit: proj),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (proj.scope != null && proj.scope!.isNotEmpty)
+                      Text(proj.scope!),
+                    const SizedBox(height: 2),
+                    Text(
+                      _formatDateRange(proj.startDate, proj.endDate),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
-                  ),
+                  ],
                 ),
-                Builder(
-                  builder: (buttonContext) => IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () {
-                      final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
-                      final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
-                      DeletionEffect.show(context, position);
-                      ref.read(projectListProvider.notifier).deleteProject(proj.id!);
-                    },
-                  ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ProjectFormScreen(projectToEdit: proj),
+                        ),
+                      ),
+                    ),
+                    Builder(
+                      builder: (buttonContext) => IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        onPressed: () async {
+                          final RenderBox renderBox =
+                              buttonContext.findRenderObject() as RenderBox;
+                          final position = renderBox.localToGlobal(
+                              renderBox.size.center(Offset.zero));
+                          
+                          DeletionEffect.show(context, position);
+                          setState(() {
+                            _deletingIds.add(proj.id!);
+                          });
+
+                          await Future.delayed(const Duration(milliseconds: 350));
+                          
+                          if (mounted) {
+                            ref
+                                .read(projectListProvider.notifier)
+                                .deleteProject(proj.id!);
+                          }
+                        },
+                      ),
+                    ),
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Icon(Icons.drag_indicator, color: Colors.grey),
+                      ),
+                    ),
+                  ],
                 ),
-                ReorderableDragStartListener(
-                  index: index,
-                  child: const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Icon(Icons.drag_indicator, color: Colors.grey),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         );
@@ -207,7 +239,8 @@ class SkillsProjectsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCommunityList(BuildContext context, WidgetRef ref, List<Community> list) {
+  Widget _buildCommunityList(
+      BuildContext context, WidgetRef ref, List<Community> list) {
     if (list.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -223,61 +256,88 @@ class SkillsProjectsScreen extends ConsumerWidget {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: list.length,
       onReorder: (oldIndex, newIndex) {
-        ref.read(communityListProvider.notifier).reorderCommunities(oldIndex, newIndex);
+        ref
+            .read(communityListProvider.notifier)
+            .reorderCommunities(oldIndex, newIndex);
       },
       itemBuilder: (context, index) {
         final club = list[index];
-        return Card(
+        final isDeleting = club.id != null && _deletingIds.contains(club.id);
+
+        return AnimatedSlide(
           key: ValueKey(club.id ?? index),
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            title: Text(
-              club.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (club.role != null && club.role!.isNotEmpty)
-                  Text(club.role!),
-                const SizedBox(height: 2),
-                Text(
-                  _formatDateRange(club.startDate, club.endDate),
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+          offset: isDeleting ? const Offset(-1.2, 0) : Offset.zero,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInCubic,
+          child: AnimatedOpacity(
+            opacity: isDeleting ? 0.0 : 1.0,
+            duration: const Duration(milliseconds: 300),
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                title: Text(
+                  club.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined, color: Colors.blue),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CommunityFormScreen(communityToEdit: club),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (club.role != null && club.role!.isNotEmpty)
+                      Text(club.role!),
+                    const SizedBox(height: 2),
+                    Text(
+                      _formatDateRange(club.startDate, club.endDate),
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
-                  ),
+                  ],
                 ),
-                Builder(
-                  builder: (buttonContext) => IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () {
-                      final RenderBox renderBox = buttonContext.findRenderObject() as RenderBox;
-                      final position = renderBox.localToGlobal(renderBox.size.center(Offset.zero));
-                      DeletionEffect.show(context, position);
-                      ref.read(communityListProvider.notifier).deleteCommunity(club.id!);
-                    },
-                  ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, color: Colors.blue),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CommunityFormScreen(communityToEdit: club),
+                        ),
+                      ),
+                    ),
+                    Builder(
+                      builder: (buttonContext) => IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        onPressed: () async {
+                          final RenderBox renderBox =
+                              buttonContext.findRenderObject() as RenderBox;
+                          final position = renderBox.localToGlobal(
+                              renderBox.size.center(Offset.zero));
+                          
+                          DeletionEffect.show(context, position);
+                          setState(() {
+                            _deletingIds.add(club.id!);
+                          });
+
+                          await Future.delayed(const Duration(milliseconds: 350));
+                          
+                          if (mounted) {
+                            ref
+                                .read(communityListProvider.notifier)
+                                .deleteCommunity(club.id!);
+                          }
+                        },
+                      ),
+                    ),
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Icon(Icons.drag_indicator, color: Colors.grey),
+                      ),
+                    ),
+                  ],
                 ),
-                ReorderableDragStartListener(
-                  index: index,
-                  child: const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Icon(Icons.drag_indicator, color: Colors.grey),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         );
