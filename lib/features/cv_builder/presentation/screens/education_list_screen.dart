@@ -4,7 +4,6 @@ import '../providers/education_provider.dart';
 import 'education_form_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/widgets/deletion_effect.dart';
-
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 class EducationListScreen extends ConsumerStatefulWidget {
@@ -12,7 +11,8 @@ class EducationListScreen extends ConsumerStatefulWidget {
   const EducationListScreen({super.key, this.isWizardMode = false});
 
   @override
-  ConsumerState<EducationListScreen> createState() => _EducationListScreenState();
+  ConsumerState<EducationListScreen> createState() =>
+      _EducationListScreenState();
 }
 
 class _EducationListScreenState extends ConsumerState<EducationListScreen> {
@@ -98,12 +98,14 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                     children: [
                       const Text(
                         'Eğitim Bilgileri',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style:
+                            TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         icon: const Icon(Icons.sort_rounded, color: Colors.blue),
                         tooltip: 'Tarihe Göre Sıralat',
-                        onPressed: () => ref.read(educationListProvider.notifier).sortByDate(),
+                        onPressed: () =>
+                            ref.read(educationListProvider.notifier).sortByDate(),
                       ),
                     ],
                   ),
@@ -112,7 +114,7 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
               ),
             ),
           ),
-          
+
           // Eğitim Listesi
           educationsAsync.when(
             data: (educations) {
@@ -133,7 +135,9 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
               return SliverReorderableList(
                 itemCount: educations.length,
                 onReorder: (oldIndex, newIndex) {
-                  ref.read(educationListProvider.notifier).reorderEducations(oldIndex, newIndex);
+                  ref
+                      .read(educationListProvider.notifier)
+                      .reorderEducations(oldIndex, newIndex);
                 },
                 itemBuilder: (context, index) {
                   final edu = educations[index];
@@ -150,7 +154,8 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                     }
                   }
 
-                  final isDeleting = edu.id != null && _deletingIds.contains(edu.id);
+                  final isDeleting =
+                      edu.id != null && _deletingIds.contains(edu.id);
 
                   return ReorderableDelayedDragStartListener(
                     key: ValueKey(edu.id ?? index),
@@ -163,119 +168,125 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
                         opacity: isDeleting ? 0.0 : 1.0,
                         duration: const Duration(milliseconds: 300),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 4),
                           child: Card(
                             margin: EdgeInsets.zero,
                             child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          title: Text(
-                            edu.school,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              if (edu.degree != null && edu.degree!.isNotEmpty)
-                                Text(edu.degree!, style: const TextStyle(fontSize: 14)),
-                              const SizedBox(height: 4),
-                              Text(
-                                dateString,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              title: Text(
+                                edu.school,
                                 style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
                               ),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.edit_outlined,
-                                  color: Colors.blue,
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          EducationFormScreen(educationToEdit: edu),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  if (edu.degree != null && edu.degree!.isNotEmpty)
+                                    Text(edu.degree!,
+                                        style: const TextStyle(fontSize: 14)),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    dateString,
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 13,
                                     ),
-                                  );
-                                },
+                                  ),
+                                ],
                               ),
-                              Builder(
-                                  builder: (buttonContext) => IconButton(
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
                                     icon: const Icon(
-                                      Icons.delete_outline,
-                                      color: Colors.red,
+                                      Icons.edit_outlined,
+                                      color: Colors.blue,
                                     ),
-                                    onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: const Text('Silmeyi Onayla'),
-                                          content: const Text(
-                                            'Bu eğitim bilgisini silmek istediğinize emin misiniz?',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context, false),
-                                              child: const Text('İptal'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context, true),
-                                              child: const Text(
-                                                'Sil',
-                                                style: TextStyle(color: Colors.red),
-                                              ),
-                                            ),
-                                          ],
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EducationFormScreen(
+                                                  educationToEdit: edu),
                                         ),
                                       );
-
-                                      if (confirm == true && edu.id != null) {
-                                        final RenderBox renderBox = buttonContext
-                                            .findRenderObject() as RenderBox;
-                                        final position = renderBox.localToGlobal(
-                                            renderBox.size.center(Offset.zero));
-                                        
-                                        // Start Animations
-                                        DeletionEffect.show(context, position);
-                                        setState(() {
-                                          _deletingIds.add(edu.id!);
-                                        });
-
-                                        // Wait for slide animation to complete
-                                        await Future.delayed(const Duration(milliseconds: 350));
-                                        
-                                        if (mounted) {
-                                          await ref
-                                              .read(educationListProvider.notifier)
-                                              .deleteEducation(edu.id!);
-                                          
-                                          // Note: _deletingIds is cleaned up when the 
-                                          // list item is removed from the DOM by provider
-                                        }
-                                      }
                                     },
                                   ),
-                                ),
-                              ReorderableDragStartListener(
-                                index: index,
-                                child: const Icon(Icons.drag_indicator, color: Colors.grey),
+                                  Builder(
+                                    builder: (buttonContext) => IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text('Silmeyi Onayla'),
+                                            content: const Text(
+                                              'Bu eğitim bilgisini silmek istediğinize emin misiniz?',
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context, false),
+                                                child: const Text('İptal'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context, true),
+                                                child: const Text(
+                                                  'Sil',
+                                                  style:
+                                                      TextStyle(color: Colors.red),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+
+                                        if (confirm == true && edu.id != null) {
+                                          final RenderBox renderBox =
+                                              buttonContext.findRenderObject()
+                                                  as RenderBox;
+                                          final position = renderBox.localToGlobal(
+                                              renderBox.size
+                                                  .center(Offset.zero));
+
+                                          // Start Animations
+                                          DeletionEffect.show(context, position);
+                                          setState(() {
+                                            _deletingIds.add(edu.id!);
+                                          });
+
+                                          // Wait for slide animation to complete
+                                          await Future.delayed(
+                                              const Duration(milliseconds: 350));
+
+                                          if (mounted) {
+                                            await ref
+                                                .read(educationListProvider.notifier)
+                                                .deleteEducation(edu.id!);
+                                          }
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  ReorderableDragStartListener(
+                                    index: index,
+                                    child: const Icon(Icons.drag_indicator,
+                                        color: Colors.grey),
+                                  ),
+                                ],
                               ),
-                            ],
                             ),
                           ),
                         ),
@@ -286,14 +297,15 @@ class _EducationListScreenState extends ConsumerState<EducationListScreen> {
               );
             },
             loading: () => const SliverToBoxAdapter(
-                child: Center(child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(),
-                ))),
+                child: Center(
+                    child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: CircularProgressIndicator(),
+            ))),
             error: (err, stack) => SliverToBoxAdapter(
                 child: Center(child: Text('Hata oluştu: $err'))),
           ),
-          
+
           // Bottom padding for FAB
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
