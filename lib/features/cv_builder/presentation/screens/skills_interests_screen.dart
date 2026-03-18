@@ -36,13 +36,25 @@ class SkillsInterestsScreen extends ConsumerWidget {
             const Divider(),
             const SizedBox(height: 16),
             
-            skillsAsync.when(
-              data: (skills) {
-                final techSkills = skills.where((s) => s.category != 'Soft Skills').toList();
-                return _buildCategorizedSkills(context, ref, techSkills);
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Text('Hata: $e'),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: skillsAsync.when(
+                data: (skills) {
+                  final techSkills = skills.where((s) => s.category != 'Soft Skills').toList();
+                  return _buildCategorizedSkills(context, ref, techSkills);
+                },
+                loading: () => const Center(
+                  key: ValueKey('loading'),
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (e, s) => Center(
+                  key: const ValueKey('error'),
+                  child: Text('Hata: $e'),
+                ),
+              ),
             ),
 
             const SizedBox(height: 32),

@@ -13,9 +13,11 @@ class InterestListNotifier extends StateNotifier<AsyncValue<List<Interest>>> {
 
   final _supabase = Supabase.instance.client;
 
-  Future<void> fetchInterests() async {
+  Future<void> fetchInterests({bool showLoading = true}) async {
     try {
-      state = const AsyncValue.loading();
+      if (showLoading) {
+        state = const AsyncValue.loading();
+      }
       final user = _supabase.auth.currentUser;
       if (user == null) {
         state = const AsyncValue.data([]);
@@ -39,6 +41,7 @@ class InterestListNotifier extends StateNotifier<AsyncValue<List<Interest>>> {
   }
 
   Future<void> addInterest(Interest interest) async {
+    final previousState = state;
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) throw Exception('User not logged in');
@@ -47,32 +50,51 @@ class InterestListNotifier extends StateNotifier<AsyncValue<List<Interest>>> {
       data['profile_id'] = user.id;
 
       await _supabase.from('interests').insert(data);
-      await fetchInterests(); // Refresh the list
+      await fetchInterests(showLoading: false);
     } catch (e) {
+      state = previousState;
       rethrow;
     }
   }
 
   Future<void> updateInterest(Interest interest) async {
+    final previousState = state;
     try {
       if (interest.id == null) throw Exception('Interest ID is null');
       
+      // Optimistic update
+      if (state.hasValue) {
+        final currentList = state.value!;
+        state = AsyncValue.data(
+          currentList.map((i) => i.id == interest.id ? interest : i).toList(),
+        );
+      }
+
       await _supabase
           .from('interests')
           .update(interest.toJson())
           .eq('id', interest.id!);
           
-      await fetchInterests(); // Refresh the list
+      await fetchInterests(showLoading: false);
     } catch (e) {
+      state = previousState;
       rethrow;
     }
   }
 
   Future<void> deleteInterest(int id) async {
+    final previousState = state;
     try {
+      // Optimistic delete
+      if (state.hasValue) {
+        final currentList = state.value!;
+        state = AsyncValue.data(currentList.where((i) => i.id != id).toList());
+      }
+
       await _supabase.from('interests').delete().eq('id', id);
-      await fetchInterests(); // Refresh the list
+      await fetchInterests(showLoading: false);
     } catch (e) {
+      state = previousState;
       rethrow;
     }
   }

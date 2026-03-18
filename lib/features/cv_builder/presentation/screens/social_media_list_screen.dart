@@ -17,10 +17,19 @@ class SocialMediaListScreen extends ConsumerWidget {
       appBar: isWizardMode
           ? null
           : AppBar(title: const Text('Sosyal Medya Hesapları')),
-      body: accountsAsync.when(
-        data: (accounts) => _buildContent(context, ref, accounts),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(child: Text('Hata: $e')),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: accountsAsync.when(
+          data: (accounts) => _buildContent(context, ref, accounts),
+          loading: () => const Center(
+            key: ValueKey('loading'),
+            child: CircularProgressIndicator(),
+          ),
+          error: (e, s) => Center(
+            key: const ValueKey('error'),
+            child: Text('Hata: $e'),
+          ),
+        ),
       ),
       floatingActionButton: !isWizardMode
           ? FloatingActionButton(

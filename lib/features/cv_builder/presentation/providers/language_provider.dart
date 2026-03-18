@@ -25,7 +25,7 @@ class LanguageListNotifier extends AsyncNotifier<List<Language>> {
   }
 
   Future<void> addLanguage(Language language) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
     state = await AsyncValue.guard(() async {
       final repo = ref.read(languageRepositoryProvider);
       final newItem = await repo.createLanguage(language);
@@ -34,10 +34,23 @@ class LanguageListNotifier extends AsyncNotifier<List<Language>> {
       newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
       return newList;
     });
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> updateLanguage(Language language) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
+    
+    // Optimistic update
+    if (state.hasValue) {
+      final currentList = state.value!;
+      final newList = currentList
+          .map((e) => e.id == language.id ? language : e)
+          .toList();
+      state = AsyncValue.data(newList);
+    }
+
     state = await AsyncValue.guard(() async {
       final repo = ref.read(languageRepositoryProvider);
       final updatedItem = await repo.updateLanguage(language);
@@ -48,16 +61,30 @@ class LanguageListNotifier extends AsyncNotifier<List<Language>> {
       newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
       return newList;
     });
+
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> deleteLanguage(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final previousState = state;
+    
+    // Optimistic delete
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+    }
+
+    final result = await AsyncValue.guard(() async {
       final repo = ref.read(languageRepositoryProvider);
       await repo.deleteLanguage(id);
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
+      return state.value ?? [];
     });
+
+    if (result.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> reorderLanguages(int oldIndex, int newIndex) async {

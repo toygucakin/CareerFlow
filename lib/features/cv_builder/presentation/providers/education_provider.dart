@@ -33,7 +33,7 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
   }
 
   Future<void> addEducation(Education education) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
     state = await AsyncValue.guard(() async {
       final repo = ref.read(educationRepositoryProvider);
       final newEdu = await repo.createEducation(education);
@@ -49,10 +49,23 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
       });
       return newList;
     });
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> updateEducation(Education education) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
+    
+    // Optimistic update
+    if (state.hasValue) {
+      final currentList = state.value!;
+      final newList = currentList
+          .map((e) => e.id == education.id ? education : e)
+          .toList();
+      state = AsyncValue.data(newList);
+    }
+
     state = await AsyncValue.guard(() async {
       final repo = ref.read(educationRepositoryProvider);
       final updatedEdu = await repo.updateEducation(education);
@@ -71,17 +84,30 @@ class EducationListNotifier extends AsyncNotifier<List<Education>> {
       });
       return newList;
     });
+
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> deleteEducation(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final previousState = state;
+    
+    // Optimistic delete
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+    }
+
+    final result = await AsyncValue.guard(() async {
       final repo = ref.read(educationRepositoryProvider);
       await repo.deleteEducation(id);
-
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
+      return state.value ?? [];
     });
+
+    if (result.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> reorderEducations(int oldIndex, int newIndex) async {

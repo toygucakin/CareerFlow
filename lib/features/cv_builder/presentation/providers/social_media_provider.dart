@@ -24,17 +24,29 @@ class SocialMediaListNotifier extends AsyncNotifier<List<SocialMediaAccount>> {
   }
 
   Future<void> addAccount(SocialMediaAccount account) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
     state = await AsyncValue.guard(() async {
       final repo = ref.read(socialMediaRepositoryProvider);
       final newAccount = await repo.createSocialMediaAccount(account);
       final currentList = state.value ?? [];
       return [...currentList, newAccount];
     });
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> updateAccount(SocialMediaAccount account) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
+    
+    // Optimistic update
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(
+        currentList.map((e) => e.id == account.id ? account : e).toList(),
+      );
+    }
+
     state = await AsyncValue.guard(() async {
       final repo = ref.read(socialMediaRepositoryProvider);
       final updatedAccount = await repo.updateSocialMediaAccount(account);
@@ -44,16 +56,29 @@ class SocialMediaListNotifier extends AsyncNotifier<List<SocialMediaAccount>> {
           .map((e) => e.id == updatedAccount.id ? updatedAccount : e)
           .toList();
     });
+
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> deleteAccount(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final previousState = state;
+    
+    // Optimistic delete
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+    }
+
+    final result = await AsyncValue.guard(() async {
       final repo = ref.read(socialMediaRepositoryProvider);
       await repo.deleteSocialMediaAccount(id);
-
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
+      return state.value ?? [];
     });
+
+    if (result.hasError) {
+      state = previousState;
+    }
   }
 }

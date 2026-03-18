@@ -31,7 +31,7 @@ class ExperienceListNotifier extends AsyncNotifier<List<Experience>> {
   }
 
   Future<void> addExperience(Experience experience) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
     state = await AsyncValue.guard(() async {
       final repo = ref.read(experienceRepositoryProvider);
       final newItem = await repo.createExperience(experience);
@@ -46,10 +46,23 @@ class ExperienceListNotifier extends AsyncNotifier<List<Experience>> {
       });
       return newList;
     });
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> updateExperience(Experience experience) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
+    
+    // Optimistic update
+    if (state.hasValue) {
+      final currentList = state.value!;
+      final newList = currentList
+          .map((e) => e.id == experience.id ? experience : e)
+          .toList();
+      state = AsyncValue.data(newList);
+    }
+
     state = await AsyncValue.guard(() async {
       final repo = ref.read(experienceRepositoryProvider);
       final updatedItem = await repo.updateExperience(experience);
@@ -66,16 +79,30 @@ class ExperienceListNotifier extends AsyncNotifier<List<Experience>> {
       });
       return newList;
     });
+
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> deleteExperience(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final previousState = state;
+    
+    // Optimistic delete
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+    }
+
+    final result = await AsyncValue.guard(() async {
       final repo = ref.read(experienceRepositoryProvider);
       await repo.deleteExperience(id);
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
+      return state.value ?? [];
     });
+
+    if (result.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> reorderExperiences(int oldIndex, int newIndex) async {

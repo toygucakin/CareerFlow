@@ -32,7 +32,7 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
   }
 
   Future<void> addProject(Project project) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
     state = await AsyncValue.guard(() async {
       final repo = ref.read(projectRepositoryProvider);
       final newItem = await repo.createProject(project);
@@ -47,10 +47,23 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
       });
       return newList;
     });
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> updateProject(Project project) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
+    
+    // Optimistic update
+    if (state.hasValue) {
+      final currentList = state.value!;
+      final newList = currentList
+          .map((e) => e.id == project.id ? project : e)
+          .toList();
+      state = AsyncValue.data(newList);
+    }
+
     state = await AsyncValue.guard(() async {
       final repo = ref.read(projectRepositoryProvider);
       final updatedItem = await repo.updateProject(project);
@@ -67,16 +80,30 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
       });
       return newList;
     });
+    
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> deleteProject(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final previousState = state;
+    
+    // Optimistic delete
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+    }
+
+    final success = await AsyncValue.guard(() async {
       final repo = ref.read(projectRepositoryProvider);
       await repo.deleteProject(id);
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
+      return state.value ?? [];
     });
+    
+    if (success.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> reorderProjects(int oldIndex, int newIndex) async {

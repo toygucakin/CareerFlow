@@ -50,10 +50,22 @@ class SkillsProjectsScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            projectsAsync.when(
-              data: (list) => _buildProjectList(context, ref, list),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Text('Hata: $e'),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: projectsAsync.when(
+                data: (list) => _buildProjectList(context, ref, list),
+                loading: () => const Center(
+                  key: ValueKey('projects_loading'),
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (e, s) => Center(
+                  key: const ValueKey('projects_error'),
+                  child: Text('Hata: $e'),
+                ),
+              ),
             ),
             const SizedBox(height: 32),
             _buildSectionHeader(
@@ -67,10 +79,22 @@ class SkillsProjectsScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            communitiesAsync.when(
-              data: (list) => _buildCommunityList(context, ref, list),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Text('Hata: $e'),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: communitiesAsync.when(
+                data: (list) => _buildCommunityList(context, ref, list),
+                loading: () => const Center(
+                  key: ValueKey('communities_loading'),
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+                error: (e, s) => Center(
+                  key: const ValueKey('communities_error'),
+                  child: Text('Hata: $e'),
+                ),
+              ),
             ),
           ],
         ),

@@ -25,7 +25,7 @@ class CommunityListNotifier extends AsyncNotifier<List<Community>> {
   }
 
   Future<void> addCommunity(Community community) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
     state = await AsyncValue.guard(() async {
       final repo = ref.read(communityRepositoryProvider);
       final newItem = await repo.createCommunity(community);
@@ -34,10 +34,23 @@ class CommunityListNotifier extends AsyncNotifier<List<Community>> {
       newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
       return newList;
     });
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> updateCommunity(Community community) async {
-    state = const AsyncValue.loading();
+    final previousState = state;
+    
+    // Optimistic update
+    if (state.hasValue) {
+      final currentList = state.value!;
+      final newList = currentList
+          .map((e) => e.id == community.id ? community : e)
+          .toList();
+      state = AsyncValue.data(newList);
+    }
+
     state = await AsyncValue.guard(() async {
       final repo = ref.read(communityRepositoryProvider);
       final updatedItem = await repo.updateCommunity(community);
@@ -48,16 +61,30 @@ class CommunityListNotifier extends AsyncNotifier<List<Community>> {
       newList.sort((a, b) => (a.orderIndex ?? 0).compareTo(b.orderIndex ?? 0));
       return newList;
     });
+
+    if (state.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> deleteCommunity(int id) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final previousState = state;
+    
+    // Optimistic delete
+    if (state.hasValue) {
+      final currentList = state.value!;
+      state = AsyncValue.data(currentList.where((e) => e.id != id).toList());
+    }
+
+    final result = await AsyncValue.guard(() async {
       final repo = ref.read(communityRepositoryProvider);
       await repo.deleteCommunity(id);
-      final currentList = state.value ?? [];
-      return currentList.where((e) => e.id != id).toList();
+      return state.value ?? [];
     });
+
+    if (result.hasError) {
+      state = previousState;
+    }
   }
 
   Future<void> reorderCommunities(int oldIndex, int newIndex) async {
