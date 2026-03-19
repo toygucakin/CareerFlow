@@ -625,17 +625,33 @@ class _AtsOptimizedPreview extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Container(height: 10, width: 60, color: Colors.grey.shade300),
+            // Header
+            Container(height: 8, width: 60, color: Colors.black87),
             const SizedBox(height: 4),
-            Container(height: 4, width: 80, color: Colors.grey.shade100),
+            Container(height: 3, width: 80, color: Colors.grey.shade400),
             const SizedBox(height: 12),
-            Align(alignment: Alignment.centerLeft, child: Container(height: 6, width: 40, color: Colors.orange.shade200)),
-            const Divider(height: 8, thickness: 0.5),
-            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
-            const SizedBox(height: 8),
-            Align(alignment: Alignment.centerLeft, child: Container(height: 6, width: 40, color: Colors.orange.shade200)),
-            const Divider(height: 8, thickness: 0.5),
-            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+            // Section 1: Summary
+            Align(alignment: Alignment.centerLeft, child: Container(height: 5, width: 45, color: Colors.blue.shade300)),
+            const Divider(height: 6, thickness: 0.5),
+            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 10),
+            // Section 2: Experience
+            Align(alignment: Alignment.centerLeft, child: Container(height: 5, width: 45, color: Colors.blue.shade300)),
+            const Divider(height: 6, thickness: 0.5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(height: 5, width: 35, color: Colors.grey.shade400),
+                Container(height: 4, width: 25, color: Colors.grey.shade300),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
+            const Spacer(),
+            // Section 3: Education
+            Align(alignment: Alignment.centerLeft, child: Container(height: 5, width: 45, color: Colors.blue.shade300)),
+            const Divider(height: 6, thickness: 0.5),
+            Container(height: 10, width: double.infinity, color: Colors.grey.shade50),
           ],
         ),
       ),
