@@ -210,4 +210,7 @@ ALTER TABLE communities ADD COLUMN IF NOT EXISTS end_date DATE;
 -- Hakkımda kolonunu ekle
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS about_me TEXT;
 
+-- Ünvan/Görev tanımı kolonunu ekle
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS job_title TEXT;
+
 

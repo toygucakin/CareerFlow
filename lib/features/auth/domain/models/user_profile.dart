@@ -16,6 +16,7 @@ class UserProfile with _$UserProfile {
     DateTime? birthDate,
     String? email,
     String? aboutMe,
+    String? jobTitle,
     DateTime? updatedAt,
   }) = _UserProfile;
 

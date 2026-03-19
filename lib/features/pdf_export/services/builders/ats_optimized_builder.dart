@@ -125,6 +125,17 @@ class AtsOptimizedBuilder {
               color: PdfColors.white,
             ),
           ),
+          if (profile.jobTitle != null && profile.jobTitle!.isNotEmpty) ...[
+            pw.SizedBox(height: 4),
+            pw.Text(
+              profile.jobTitle!.toUpperCase(),
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue100,
+              ),
+            ),
+          ],
           pw.SizedBox(height: 10),
           pw.Text(
             [

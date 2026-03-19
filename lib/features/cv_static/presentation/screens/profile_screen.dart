@@ -27,6 +27,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
   late TextEditingController _districtController;
+  late TextEditingController _jobTitleController;
 
   final List<CountryData> _countryOptions = [
     CountryData(
@@ -68,6 +69,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _phoneController = TextEditingController();
     _cityController = TextEditingController();
     _districtController = TextEditingController();
+    _jobTitleController = TextEditingController();
     _selectedCountry = _countryOptions.first;
     _sortedCities = turkeyCities.keys.toList()..sort();
     _isReady = true;
@@ -85,6 +87,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _phoneController.dispose();
     _cityController.dispose();
     _districtController.dispose();
+    _jobTitleController.dispose();
     super.dispose();
   }
 
@@ -101,6 +104,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         phone: unmaskedPhone.isNotEmpty ? '${_selectedCountry.code}$unmaskedPhone' : null,
+        jobTitle: _jobTitleController.text.trim(),
         city: _cityController.text.trim(),
         district: _districtController.text.trim(),
         birthDate: _selectedBirthDate,
@@ -187,6 +191,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               }
               _cityController.text = currentProfile.city ?? '';
               _districtController.text = currentProfile.district ?? '';
+              _jobTitleController.text = currentProfile.jobTitle ?? '';
               _selectedBirthDate = currentProfile.birthDate;
               _isFormInitialized = true;
             }
@@ -250,6 +255,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(labelText: 'Soy isim'),
           validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _jobTitleController,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            labelText: 'Ünvan / Görev Tanımı',
+            hintText: 'Örn: Yazılım Mühendisi, Öğrenci vb.',
+            prefixIcon: Icon(Icons.work_outline_rounded),
+          ),
         ),
       ],
     );
