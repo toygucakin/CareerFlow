@@ -18,6 +18,8 @@ import 'features/cv_builder/presentation/providers/experience_provider.dart';
 import 'features/cv_builder/presentation/screens/github_integration_screen.dart';
 import 'core/providers/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'features/pdf_export/services/pdf_generator_service.dart';
+import 'features/pdf_export/presentation/screens/pdf_preview_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -261,25 +263,31 @@ class HomeScreen extends ConsumerWidget {
                     title: 'Modern Tech',
                     preview: const _ModernPreview(),
                     color: Colors.blue,
-                    onTap: () => _startWithTemplate(context, 'modern_tech'),
+                    onTap: () => _startWithTemplate(context, CvTemplate.modernTech),
                   ),
                   _TemplateCard(
                     title: 'Professional',
                     preview: const _ProfessionalPreview(),
                     color: Colors.indigo,
-                    onTap: () => _startWithTemplate(context, 'professional'),
+                    onTap: () => _startWithTemplate(context, CvTemplate.professional),
                   ),
                   _TemplateCard(
                     title: 'Creative Grid',
                     preview: const _CreativePreview(),
                     color: Colors.purple,
-                    onTap: () => _startWithTemplate(context, 'creative_grid'),
+                    onTap: () => _startWithTemplate(context, CvTemplate.creativeGrid),
                   ),
                   _TemplateCard(
                     title: 'Minimalist',
                     preview: const _MinimalistPreview(),
                     color: Colors.teal,
-                    onTap: () => _startWithTemplate(context, 'minimalist'),
+                    onTap: () => _startWithTemplate(context, CvTemplate.minimalist),
+                  ),
+                  _TemplateCard(
+                    title: 'ATS Optimized (9.5)',
+                    preview: const _AtsOptimizedPreview(),
+                    color: Colors.orange,
+                    onTap: () => _startWithTemplate(context, CvTemplate.atsOptimized),
                   ),
                 ],
               ),
@@ -291,12 +299,12 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _startWithTemplate(BuildContext context, String templateId) {
+  void _startWithTemplate(BuildContext context, CvTemplate template) {
     Navigator.pop(context); // Close sheet
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const CvBuilderWizardScreen(),
+        builder: (context) => PdfPreviewScreen(template: template),
       ),
     );
   }
@@ -597,6 +605,37 @@ class _MinimalistPreview extends StatelessWidget {
             // Eğitim
             const Text('EĞİTİM —', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.teal)),
             const Text('Üniversite - Fakülte', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class _AtsOptimizedPreview extends StatelessWidget {
+  const _AtsOptimizedPreview();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey.shade300, width: 0.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Container(height: 10, width: 60, color: Colors.grey.shade300),
+            const SizedBox(height: 4),
+            Container(height: 4, width: 80, color: Colors.grey.shade100),
+            const SizedBox(height: 12),
+            Align(alignment: Alignment.centerLeft, child: Container(height: 6, width: 40, color: Colors.orange.shade200)),
+            const Divider(height: 8, thickness: 0.5),
+            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 8),
+            Align(alignment: Alignment.centerLeft, child: Container(height: 6, width: 40, color: Colors.orange.shade200)),
+            const Divider(height: 8, thickness: 0.5),
+            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
           ],
         ),
       ),
