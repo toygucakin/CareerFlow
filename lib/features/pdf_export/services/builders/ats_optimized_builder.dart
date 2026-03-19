@@ -111,9 +111,14 @@ class AtsOptimizedBuilder {
         : 'AD SOYAD GİRİNİZ';
         
     return pw.Container(
-      color: PdfColors.black, // "Siyah fon" request
+      color: PdfColors.white, // Changed background to white as requested
       width: double.infinity,
-      padding: const pw.EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+      padding: const pw.EdgeInsets.fromLTRB(40, 30, 40, 15),
+      decoration: const pw.BoxDecoration(
+        border: pw.Border(
+          bottom: pw.BorderSide(color: PdfColors.black, width: 0.5), // Subtle divider
+        ),
+      ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
@@ -122,7 +127,7 @@ class AtsOptimizedBuilder {
             style: pw.TextStyle(
               fontSize: 24, 
               fontWeight: pw.FontWeight.bold, 
-              color: PdfColors.white,
+              color: PdfColors.black, // Changed name to black
             ),
           ),
           if (profile.jobTitle != null && profile.jobTitle!.isNotEmpty) ...[
@@ -132,7 +137,7 @@ class AtsOptimizedBuilder {
               style: pw.TextStyle(
                 fontSize: 14,
                 fontWeight: pw.FontWeight.bold,
-                color: PdfColors.blue100,
+                color: PdfColors.black, // Color of job title to black
               ),
             ),
           ],
@@ -143,12 +148,12 @@ class AtsOptimizedBuilder {
               (profile.phone != null && profile.phone!.isNotEmpty) ? profile.phone! : null,
               (profile.email != null && profile.email!.isNotEmpty) ? profile.email! : null,
             ].whereType<String>().join('  |  '),
-            style: const pw.TextStyle(fontSize: 10, color: PdfColors.white),
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.black), // Contact info to black
           ),
           if (socialMedia.isNotEmpty) ...[
-            pw.SizedBox(height: 12), // More spacing for social links
+            pw.SizedBox(height: 12),
             pw.Wrap(
-              spacing: 15, // Horizontal spacing
+              spacing: 15,
               runSpacing: 5,
               alignment: pw.WrapAlignment.center,
               children: socialMedia.map((s) {
@@ -157,7 +162,7 @@ class AtsOptimizedBuilder {
                   '${s.platform.displayName}: $handle',
                   style: const pw.TextStyle(
                     fontSize: 9, 
-                    color: PdfColors.blue100,
+                    color: PdfColors.black, // Social links to black
                   ),
                 );
               }).toList(),
