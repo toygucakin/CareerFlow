@@ -55,7 +55,7 @@ class AtsOptimizedBuilder {
                 if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty)
                   pw.Paragraph(
                     text: profile.aboutMe!,
-                    style: const pw.TextStyle(fontSize: 10, lineHeight: 1.3),
+                    style: const pw.TextStyle(fontSize: 10),
                   ),
                 pw.SizedBox(height: 15),
 
@@ -223,7 +223,7 @@ class AtsOptimizedBuilder {
               padding: const pw.EdgeInsets.only(top: 5, left: 12),
               child: pw.Text(
                 exp.description!,
-                style: const pw.TextStyle(fontSize: 9.5, lineHeight: 1.4),
+                style: const pw.TextStyle(fontSize: 9.5),
               ),
             ),
         ],
@@ -247,7 +247,7 @@ class AtsOptimizedBuilder {
           if (proj.description != null && proj.description!.isNotEmpty)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 3),
-              child: pw.Text(proj.description!, style: const pw.TextStyle(fontSize: 9.5, lineHeight: 1.3)),
+              child: pw.Text(proj.description!, style: const pw.TextStyle(fontSize: 9.5)),
             ),
         ],
       ),
