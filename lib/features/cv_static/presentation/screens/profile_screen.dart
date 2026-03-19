@@ -111,6 +111,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       await ref.read(authRepositoryProvider).updateProfile(updatedProfile);
 
       if (mounted) {
+        ref.invalidate(currentUserProfileProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profil başarıyla güncellendi!')),
         );
