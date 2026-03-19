@@ -41,57 +41,63 @@ class AtsOptimizedBuilder {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
+        margin: pw.EdgeInsets.zero, // Use individual margins in build for header control
         theme: pw.ThemeData.withFont(base: ttf, bold: ttf, italic: ttf),
+        header: (context) => _buildHeader(),
         build: (context) => [
-          _buildHeader(),
-          pw.SizedBox(height: 15),
-          
-          // Professional Summary
-          _buildSectionTitle('PROFESSIONAL SUMMARY'),
-          if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty)
-            pw.Paragraph(
-              text: profile.aboutMe!,
-              style: const pw.TextStyle(fontSize: 9.5),
+          pw.Padding(
+            padding: const pw.EdgeInsets.fromLTRB(40, 20, 40, 40),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Professional Summary
+                _buildSectionTitle('PROFESSIONAL SUMMARY'),
+                if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty)
+                  pw.Paragraph(
+                    text: profile.aboutMe!,
+                    style: const pw.TextStyle(fontSize: 10, lineHeight: 1.3),
+                  ),
+                pw.SizedBox(height: 15),
+
+                // Work Experience
+                _buildSectionTitle('WORK EXPERIENCE'),
+                if (experience.isNotEmpty)
+                  ...experience.map((exp) => _buildExperienceItem(exp, dateFormat))
+                else
+                  _buildPlaceholderItem('Şirket Adı', 'Pozisyon', 'Başlangıç - Bitiş'),
+                pw.SizedBox(height: 15),
+
+                // Projects
+                _buildSectionTitle('PROJECTS'),
+                if (projects.isNotEmpty)
+                  ...projects.map((proj) => _buildProjectItem(proj, dateFormat))
+                else
+                  _buildPlaceholderItem('Proje Adı', 'Proje Açıklaması', 'Repo Linki'),
+                pw.SizedBox(height: 15),
+
+                // Communities & Volunteering
+                if (communities.isNotEmpty) ...[
+                  _buildSectionTitle('COMMUNITIES & VOLUNTEERING'),
+                  ...communities.map((comm) => _buildCommunityItem(comm, dateFormat)),
+                  pw.SizedBox(height: 15),
+                ],
+
+                // Certifications & Courses
+                if (courses.isNotEmpty) ...[
+                  _buildSectionTitle('CERTIFICATIONS & COURSES'),
+                  ...courses.map((course) => _buildCourseItem(course)),
+                  pw.SizedBox(height: 15),
+                ],
+
+                // Education
+                _buildSectionTitle('EDUCATION'),
+                if (education.isNotEmpty)
+                  ...education.map((edu) => _buildEducationItem(edu, dateFormat))
+                else
+                  _buildPlaceholderItem('Okul Adı', 'Bölüm / Derece', 'Mezuniyet Tarihi'),
+              ],
             ),
-          pw.SizedBox(height: 12),
-
-          // Work Experience
-          _buildSectionTitle('WORK EXPERIENCE'),
-          if (experience.isNotEmpty)
-            ...experience.map((exp) => _buildExperienceItem(exp, dateFormat))
-          else
-            _buildPlaceholderItem('Şirket Adı', 'Pozisyon', 'Başlangıç - Bitiş'),
-          pw.SizedBox(height: 12),
-
-          // Projects
-          _buildSectionTitle('PROJECTS'),
-          if (projects.isNotEmpty)
-            ...projects.map((proj) => _buildProjectItem(proj, dateFormat))
-          else
-            _buildPlaceholderItem('Proje Adı', 'Proje Açıklaması', 'Repo Linki'),
-          pw.SizedBox(height: 12),
-
-          // Communities & Volunteering
-          if (communities.isNotEmpty) ...[
-            _buildSectionTitle('COMMUNITIES & VOLUNTEERING'),
-            ...communities.map((comm) => _buildCommunityItem(comm, dateFormat)),
-            pw.SizedBox(height: 12),
-          ],
-
-          // Certifications & Courses
-          if (courses.isNotEmpty) ...[
-            _buildSectionTitle('CERTIFICATIONS & COURSES'),
-            ...courses.map((course) => _buildCourseItem(course)),
-            pw.SizedBox(height: 12),
-          ],
-
-          // Education
-          _buildSectionTitle('EDUCATION'),
-          if (education.isNotEmpty)
-            ...education.map((edu) => _buildEducationItem(edu, dateFormat))
-          else
-            _buildPlaceholderItem('Okul Adı', 'Bölüm / Derece', 'Mezuniyet Tarihi'),
+          ),
         ],
       ),
     );
@@ -102,35 +108,52 @@ class AtsOptimizedBuilder {
   pw.Widget _buildHeader() {
     final name = (profile.firstName != null || profile.lastName != null) 
         ? '${profile.firstName ?? ''} ${profile.lastName ?? ''}'.toUpperCase()
-        : 'AD SOYAD';
+        : 'AD SOYAD GİRİNİZ';
         
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.center,
-      children: [
-        pw.Text(
-          name,
-          style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
-        ),
-        pw.SizedBox(height: 4),
-        pw.Text(
-          [
-            profile.city != null ? '${profile.district ?? ''}, ${profile.city}' : null,
-            (profile.phone != null && profile.phone!.isNotEmpty) ? profile.phone! : null,
-            (profile.email != null && profile.email!.isNotEmpty) ? profile.email! : null,
-          ].whereType<String>().join(' | '),
-          style: const pw.TextStyle(fontSize: 9),
-        ),
-        if (socialMedia.isNotEmpty) ...[
-          pw.SizedBox(height: 3),
+    return pw.Container(
+      color: PdfColors.black, // "Siyah fon" request
+      width: double.infinity,
+      padding: const pw.EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.center,
+        children: [
           pw.Text(
-            socialMedia.map((s) {
-              final handle = _extractHandle(s.url);
-              return '${s.platform.displayName}: $handle';
-            }).join(' | '),
-            style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.blue800),
+            name,
+            style: pw.TextStyle(
+              fontSize: 24, 
+              fontWeight: pw.FontWeight.bold, 
+              color: PdfColors.white,
+            ),
           ),
+          pw.SizedBox(height: 10),
+          pw.Text(
+            [
+              profile.city != null ? '${profile.district ?? ''}, ${profile.city}' : null,
+              (profile.phone != null && profile.phone!.isNotEmpty) ? profile.phone! : null,
+              (profile.email != null && profile.email!.isNotEmpty) ? profile.email! : null,
+            ].whereType<String>().join('  |  '),
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.white),
+          ),
+          if (socialMedia.isNotEmpty) ...[
+            pw.SizedBox(height: 12), // More spacing for social links
+            pw.Wrap(
+              spacing: 15, // Horizontal spacing
+              runSpacing: 5,
+              alignment: pw.WrapAlignment.center,
+              children: socialMedia.map((s) {
+                final handle = _extractHandle(s.url);
+                return pw.Text(
+                  '${s.platform.displayName}: $handle',
+                  style: const pw.TextStyle(
+                    fontSize: 9, 
+                    color: PdfColors.blue100,
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 
@@ -142,7 +165,6 @@ class AtsOptimizedBuilder {
       if (pathSegments.isEmpty) return url;
       return pathSegments.last;
     } catch (_) {
-      // If parsing fails, try manual splitting as fallback
       final parts = url.split('/');
       return parts.lastWhere((p) => p.isNotEmpty, orElse: () => url);
     }
@@ -154,10 +176,10 @@ class AtsOptimizedBuilder {
       children: [
         pw.Text(
           title,
-          style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: PdfColors.black),
+          style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: PdfColors.black),
         ),
-        pw.Divider(thickness: 0.5, color: PdfColors.black),
-        pw.SizedBox(height: 6),
+        pw.Divider(thickness: 1.0, color: PdfColors.black), // Stronger lines
+        pw.SizedBox(height: 10),
       ],
     );
   }
@@ -169,11 +191,11 @@ class AtsOptimizedBuilder {
         pw.Row(
           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
           children: [
-            pw.Text(title, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9, color: PdfColors.grey500)),
-            pw.Text(date, style: pw.TextStyle(fontSize: 8.5, color: PdfColors.grey500)),
+            pw.Text(title, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, color: PdfColors.grey600)),
+            pw.Text(date, style: pw.TextStyle(fontSize: 9, color: PdfColors.grey600)),
           ],
         ),
-        pw.Text(subtitle, style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 9, color: PdfColors.grey500)),
+        pw.Text(subtitle, style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10, color: PdfColors.grey600)),
       ],
     );
   }
@@ -183,25 +205,25 @@ class AtsOptimizedBuilder {
     final endStr = exp.endDate != null ? df.format(exp.endDate!) : 'Present';
     
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 10),
+      padding: const pw.EdgeInsets.only(bottom: 15),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(exp.company, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
-              pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 8.5)),
+              pw.Text(exp.company, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+              pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
             ],
           ),
           if (exp.role != null)
-            pw.Text(exp.role!, style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 9)),
+            pw.Text(exp.role!, style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10)),
           if (exp.description != null && exp.description!.isNotEmpty)
             pw.Padding(
-              padding: const pw.EdgeInsets.only(top: 3, left: 10),
+              padding: const pw.EdgeInsets.only(top: 5, left: 12),
               child: pw.Text(
                 exp.description!,
-                style: const pw.TextStyle(fontSize: 8.5),
+                style: const pw.TextStyle(fontSize: 9.5, lineHeight: 1.4),
               ),
             ),
         ],
@@ -211,21 +233,21 @@ class AtsOptimizedBuilder {
 
   pw.Widget _buildProjectItem(Project proj, DateFormat df) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 10),
+      padding: const pw.EdgeInsets.only(bottom: 12),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(proj.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
-              if (proj.repoUrl != null) pw.Text(_extractHandle(proj.repoUrl!), style: const pw.TextStyle(fontSize: 8, color: PdfColors.blue700)),
+              pw.Text(proj.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+              if (proj.repoUrl != null) pw.Text(_extractHandle(proj.repoUrl!), style: const pw.TextStyle(fontSize: 9, color: PdfColors.blue900)),
             ],
           ),
           if (proj.description != null && proj.description!.isNotEmpty)
             pw.Padding(
-              padding: const pw.EdgeInsets.only(top: 1),
-              child: pw.Text(proj.description!, style: const pw.TextStyle(fontSize: 8.5)),
+              padding: const pw.EdgeInsets.only(top: 3),
+              child: pw.Text(proj.description!, style: const pw.TextStyle(fontSize: 9.5, lineHeight: 1.3)),
             ),
         ],
       ),
@@ -237,19 +259,19 @@ class AtsOptimizedBuilder {
     final endStr = comm.endDate != null ? df.format(comm.endDate!) : 'Present';
 
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 8),
+      padding: const pw.EdgeInsets.only(bottom: 10),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(comm.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
+              pw.Text(comm.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
               if (comm.role != null)
-                pw.Text(comm.role!, style: const pw.TextStyle(fontSize: 8.5)),
+                pw.Text(comm.role!, style: const pw.TextStyle(fontSize: 9.5)),
             ],
           ),
-          pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 8.5)),
+          pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
         ],
       ),
     );
@@ -257,13 +279,13 @@ class AtsOptimizedBuilder {
 
   pw.Widget _buildCourseItem(Course course) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 6),
+      padding: const pw.EdgeInsets.only(bottom: 8),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
-          pw.Text(course.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
+          pw.Text(course.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
           if (course.issuer != null)
-            pw.Text(course.issuer!, style: const pw.TextStyle(fontSize: 8.5, fontStyle: pw.FontStyle.italic)),
+            pw.Text(course.issuer!, style: const pw.TextStyle(fontSize: 9.5, fontStyle: pw.FontStyle.italic)),
         ],
       ),
     );
@@ -274,19 +296,19 @@ class AtsOptimizedBuilder {
     final endStr = edu.endDate != null ? df.format(edu.endDate!) : 'Present';
 
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 8),
+      padding: const pw.EdgeInsets.only(bottom: 12),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(edu.school, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
+              pw.Text(edu.school, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
               if (edu.degree != null)
-                pw.Text(edu.degree!, style: const pw.TextStyle(fontSize: 8.5)),
+                pw.Text(edu.degree!, style: const pw.TextStyle(fontSize: 9.5)),
             ],
           ),
-          pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 8.5)),
+          pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
         ],
       ),
     );

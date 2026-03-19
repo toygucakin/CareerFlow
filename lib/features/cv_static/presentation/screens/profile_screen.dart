@@ -93,12 +93,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     setState(() => _isSaving = true);
     try {
-      final unmaskedPhone = _phoneController.text.replaceAll(' ', '');
+      final phoneText = _phoneController.text.trim();
+      // Remove all non-digit characters to get the raw number
+      final unmaskedPhone = phoneText.replaceAll(RegExp(r'\D'), '');
 
       final updatedProfile = currentProfile.copyWith(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        phone: '${_selectedCountry.code}$unmaskedPhone',
+        phone: unmaskedPhone.isNotEmpty ? '${_selectedCountry.code}$unmaskedPhone' : null,
         city: _cityController.text.trim(),
         district: _districtController.text.trim(),
         birthDate: _selectedBirthDate,
