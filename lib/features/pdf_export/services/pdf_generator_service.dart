@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:career_flow/features/auth/presentation/providers/auth_provider.dart';
 import 'package:career_flow/features/cv_builder/presentation/providers/education_provider.dart';
@@ -16,8 +17,6 @@ enum CvTemplate {
   minimalist,
   atsOptimized,
 }
-
-import 'package:flutter/services.dart';
 
 final pdfGeneratorServiceProvider = Provider((ref) => PdfGeneratorService(ref));
 

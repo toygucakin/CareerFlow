@@ -144,7 +144,7 @@ class AtsOptimizedBuilder {
     } catch (_) {
       // If parsing fails, try manual splitting as fallback
       final parts = url.split('/');
-      return parts.lastWhere((p) => p.isNotEmpty, defaultValue: () => url);
+      return parts.lastWhere((p) => p.isNotEmpty, orElse: () => url);
     }
   }
 
@@ -201,7 +201,7 @@ class AtsOptimizedBuilder {
               padding: const pw.EdgeInsets.only(top: 3, left: 10),
               child: pw.Text(
                 exp.description!,
-                style: const pw.TextStyle(fontSize: 8.5, lineHeight: 1.2),
+                style: const pw.TextStyle(fontSize: 8.5),
               ),
             ),
         ],
