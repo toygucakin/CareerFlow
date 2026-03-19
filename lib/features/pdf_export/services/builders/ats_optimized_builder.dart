@@ -92,8 +92,8 @@ class AtsOptimizedBuilder {
         pw.Text(
           [
             profile.city != null ? '${profile.district ?? ''}, ${profile.city}' : 'Konum Bilgisi',
-            profile.phone.isNotEmpty ? profile.phone : 'Telefon No',
-            profile.email.isNotEmpty ? profile.email : 'E-posta Adresi',
+            (profile.phone != null && profile.phone!.isNotEmpty) ? profile.phone! : 'Telefon No',
+            (profile.email != null && profile.email!.isNotEmpty) ? profile.email! : 'E-posta Adresi',
           ].join(' | '),
           style: const pw.TextStyle(fontSize: 10),
         ),
@@ -174,7 +174,7 @@ class AtsOptimizedBuilder {
               padding: const pw.EdgeInsets.only(top: 4, left: 10),
               child: pw.Text(
                 exp.description!,
-                style: const pw.TextStyle(fontSize: 9, lineHeight: 1.2),
+                style: const pw.TextStyle(fontSize: 9),
               ),
             ),
         ],
