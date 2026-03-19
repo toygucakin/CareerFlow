@@ -625,33 +625,44 @@ class _AtsOptimizedPreview extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            // Header
-            Container(height: 8, width: 60, color: Colors.black87),
-            const SizedBox(height: 4),
-            Container(height: 3, width: 80, color: Colors.grey.shade400),
+            // Header: Name
+            const Text('AD SOYAD', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: 0.5)),
+            const SizedBox(height: 2),
+            const Text('Ankara • +90 5XX XXX XX XX • email@example.com', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+            const Text('linkedin.com/in/user • github.com/user', style: TextStyle(fontSize: 3, color: Colors.blue, decoration: TextDecoration.underline)),
             const SizedBox(height: 12),
-            // Section 1: Summary
-            Align(alignment: Alignment.centerLeft, child: Container(height: 5, width: 45, color: Colors.blue.shade300)),
-            const Divider(height: 6, thickness: 0.5),
-            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
+            
+            // Section 1: Professional Summary
+            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('PROFESSIONAL SUMMARY', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
+            const SizedBox(height: 4),
+            Container(height: 12, width: double.infinity, color: Colors.grey.shade50),
             const SizedBox(height: 10),
+            
             // Section 2: Experience
-            Align(alignment: Alignment.centerLeft, child: Container(height: 5, width: 45, color: Colors.blue.shade300)),
-            const Divider(height: 6, thickness: 0.5),
+            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('WORK EXPERIENCE', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
+            const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(height: 5, width: 35, color: Colors.grey.shade400),
-                Container(height: 4, width: 25, color: Colors.grey.shade300),
+                const Text('Company Name', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)),
+                const Text('01/2020 - Present', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
               ],
             ),
-            const SizedBox(height: 2),
-            Container(height: 15, width: double.infinity, color: Colors.grey.shade50),
+            const Align(alignment: Alignment.centerLeft, child: Text('Senior Developer', style: TextStyle(fontSize: 3.5, fontStyle: FontStyle.italic, color: Colors.black54))),
+            const SizedBox(height: 4),
+            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
             const Spacer(),
+            
             // Section 3: Education
-            Align(alignment: Alignment.centerLeft, child: Container(height: 5, width: 45, color: Colors.blue.shade300)),
-            const Divider(height: 6, thickness: 0.5),
-            Container(height: 10, width: double.infinity, color: Colors.grey.shade50),
+            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('EDUCATION', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('University Name', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)),
+                const Text('2014 - 2018', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+              ],
+            ),
           ],
         ),
       ),
