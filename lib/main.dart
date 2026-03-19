@@ -627,35 +627,35 @@ class _AtsOptimizedPreview extends StatelessWidget {
           children: [
             // Header: Name
             const Text('AD SOYAD', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: 0.5)),
-            const SizedBox(height: 2),
-            const Text('Ankara • +90 5XX XXX XX XX • email@example.com', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
-            const Text('linkedin.com/in/user • github.com/user', style: TextStyle(fontSize: 3, color: Colors.blue, decoration: TextDecoration.underline)),
-            const SizedBox(height: 12),
+            const SizedBox(height: 1),
+            const Text('Ankara • +90 5XX XXX XX XX', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+            const Text('linkedin.com/in/user • github.com/user', style: TextStyle(fontSize: 2.8, color: Colors.blue, decoration: TextDecoration.underline)),
+            const SizedBox(height: 8),
             
             // Section 1: Professional Summary
-            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('PROFESSIONAL SUMMARY', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
-            const SizedBox(height: 4),
-            Container(height: 12, width: double.infinity, color: Colors.grey.shade50),
-            const SizedBox(height: 10),
+            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('SUMMARY', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
+            const SizedBox(height: 2),
+            Container(height: 8, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 6),
             
             // Section 2: Experience
-            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('WORK EXPERIENCE', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
-            const SizedBox(height: 4),
+            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('EXPERIENCE', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
+            const SizedBox(height: 3),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Company Name', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)),
-                const Text('01/2020 - Present', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+                const Text('2020 - Present', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
               ],
             ),
-            const Align(alignment: Alignment.centerLeft, child: Text('Senior Developer', style: TextStyle(fontSize: 3.5, fontStyle: FontStyle.italic, color: Colors.black54))),
-            const SizedBox(height: 4),
-            Container(height: 20, width: double.infinity, color: Colors.grey.shade50),
-            const Spacer(),
+            const Align(alignment: Alignment.centerLeft, child: Text('Senior Dev', style: TextStyle(fontSize: 3, fontStyle: FontStyle.italic, color: Colors.black54))),
+            const SizedBox(height: 2),
+            Container(height: 12, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 8),
             
             // Section 3: Education
             Align(alignment: Alignment.centerLeft, child: Row(children: [Text('EDUCATION', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
