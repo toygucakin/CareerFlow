@@ -97,7 +97,7 @@ class AtsOptimizedBuilder {
               ),
             ),
             ...projects.skip(1).map((proj) => _buildProjectItem(proj, dateFormat)),
-            pw.SizedBox(height: 15),
+            pw.SizedBox(height: 10),
           ],
 
           // Communities & Volunteering
@@ -158,7 +158,7 @@ class AtsOptimizedBuilder {
                 ],
               ),
             ),
-            pw.SizedBox(height: 15),
+            pw.SizedBox(height: 10),
           ],
         ],
       ),
@@ -259,12 +259,20 @@ class AtsOptimizedBuilder {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(
-          title,
-          style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold, color: PdfColors.black),
+        pw.Container(
+          width: double.infinity,
+          padding: const pw.EdgeInsets.only(bottom: 2),
+          decoration: const pw.BoxDecoration(
+            border: pw.Border(
+              bottom: pw.BorderSide(color: PdfColors.black, width: 0.8),
+            ),
+          ),
+          child: pw.Text(
+            title,
+            style: pw.TextStyle(fontSize: 10.5, fontWeight: pw.FontWeight.bold, color: PdfColors.black),
+          ),
         ),
-        pw.Divider(thickness: 1.0, color: PdfColors.black), // Stronger lines
-        pw.SizedBox(height: 10),
+        pw.SizedBox(height: 6),
       ],
     );
   }
@@ -297,12 +305,18 @@ class AtsOptimizedBuilder {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(exp.company, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+              pw.RichText(
+                text: pw.TextSpan(
+                  children: [
+                    pw.TextSpan(text: exp.company, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                    if (exp.role != null && exp.role!.isNotEmpty)
+                      pw.TextSpan(text: ' - ${exp.role!}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                  ],
+                ),
+              ),
               pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
             ],
           ),
-          if (exp.role != null)
-            pw.Text(exp.role!, style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10)),
           if (exp.description != null && exp.description!.isNotEmpty)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 5, left: 12),
