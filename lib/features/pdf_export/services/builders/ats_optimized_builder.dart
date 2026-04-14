@@ -111,10 +111,10 @@ class AtsOptimizedBuilder {
         : 'AD SOYAD GİRİNİZ';
         
     return pw.Container(
-      color: PdfColors.white, // Changed background to white as requested
       width: double.infinity,
       padding: const pw.EdgeInsets.fromLTRB(40, 30, 40, 15),
       decoration: const pw.BoxDecoration(
+        color: PdfColors.white, // Changed background to white as requested
         border: pw.Border(
           bottom: pw.BorderSide(color: PdfColors.black, width: 0.5), // Subtle divider
         ),
@@ -156,16 +156,29 @@ class AtsOptimizedBuilder {
               spacing: 15,
               runSpacing: 5,
               alignment: pw.WrapAlignment.center,
-              children: socialMedia.map((s) {
-                final handle = _extractHandle(s.url);
-                return pw.Text(
-                  '${s.platform.displayName}: $handle',
-                  style: const pw.TextStyle(
-                    fontSize: 9, 
-                    color: PdfColors.black, // Social links to black
-                  ),
-                );
-              }).toList(),
+              children: () {
+                final seenHandles = <String>{};
+                final uniqueMedia = <SocialMediaAccount>[];
+                for (final s in socialMedia) {
+                  final handle = _extractHandle(s.url);
+                  final key = '${s.platform.name}_$handle';
+                  if (!seenHandles.contains(key)) {
+                    seenHandles.add(key);
+                    uniqueMedia.add(s);
+                  }
+                }
+                
+                return uniqueMedia.map((s) {
+                  final handle = _extractHandle(s.url);
+                  return pw.Text(
+                    '${s.platform.displayName}: $handle',
+                    style: const pw.TextStyle(
+                      fontSize: 9, 
+                      color: PdfColors.black, // Social links to black
+                    ),
+                  );
+                }).toList();
+              }(),
             ),
           ],
         ],

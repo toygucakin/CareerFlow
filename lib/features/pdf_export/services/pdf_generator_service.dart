@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:career_flow/features/auth/presentation/providers/auth_provider.dart';
 import 'package:career_flow/features/cv_builder/presentation/providers/education_provider.dart';
@@ -27,12 +29,12 @@ class PdfGeneratorService {
 
   Future<Uint8List> generateCv(CvTemplate template) async {
     final profileAwait = await _ref.read(currentUserProfileProvider.future);
-    final education = _ref.read(educationListProvider).value ?? [];
-    final experience = _ref.read(experienceListProvider).value ?? [];
-    final projects = _ref.read(projectListProvider).value ?? [];
-    final socialMedia = _ref.read(socialMediaListProvider).value ?? [];
-    final communities = _ref.read(communityListProvider).value ?? [];
-    final courses = _ref.read(courseListProvider).value ?? [];
+    final education = await _ref.read(educationListProvider.future);
+    final experience = await _ref.read(experienceListProvider.future);
+    final projects = await _ref.read(projectListProvider.future);
+    final socialMedia = await _ref.read(socialMediaListProvider.future);
+    final communities = await _ref.read(communityListProvider.future);
+    final courses = await _ref.read(courseListProvider.future);
 
     if (profileAwait == null) throw Exception('Profil bulunamadı. Lütfen giriş yapın.');
 
@@ -53,17 +55,22 @@ class PdfGeneratorService {
         );
         return builder.build();
       default:
-        final builder = AtsOptimizedBuilder(
-          profile: profileAwait,
-          education: education,
-          experience: experience,
-          projects: projects,
-          socialMedia: socialMedia,
-          communities: communities,
-          courses: courses,
-          fontData: fontData.buffer,
+        final pdf = pw.Document();
+        final ttf = pw.Font.ttf(fontData);
+        pdf.addPage(
+          pw.Page(
+            theme: pw.ThemeData.withFont(base: ttf, bold: ttf, italic: ttf),
+            build: (pw.Context context) {
+              return pw.Center(
+                child: pw.Text(
+                  'Bu CV tasarımı daha sonra eklenecektir.',
+                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+                ),
+              );
+            },
+          ),
         );
-        return builder.build();
+        return pdf.save();
     }
   }
 }

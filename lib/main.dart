@@ -260,6 +260,12 @@ class HomeScreen extends ConsumerWidget {
                 scrollDirection: Axis.horizontal,
                 children: [
                   _TemplateCard(
+                    title: 'ATS Optimized (9.5)',
+                    preview: const _AtsOptimizedPreview(),
+                    color: Colors.orange,
+                    onTap: () => _startWithTemplate(context, CvTemplate.atsOptimized),
+                  ),
+                  _TemplateCard(
                     title: 'Modern Tech',
                     preview: const _ModernPreview(),
                     color: Colors.blue,
@@ -282,12 +288,6 @@ class HomeScreen extends ConsumerWidget {
                     preview: const _MinimalistPreview(),
                     color: Colors.teal,
                     onTap: () => _startWithTemplate(context, CvTemplate.minimalist),
-                  ),
-                  _TemplateCard(
-                    title: 'ATS Optimized (9.5)',
-                    preview: const _AtsOptimizedPreview(),
-                    color: Colors.orange,
-                    onTap: () => _startWithTemplate(context, CvTemplate.atsOptimized),
                   ),
                 ],
               ),
