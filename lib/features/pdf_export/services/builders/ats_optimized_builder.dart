@@ -309,6 +309,10 @@ class AtsOptimizedBuilder {
   }
 
   pw.Widget _buildProjectItem(Project proj, DateFormat df) {
+    final startStr = proj.startDate != null ? df.format(proj.startDate!) : '';
+    final endStr = proj.endDate != null ? df.format(proj.endDate!) : (proj.startDate != null ? 'Present' : '');
+    final dateStr = (startStr.isNotEmpty || endStr.isNotEmpty) ? '$startStr - $endStr' : '';
+
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 12),
       child: pw.Column(
@@ -317,14 +321,28 @@ class AtsOptimizedBuilder {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(proj.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
-              if (proj.repoUrl != null) pw.Text(_extractHandle(proj.repoUrl!), style: const pw.TextStyle(fontSize: 9, color: PdfColors.blue900)),
+              pw.RichText(
+                text: pw.TextSpan(
+                  children: [
+                    pw.TextSpan(text: proj.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                    if (proj.repoUrl != null) 
+                      pw.TextSpan(text: '  |  ${_extractHandle(proj.repoUrl!)}', style: const pw.TextStyle(fontSize: 9, color: PdfColors.blue900)),
+                  ],
+                ),
+              ),
+              if (dateStr.isNotEmpty)
+                pw.Text(dateStr, style: const pw.TextStyle(fontSize: 9.5)),
             ],
           ),
           if (proj.description != null && proj.description!.isNotEmpty)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 3),
               child: pw.Text(proj.description!, style: const pw.TextStyle(fontSize: 9.5)),
+            ),
+          if (proj.technologies != null && proj.technologies!.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 3),
+              child: pw.Text('Technologies: ${proj.technologies!}', style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic, color: PdfColors.grey700)),
             ),
         ],
       ),

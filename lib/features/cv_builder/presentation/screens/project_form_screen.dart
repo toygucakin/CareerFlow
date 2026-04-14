@@ -18,7 +18,6 @@ class ProjectFormScreen extends ConsumerStatefulWidget {
 class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  late TextEditingController _scopeController;
   late TextEditingController _descriptionController;
   late TextEditingController _technologiesController;
   DateTime? _startDate;
@@ -30,7 +29,6 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.projectToEdit?.name);
-    _scopeController = TextEditingController(text: widget.projectToEdit?.scope);
     _descriptionController = TextEditingController(
       text: widget.projectToEdit?.description,
     );
@@ -45,7 +43,6 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _scopeController.dispose();
     _descriptionController.dispose();
     _technologiesController.dispose();
     super.dispose();
@@ -142,7 +139,6 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
       id: widget.projectToEdit?.id,
       profileId: user.id,
       name: _nameController.text,
-      scope: _scopeController.text,
       description: _descriptionController.text,
       technologies: _technologiesController.text,
       startDate: _startDate,
@@ -195,15 +191,6 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
                 validator: (value) => value == null || value.isEmpty
                     ? 'Lütfen proje adını girin'
                     : null,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _scopeController,
-                decoration: const InputDecoration(
-                  labelText: 'Proje Kapsamı',
-                  border: OutlineInputBorder(),
-                  hintText: 'Örn: Web Uygulaması, Bitirme Projesi',
-                ),
               ),
               const SizedBox(height: 16),
               GestureDetector(

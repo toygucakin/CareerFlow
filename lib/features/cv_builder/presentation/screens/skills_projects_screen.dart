@@ -176,8 +176,6 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (proj.scope != null && proj.scope!.isNotEmpty)
-                      Text(proj.scope!),
                     const SizedBox(height: 2),
                     Text(
                       _formatDateRange(proj.startDate, proj.endDate),
