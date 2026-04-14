@@ -448,11 +448,62 @@ class AtsOptimizedBuilder {
   }
 
   pw.Widget _buildLanguagesWrap(List<Language> languages) {
-    final langStr = languages.map((l) => '${l.name} (${l.proficiency ?? ''})'.trim()).join(' • ');
+    final langStr = languages.map((l) {
+      final translatedName = _translateLanguage(l.name);
+      final translatedProf = l.proficiency != null ? _translateProficiency(l.proficiency!) : null;
+      return (translatedProf != null && translatedProf.isNotEmpty) 
+          ? '$translatedName ($translatedProf)' 
+          : translatedName;
+    }).join(' • ');
+
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 6),
       child: pw.Text('Languages: $langStr', style: const pw.TextStyle(fontSize: 9.5)),
     );
+  }
+
+  String _translateLanguage(String name) {
+    final map = {
+      'İngilizce': 'English',
+      'Almanca': 'German',
+      'Fransızca': 'French',
+      'İspanyolca': 'Spanish',
+      'Türkçe': 'Turkish',
+      'Rusça': 'Russian',
+      'Arapça': 'Arabic',
+      'İtalyanca': 'Italian',
+      'Çince': 'Chinese',
+      'Japonca': 'Japanese',
+    };
+    return map[name] ?? name;
+  }
+
+  String _translateProficiency(String prof) {
+    // Extract CEFR code (A1, B2, etc.) if format is "B2 - Description"
+    if (prof.contains(' - ')) {
+      final parts = prof.split(' - ');
+      final code = parts[0].trim();
+      if (RegExp(r'^[A-C][1-2]$').hasMatch(code)) {
+        return code;
+      }
+    }
+
+    String result = prof;
+    final translations = {
+      'Başlangıç': 'Beginner',
+      'Temel': 'Elementary',
+      'Orta': 'Intermediate',
+      'İyi Orta': 'Upper Intermediate',
+      'İleri': 'Advanced',
+      'Uzman': 'Expert',
+      'Ana Dil': 'Native',
+    };
+
+    translations.forEach((tr, en) {
+      result = result.replaceAll(tr, en);
+    });
+    
+    return result;
   }
 
   pw.Widget _buildInterestsWrap(List<Interest> interests) {
