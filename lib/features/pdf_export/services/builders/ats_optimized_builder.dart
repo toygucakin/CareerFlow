@@ -51,29 +51,28 @@ class AtsOptimizedBuilder {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 // Professional Summary
-                _buildSectionTitle('PROFESSIONAL SUMMARY'),
-                if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty)
+                if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty) ...[
+                  _buildSectionTitle('PROFESSIONAL SUMMARY'),
                   pw.Paragraph(
                     text: profile.aboutMe!,
                     style: const pw.TextStyle(fontSize: 10),
                   ),
-                pw.SizedBox(height: 15),
+                  pw.SizedBox(height: 15),
+                ],
 
                 // Work Experience
-                _buildSectionTitle('WORK EXPERIENCE'),
-                if (experience.isNotEmpty)
-                  ...experience.map((exp) => _buildExperienceItem(exp, dateFormat))
-                else
-                  _buildPlaceholderItem('Şirket Adı', 'Pozisyon', 'Başlangıç - Bitiş'),
-                pw.SizedBox(height: 15),
+                if (experience.isNotEmpty) ...[
+                  _buildSectionTitle('WORK EXPERIENCE'),
+                  ...experience.map((exp) => _buildExperienceItem(exp, dateFormat)),
+                  pw.SizedBox(height: 15),
+                ],
 
                 // Projects
-                _buildSectionTitle('PROJECTS'),
-                if (projects.isNotEmpty)
-                  ...projects.map((proj) => _buildProjectItem(proj, dateFormat))
-                else
-                  _buildPlaceholderItem('Proje Adı', 'Proje Açıklaması', 'Repo Linki'),
-                pw.SizedBox(height: 15),
+                if (projects.isNotEmpty) ...[
+                  _buildSectionTitle('PROJECTS'),
+                  ...projects.map((proj) => _buildProjectItem(proj, dateFormat)),
+                  pw.SizedBox(height: 15),
+                ],
 
                 // Communities & Volunteering
                 if (communities.isNotEmpty) ...[
@@ -90,11 +89,10 @@ class AtsOptimizedBuilder {
                 ],
 
                 // Education
-                _buildSectionTitle('EDUCATION'),
-                if (education.isNotEmpty)
-                  ...education.map((edu) => _buildEducationItem(edu, dateFormat))
-                else
-                  _buildPlaceholderItem('Okul Adı', 'Bölüm / Derece', 'Mezuniyet Tarihi'),
+                if (education.isNotEmpty) ...[
+                  _buildSectionTitle('EDUCATION'),
+                  ...education.map((edu) => _buildEducationItem(edu, dateFormat)),
+                ],
               ],
             ),
           ),
