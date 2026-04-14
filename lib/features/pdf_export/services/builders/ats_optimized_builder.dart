@@ -56,26 +56,30 @@ class AtsOptimizedBuilder {
         build: (context) => [
           // Professional Summary
           if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty)
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('PROFESSIONAL SUMMARY'),
-                pw.Paragraph(
-                  text: profile.aboutMe!,
-                  style: const pw.TextStyle(fontSize: 10),
-                ),
-                pw.SizedBox(height: 15),
-              ],
+            pw.Container(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle('PROFESSIONAL SUMMARY'),
+                  pw.Paragraph(
+                    text: profile.aboutMe!,
+                    style: const pw.TextStyle(fontSize: 10),
+                  ),
+                  pw.SizedBox(height: 15),
+                ],
+              ),
             ),
 
           // Work Experience
           if (experience.isNotEmpty) ...[
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('WORK EXPERIENCE'),
-                _buildExperienceItem(experience.first, dateFormat),
-              ],
+            pw.Container(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle('WORK EXPERIENCE'),
+                  _buildExperienceItem(experience.first, dateFormat),
+                ],
+              ),
             ),
             ...experience.skip(1).map((exp) => _buildExperienceItem(exp, dateFormat)),
             pw.SizedBox(height: 15),
@@ -83,12 +87,14 @@ class AtsOptimizedBuilder {
 
           // Projects
           if (projects.isNotEmpty) ...[
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('PROJECTS'),
-                _buildProjectItem(projects.first, dateFormat),
-              ],
+            pw.Container(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle('PROJECTS'),
+                  _buildProjectItem(projects.first, dateFormat),
+                ],
+              ),
             ),
             ...projects.skip(1).map((proj) => _buildProjectItem(proj, dateFormat)),
             pw.SizedBox(height: 15),
@@ -96,12 +102,14 @@ class AtsOptimizedBuilder {
 
           // Communities & Volunteering
           if (communities.isNotEmpty) ...[
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('COMMUNITIES & VOLUNTEERING'),
-                _buildCommunityItem(communities.first, dateFormat),
-              ],
+            pw.Container(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle('COMMUNITIES & VOLUNTEERING'),
+                  _buildCommunityItem(communities.first, dateFormat),
+                ],
+              ),
             ),
             ...communities.skip(1).map((comm) => _buildCommunityItem(comm, dateFormat)),
             pw.SizedBox(height: 15),
@@ -109,12 +117,14 @@ class AtsOptimizedBuilder {
 
           // Certifications & Courses
           if (courses.isNotEmpty) ...[
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('CERTIFICATIONS & COURSES'),
-                _buildCourseItem(courses.first),
-              ],
+            pw.Container(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle('CERTIFICATIONS & COURSES'),
+                  _buildCourseItem(courses.first),
+                ],
+              ),
             ),
             ...courses.skip(1).map((course) => _buildCourseItem(course)),
             pw.SizedBox(height: 15),
@@ -122,12 +132,14 @@ class AtsOptimizedBuilder {
 
           // Education
           if (education.isNotEmpty) ...[
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('EDUCATION'),
-                _buildEducationItem(education.first, dateFormat),
-              ],
+            pw.Container(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle('EDUCATION'),
+                  _buildEducationItem(education.first, dateFormat),
+                ],
+              ),
             ),
             ...education.skip(1).map((edu) => _buildEducationItem(edu, dateFormat)),
             pw.SizedBox(height: 15),
@@ -135,14 +147,16 @@ class AtsOptimizedBuilder {
 
           // Skills, Languages & Interests
           if (skills.isNotEmpty || languages.isNotEmpty || interests.isNotEmpty) ...[
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                _buildSectionTitle('SKILLS & ADDITIONAL INFO'),
-                if (skills.isNotEmpty) _buildSkillsWrap(skills),
-                if (languages.isNotEmpty) _buildLanguagesWrap(languages),
-                if (interests.isNotEmpty) _buildInterestsWrap(interests),
-              ],
+            pw.Container(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle('SKILLS & ADDITIONAL INFO'),
+                  if (skills.isNotEmpty) _buildSkillsWrap(skills),
+                  if (languages.isNotEmpty) _buildLanguagesWrap(languages),
+                  if (interests.isNotEmpty) _buildInterestsWrap(interests),
+                ],
+              ),
             ),
             pw.SizedBox(height: 15),
           ],
@@ -161,12 +175,6 @@ class AtsOptimizedBuilder {
     return pw.Container(
       width: double.infinity,
       padding: const pw.EdgeInsets.fromLTRB(0, 10, 0, 15),
-      decoration: const pw.BoxDecoration(
-        color: PdfColors.white, // Changed background to white as requested
-        border: pw.Border(
-          bottom: pw.BorderSide(color: PdfColors.black, width: 0.5), // Subtle divider
-        ),
-      ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
