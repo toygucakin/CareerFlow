@@ -8,6 +8,9 @@ import 'package:career_flow/features/cv_builder/domain/models/project.dart';
 import 'package:career_flow/features/cv_builder/domain/models/social_media.dart';
 import 'package:career_flow/features/cv_builder/domain/models/community.dart';
 import 'package:career_flow/features/cv_builder/domain/models/course.dart';
+import 'package:career_flow/core/models/cv/skill.dart';
+import 'package:career_flow/core/models/cv/interest.dart';
+import 'package:career_flow/features/cv_builder/domain/models/language.dart';
 import 'package:career_flow/features/auth/domain/models/user_profile.dart';
 
 class AtsOptimizedBuilder {
@@ -18,6 +21,9 @@ class AtsOptimizedBuilder {
   final List<SocialMediaAccount> socialMedia;
   final List<Community> communities;
   final List<Course> courses;
+  final List<Skill> skills;
+  final List<Language> languages;
+  final List<Interest> interests;
   final ByteBuffer fontData;
 
   AtsOptimizedBuilder({
@@ -28,6 +34,9 @@ class AtsOptimizedBuilder {
     required this.socialMedia,
     required this.communities,
     required this.courses,
+    required this.skills,
+    required this.languages,
+    required this.interests,
     required this.fontData,
   });
 
@@ -41,61 +50,102 @@ class AtsOptimizedBuilder {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: pw.EdgeInsets.zero, // Use individual margins in build for header control
+        margin: const pw.EdgeInsets.fromLTRB(40, 20, 40, 40),
         theme: pw.ThemeData.withFont(base: ttf, bold: ttf, italic: ttf),
-        header: (context) => _buildHeader(),
+        header: (context) => context.pageNumber == 1 ? _buildHeader() : pw.SizedBox.shrink(),
         build: (context) => [
-          pw.Padding(
-            padding: const pw.EdgeInsets.fromLTRB(40, 20, 40, 40),
-            child: pw.Column(
+          // Professional Summary
+          if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty)
+            pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                // Professional Summary
-                if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty) ...[
-                  _buildSectionTitle('PROFESSIONAL SUMMARY'),
-                  pw.Paragraph(
-                    text: profile.aboutMe!,
-                    style: const pw.TextStyle(fontSize: 10),
-                  ),
-                  pw.SizedBox(height: 15),
-                ],
-
-                // Work Experience
-                if (experience.isNotEmpty) ...[
-                  _buildSectionTitle('WORK EXPERIENCE'),
-                  ...experience.map((exp) => _buildExperienceItem(exp, dateFormat)),
-                  pw.SizedBox(height: 15),
-                ],
-
-                // Projects
-                if (projects.isNotEmpty) ...[
-                  _buildSectionTitle('PROJECTS'),
-                  ...projects.map((proj) => _buildProjectItem(proj, dateFormat)),
-                  pw.SizedBox(height: 15),
-                ],
-
-                // Communities & Volunteering
-                if (communities.isNotEmpty) ...[
-                  _buildSectionTitle('COMMUNITIES & VOLUNTEERING'),
-                  ...communities.map((comm) => _buildCommunityItem(comm, dateFormat)),
-                  pw.SizedBox(height: 15),
-                ],
-
-                // Certifications & Courses
-                if (courses.isNotEmpty) ...[
-                  _buildSectionTitle('CERTIFICATIONS & COURSES'),
-                  ...courses.map((course) => _buildCourseItem(course)),
-                  pw.SizedBox(height: 15),
-                ],
-
-                // Education
-                if (education.isNotEmpty) ...[
-                  _buildSectionTitle('EDUCATION'),
-                  ...education.map((edu) => _buildEducationItem(edu, dateFormat)),
-                ],
+                _buildSectionTitle('PROFESSIONAL SUMMARY'),
+                pw.Paragraph(
+                  text: profile.aboutMe!,
+                  style: const pw.TextStyle(fontSize: 10),
+                ),
+                pw.SizedBox(height: 15),
               ],
             ),
-          ),
+
+          // Work Experience
+          if (experience.isNotEmpty) ...[
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildSectionTitle('WORK EXPERIENCE'),
+                _buildExperienceItem(experience.first, dateFormat),
+              ],
+            ),
+            ...experience.skip(1).map((exp) => _buildExperienceItem(exp, dateFormat)),
+            pw.SizedBox(height: 15),
+          ],
+
+          // Projects
+          if (projects.isNotEmpty) ...[
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildSectionTitle('PROJECTS'),
+                _buildProjectItem(projects.first, dateFormat),
+              ],
+            ),
+            ...projects.skip(1).map((proj) => _buildProjectItem(proj, dateFormat)),
+            pw.SizedBox(height: 15),
+          ],
+
+          // Communities & Volunteering
+          if (communities.isNotEmpty) ...[
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildSectionTitle('COMMUNITIES & VOLUNTEERING'),
+                _buildCommunityItem(communities.first, dateFormat),
+              ],
+            ),
+            ...communities.skip(1).map((comm) => _buildCommunityItem(comm, dateFormat)),
+            pw.SizedBox(height: 15),
+          ],
+
+          // Certifications & Courses
+          if (courses.isNotEmpty) ...[
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildSectionTitle('CERTIFICATIONS & COURSES'),
+                _buildCourseItem(courses.first),
+              ],
+            ),
+            ...courses.skip(1).map((course) => _buildCourseItem(course)),
+            pw.SizedBox(height: 15),
+          ],
+
+          // Education
+          if (education.isNotEmpty) ...[
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildSectionTitle('EDUCATION'),
+                _buildEducationItem(education.first, dateFormat),
+              ],
+            ),
+            ...education.skip(1).map((edu) => _buildEducationItem(edu, dateFormat)),
+            pw.SizedBox(height: 15),
+          ],
+
+          // Skills, Languages & Interests
+          if (skills.isNotEmpty || languages.isNotEmpty || interests.isNotEmpty) ...[
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                _buildSectionTitle('SKILLS & ADDITIONAL INFO'),
+                if (skills.isNotEmpty) _buildSkillsWrap(skills),
+                if (languages.isNotEmpty) _buildLanguagesWrap(languages),
+                if (interests.isNotEmpty) _buildInterestsWrap(interests),
+              ],
+            ),
+            pw.SizedBox(height: 15),
+          ],
         ],
       ),
     );
@@ -110,7 +160,7 @@ class AtsOptimizedBuilder {
         
     return pw.Container(
       width: double.infinity,
-      padding: const pw.EdgeInsets.fromLTRB(40, 30, 40, 15),
+      padding: const pw.EdgeInsets.fromLTRB(0, 10, 0, 15),
       decoration: const pw.BoxDecoration(
         color: PdfColors.white, // Changed background to white as requested
         border: pw.Border(
@@ -340,4 +390,37 @@ class AtsOptimizedBuilder {
       ),
     );
   }
+
+  pw.Widget _buildSkillsWrap(List<Skill> skills) {
+    final techSkills = skills.where((s) => s.category != 'Soft Skills').map((s) => s.name).join(' • ');
+    final softSkills = skills.where((s) => s.category == 'Soft Skills').map((s) => s.name).join(' • ');
+    
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 6),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          if (techSkills.isNotEmpty) pw.Text('Technical Skills: $techSkills', style: const pw.TextStyle(fontSize: 9.5)),
+          if (softSkills.isNotEmpty) pw.Text('Soft Skills: $softSkills', style: const pw.TextStyle(fontSize: 9.5)),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildLanguagesWrap(List<Language> languages) {
+    final langStr = languages.map((l) => '${l.name} (${l.proficiency ?? ''})'.trim()).join(' • ');
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 6),
+      child: pw.Text('Languages: $langStr', style: const pw.TextStyle(fontSize: 9.5)),
+    );
+  }
+
+  pw.Widget _buildInterestsWrap(List<Interest> interests) {
+    final intStr = interests.map((i) => i.name).join(' • ');
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 6),
+      child: pw.Text('Interests: $intStr', style: const pw.TextStyle(fontSize: 9.5)),
+    );
+  }
 }
+

@@ -10,6 +10,9 @@ import 'package:career_flow/features/cv_builder/presentation/providers/project_p
 import 'package:career_flow/features/cv_builder/presentation/providers/social_media_provider.dart';
 import 'package:career_flow/features/cv_builder/presentation/providers/community_provider.dart';
 import 'package:career_flow/features/cv_builder/presentation/providers/course_provider.dart';
+import 'package:career_flow/features/cv_builder/presentation/providers/skill_provider.dart';
+import 'package:career_flow/features/cv_builder/presentation/providers/interest_provider.dart';
+import 'package:career_flow/features/cv_builder/presentation/providers/language_provider.dart';
 import 'package:career_flow/features/pdf_export/services/builders/ats_optimized_builder.dart';
 
 enum CvTemplate {
@@ -35,6 +38,9 @@ class PdfGeneratorService {
     final socialMedia = await _ref.read(socialMediaListProvider.future);
     final communities = await _ref.read(communityListProvider.future);
     final courses = await _ref.read(courseListProvider.future);
+    final skills = await _ref.read(skillListProvider.future);
+    final interests = await _ref.read(interestListProvider.future);
+    final languages = await _ref.read(languageListProvider.future);
 
     if (profileAwait == null) throw Exception('Profil bulunamadı. Lütfen giriş yapın.');
 
@@ -51,6 +57,9 @@ class PdfGeneratorService {
           socialMedia: socialMedia,
           communities: communities,
           courses: courses,
+          skills: skills,
+          interests: interests,
+          languages: languages,
           fontData: fontData.buffer,
         );
         return builder.build();
