@@ -145,15 +145,20 @@ class AtsOptimizedBuilder {
             if (projects.length > displayProjects.length)
               pw.Padding(
                 padding: const pw.EdgeInsets.only(top: 2, bottom: 8),
-                child: pw.RichText(
-                  text: pw.TextSpan(
-                    children: [
-                      pw.TextSpan(
-                        text: '${_label('see_more')} ',
-                        style: const pw.TextStyle(fontSize: 9, color: PdfColors.black),
-                      ),
-                      pw.TextSpan(
-                        text: profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty
+                child: pw.Row(
+                  children: [
+                    pw.Text(
+                      '${_label('see_more')} ',
+                      style: const pw.TextStyle(fontSize: 9, color: PdfColors.black),
+                    ),
+                    pw.UrlLink(
+                      destination: profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty
+                          ? profile.portfolioUrl!
+                          : (socialMedia.any((s) => s.platform.name == 'github')
+                              ? socialMedia.firstWhere((s) => s.platform.name == 'github').url
+                              : ''),
+                      child: pw.Text(
+                        profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty
                             ? profile.portfolioUrl!
                             : (socialMedia.any((s) => s.platform.name == 'github')
                                 ? socialMedia.firstWhere((s) => s.platform.name == 'github').url
@@ -164,8 +169,8 @@ class AtsOptimizedBuilder {
                           decoration: pw.TextDecoration.underline,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             pw.SizedBox(height: 10),
@@ -269,13 +274,36 @@ class AtsOptimizedBuilder {
             ),
           ],
           pw.SizedBox(height: 10),
-          pw.Text(
-            [
-              profile.city != null ? '${profile.district ?? ''}, ${profile.city}' : null,
-              (profile.phone != null && profile.phone!.isNotEmpty) ? profile.phone! : null,
-              (profile.email != null && profile.email!.isNotEmpty) ? profile.email! : null,
-            ].whereType<String>().join('  |  '),
-            style: const pw.TextStyle(fontSize: 10, color: PdfColors.black), // Contact info to black
+          pw.Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            alignment: pw.WrapAlignment.center,
+            crossAxisAlignment: pw.WrapCrossAlignment.center,
+            children: [
+              if (profile.city != null)
+                pw.Text('${profile.district ?? ''}, ${profile.city}', 
+                  style: const pw.TextStyle(fontSize: 10, color: PdfColors.black)),
+                  
+              if (profile.city != null && ((profile.phone != null && profile.phone!.isNotEmpty) || (profile.email != null && profile.email!.isNotEmpty)))
+                pw.Text('|', style: const pw.TextStyle(fontSize: 10, color: PdfColors.black)),
+
+              if (profile.phone != null && profile.phone!.isNotEmpty)
+                pw.UrlLink(
+                  destination: 'tel:${profile.phone}',
+                  child: pw.Text(profile.phone!, 
+                    style: const pw.TextStyle(fontSize: 10, color: PdfColors.black)),
+                ),
+
+              if (profile.phone != null && profile.phone!.isNotEmpty && profile.email != null && profile.email!.isNotEmpty)
+                pw.Text('|', style: const pw.TextStyle(fontSize: 10, color: PdfColors.black)),
+
+              if (profile.email != null && profile.email!.isNotEmpty)
+                pw.UrlLink(
+                  destination: 'mailto:${profile.email}',
+                  child: pw.Text(profile.email!, 
+                    style: const pw.TextStyle(fontSize: 10, color: PdfColors.black)),
+                ),
+            ],
           ),
           if (socialMedia.isNotEmpty) ...[
             pw.SizedBox(height: 12),
@@ -297,11 +325,15 @@ class AtsOptimizedBuilder {
                 
                 return uniqueMedia.map((s) {
                   final handle = _extractHandle(s.url);
-                  return pw.Text(
-                    '${s.platform.displayName}: $handle',
-                    style: const pw.TextStyle(
-                      fontSize: 9, 
-                      color: PdfColors.black, // Social links to black
+                  return pw.UrlLink(
+                    destination: s.url,
+                    child: pw.Text(
+                      '${s.platform.displayName}: $handle',
+                      style: const pw.TextStyle(
+                        fontSize: 9, 
+                        color: PdfColors.black,
+                        decoration: pw.TextDecoration.underline,
+                      ),
                     ),
                   );
                 }).toList();
