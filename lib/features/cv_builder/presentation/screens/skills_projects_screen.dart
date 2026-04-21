@@ -44,15 +44,18 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
       appBar: widget.isWizardMode
           ? null
           : AppBar(title: const Text('Projeler ve Topluluklar')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _PortfolioLinkSection(),
-            _buildSectionHeader(
-              context,
-              'Projeler',
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _PortfolioLinkSection(),
+              _buildSectionHeader(
+                context,
+                'Projeler',
               Icons.assignment_outlined,
               () => Navigator.push(
                 context,
@@ -109,6 +112,7 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -378,7 +382,8 @@ class _PortfolioLinkSection extends ConsumerStatefulWidget {
 class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
   late TextEditingController _urlController;
   bool _isSaving = false;
-  bool _localIsExpanded = false;
+  bool _isIncluded = false;
+  bool _isExpanded = false;
   bool _hasInitialized = false;
   UserProfile? _lastProfile;
 
@@ -428,13 +433,14 @@ class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
 
         if (!_hasInitialized) {
           _urlController.text = profile.portfolioUrl ?? '';
-          _localIsExpanded = hasValidUrl;
+          _isIncluded = hasValidUrl;
+          _isExpanded = false; // Başlangıçta kapalı, istenirse ok tuşuyla açılır
           _hasInitialized = true;
         }
 
         if (_lastProfile?.portfolioUrl != profile.portfolioUrl && !_isSaving) {
            _urlController.text = profile.portfolioUrl ?? '';
-           _localIsExpanded = (profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty);
+           _isIncluded = (profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty);
            _lastProfile = profile;
         }
 
@@ -447,38 +453,51 @@ class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
           margin: const EdgeInsets.only(bottom: 24),
           child: Column(
             children: [
-              CheckboxListTile(
+              ListTile(
+                leading: Checkbox(
+                  value: _isIncluded,
+                  activeColor: Colors.blue,
+                  onChanged: (val) async {
+                    if (val == true) {
+                      setState(() {
+                         _isIncluded = true;
+                         _isExpanded = true; // Açılınca yazabilmesi için alanı da göster
+                      });
+                    } else {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Emin misiniz?'),
+                          content: const Text('Portfolyo linkiniz CV\'den kaldırılacaktır. Onaylıyor musunuz?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('İptal')),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true), 
+                              child: const Text('Evet, Kaldır', style: TextStyle(color: Colors.red))
+                            ),
+                          ],
+                        )
+                      );
+                      if (confirm == true) {
+                        setState(() {
+                           _isIncluded = false;
+                           _isExpanded = false;
+                        });
+                        _urlController.clear();
+                        await _saveUrl(profile, '');
+                      }
+                    }
+                  },
+                ),
                 title: const Text('Daha Fazla Proje Linki', style: TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: const Text('CV\'nizin altında görünür', style: TextStyle(fontSize: 12)),
-                value: _localIsExpanded,
-                activeColor: Colors.blue,
-                controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                onChanged: (val) async {
-                  if (val == true) {
-                    setState(() => _localIsExpanded = true);
-                  } else {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Emin misiniz?'),
-                        content: const Text('Portfolyo linkiniz CV\'den kaldırılacaktır. Onaylıyor musunuz?'),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('İptal')),
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx, true), 
-                            child: const Text('Evet, Kaldır', style: TextStyle(color: Colors.red))
-                          ),
-                        ],
+                trailing: _isIncluded 
+                    ? IconButton(
+                        icon: Icon(_isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
+                        onPressed: () => setState(() => _isExpanded = !_isExpanded),
                       )
-                    );
-                    if (confirm == true) {
-                      setState(() => _localIsExpanded = false);
-                      _urlController.clear();
-                      await _saveUrl(profile, '');
-                    }
-                  }
-                },
+                    : null,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               ),
               AnimatedCrossFade(
                 firstChild: const SizedBox(width: double.infinity, height: 0),
@@ -501,7 +520,11 @@ class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _isSaving ? null : () => _saveUrl(profile, _urlController.text.trim()),
+                          onPressed: _isSaving ? null : () {
+                            FocusScope.of(context).unfocus(); // Klavyeyi kapat
+                            _saveUrl(profile, _urlController.text.trim());
+                            setState(() => _isExpanded = false); // Alanı kapat
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             foregroundColor: Colors.white,
@@ -515,7 +538,7 @@ class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
                     ],
                   ),
                 ),
-                crossFadeState: _localIsExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
                 duration: const Duration(milliseconds: 250),
               ),
             ],

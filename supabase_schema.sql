@@ -214,4 +214,7 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS about_me TEXT;
 -- Ünvan/Görev tanımı kolonunu ekle
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS job_title TEXT;
 
+-- Portfolyo linki kolonunu ekle
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS portfolio_url TEXT;
+
 
