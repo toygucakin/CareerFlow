@@ -378,6 +378,8 @@ class _PortfolioLinkSection extends ConsumerStatefulWidget {
 class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
   late TextEditingController _urlController;
   bool _isSaving = false;
+  bool _localIsExpanded = false;
+  bool _hasInitialized = false;
   UserProfile? _lastProfile;
 
   @override
@@ -392,15 +394,15 @@ class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
     super.dispose();
   }
 
-  Future<void> _saveUrl(UserProfile profile) async {
+  Future<void> _saveUrl(UserProfile profile, String newUrl) async {
     setState(() => _isSaving = true);
     try {
-      final updatedProfile = profile.copyWith(portfolioUrl: _urlController.text.trim());
+      final updatedProfile = profile.copyWith(portfolioUrl: newUrl);
       await ref.read(authRepositoryProvider).updateProfile(updatedProfile);
       ref.invalidate(currentUserProfileProvider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Portfolyo linki güncellendi.')),
+          SnackBar(content: Text(newUrl.isEmpty ? 'Portfolyo linki kaldırıldı.' : 'Portfolyo linki güncellendi.')),
         );
       }
     } catch (e) {
@@ -422,8 +424,17 @@ class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
       data: (profile) {
         if (profile == null) return const SizedBox.shrink();
         
+        final hasValidUrl = profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty;
+
+        if (!_hasInitialized) {
+          _urlController.text = profile.portfolioUrl ?? '';
+          _localIsExpanded = hasValidUrl;
+          _hasInitialized = true;
+        }
+
         if (_lastProfile?.portfolioUrl != profile.portfolioUrl && !_isSaving) {
            _urlController.text = profile.portfolioUrl ?? '';
+           _localIsExpanded = (profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty);
            _lastProfile = profile;
         }
 
@@ -434,35 +445,78 @@ class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
             side: BorderSide(color: Colors.grey.shade300),
           ),
           margin: const EdgeInsets.only(bottom: 24),
-          child: ExpansionTile(
-            title: const Text('Daha Fazla Proje Linki', style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: const Text('CV\'nizin altında "Daha fazlası için:" şeklinde görünecek portfolyo veya GitHub linkinizi bağlayın', style: TextStyle(fontSize: 12)),
-            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
             children: [
-              TextField(
-                controller: _urlController,
-                decoration: const InputDecoration(
-                  labelText: 'Portfolyo / Kişisel Web Sitesi',
-                  hintText: 'https://...',
-                  prefixIcon: Icon(Icons.link),
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                ),
+              CheckboxListTile(
+                title: const Text('Daha Fazla Proje Linki', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('CV\'nizin altında görünür', style: TextStyle(fontSize: 12)),
+                value: _localIsExpanded,
+                activeColor: Colors.blue,
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                onChanged: (val) async {
+                  if (val == true) {
+                    setState(() => _localIsExpanded = true);
+                  } else {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Emin misiniz?'),
+                        content: const Text('Portfolyo linkiniz CV\'den kaldırılacaktır. Onaylıyor musunuz?'),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('İptal')),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, true), 
+                            child: const Text('Evet, Kaldır', style: TextStyle(color: Colors.red))
+                          ),
+                        ],
+                      )
+                    );
+                    if (confirm == true) {
+                      setState(() => _localIsExpanded = false);
+                      _urlController.clear();
+                      await _saveUrl(profile, '');
+                    }
+                  }
+                },
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isSaving ? null : () => _saveUrl(profile),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+              AnimatedCrossFade(
+                firstChild: const SizedBox(width: double.infinity, height: 0),
+                secondChild: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _urlController,
+                        decoration: const InputDecoration(
+                          labelText: 'Portfolyo / Kişisel Web Sitesi',
+                          hintText: 'https://...',
+                          prefixIcon: Icon(Icons.link),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isSaving ? null : () => _saveUrl(profile, _urlController.text.trim()),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: _isSaving 
+                              ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Text('Kaydet'),
+                        ),
+                      ),
+                    ],
                   ),
-                  child: _isSaving 
-                      ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text('Kaydet'),
                 ),
+                crossFadeState: _localIsExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 250),
               ),
             ],
           ),
@@ -473,4 +527,5 @@ class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
     );
   }
 }
+
 
