@@ -146,6 +146,7 @@ class AtsOptimizedBuilder {
               pw.Padding(
                 padding: const pw.EdgeInsets.only(top: 2, bottom: 8),
                 child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
                   children: [
                     pw.Text(
                       '${_label('see_more')} ',
