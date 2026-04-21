@@ -25,6 +25,7 @@ _$ProjectImpl _$$ProjectImplFromJson(Map<String, dynamic> json) =>
       scope: json['scope'] as String?,
       description: json['description'] as String?,
       technologies: json['technologies'] as String?,
+      isHighlighted: json['is_highlighted'] as bool? ?? false,
       orderIndex: (json['sort_order'] as num?)?.toInt(),
     );
 
@@ -43,5 +44,6 @@ Map<String, dynamic> _$$ProjectImplToJson(_$ProjectImpl instance) =>
       'scope': instance.scope,
       'description': instance.description,
       'technologies': instance.technologies,
+      'is_highlighted': instance.isHighlighted,
       'sort_order': instance.orderIndex,
     };

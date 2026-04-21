@@ -104,4 +104,33 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
       ref.invalidateSelf();
     }
   }
+
+  Future<void> toggleProjectHighlight(Project project) async {
+    if (!state.hasValue) return;
+    
+    final currentList = state.value!;
+    final isActivating = !project.isHighlighted;
+    
+    if (isActivating) {
+      final highlightedCount = currentList.where((p) => p.isHighlighted).length;
+      if (highlightedCount >= 4) {
+        throw Exception('Maksimum 4 proje öne çıkarılabilir.');
+      }
+    }
+
+    final updatedProject = project.copyWith(isHighlighted: isActivating);
+    
+    // Optimistic update
+    state = AsyncValue.data(
+      currentList.map((e) => e.id == project.id ? updatedProject : e).toList(),
+    );
+
+    try {
+      final repo = ref.read(projectRepositoryProvider);
+      await repo.updateProject(updatedProject);
+    } catch (e) {
+      ref.invalidateSelf();
+      rethrow;
+    }
+  }
 }

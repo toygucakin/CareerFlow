@@ -42,6 +42,8 @@ mixin _$Project {
   String? get scope => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String? get technologies => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_highlighted')
+  bool get isHighlighted => throw _privateConstructorUsedError;
   @JsonKey(name: 'sort_order')
   int? get orderIndex => throw _privateConstructorUsedError;
 
@@ -73,6 +75,7 @@ abstract class $ProjectCopyWith<$Res> {
     String? scope,
     String? description,
     String? technologies,
+    @JsonKey(name: 'is_highlighted') bool isHighlighted,
     @JsonKey(name: 'sort_order') int? orderIndex,
   });
 }
@@ -105,6 +108,7 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
     Object? scope = freezed,
     Object? description = freezed,
     Object? technologies = freezed,
+    Object? isHighlighted = null,
     Object? orderIndex = freezed,
   }) {
     return _then(
@@ -161,6 +165,10 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
                 ? _value.technologies
                 : technologies // ignore: cast_nullable_to_non_nullable
                       as String?,
+            isHighlighted: null == isHighlighted
+                ? _value.isHighlighted
+                : isHighlighted // ignore: cast_nullable_to_non_nullable
+                      as bool,
             orderIndex: freezed == orderIndex
                 ? _value.orderIndex
                 : orderIndex // ignore: cast_nullable_to_non_nullable
@@ -193,6 +201,7 @@ abstract class _$$ProjectImplCopyWith<$Res> implements $ProjectCopyWith<$Res> {
     String? scope,
     String? description,
     String? technologies,
+    @JsonKey(name: 'is_highlighted') bool isHighlighted,
     @JsonKey(name: 'sort_order') int? orderIndex,
   });
 }
@@ -224,6 +233,7 @@ class __$$ProjectImplCopyWithImpl<$Res>
     Object? scope = freezed,
     Object? description = freezed,
     Object? technologies = freezed,
+    Object? isHighlighted = null,
     Object? orderIndex = freezed,
   }) {
     return _then(
@@ -280,6 +290,10 @@ class __$$ProjectImplCopyWithImpl<$Res>
             ? _value.technologies
             : technologies // ignore: cast_nullable_to_non_nullable
                   as String?,
+        isHighlighted: null == isHighlighted
+            ? _value.isHighlighted
+            : isHighlighted // ignore: cast_nullable_to_non_nullable
+                  as bool,
         orderIndex: freezed == orderIndex
             ? _value.orderIndex
             : orderIndex // ignore: cast_nullable_to_non_nullable
@@ -306,6 +320,7 @@ class _$ProjectImpl implements _Project {
     this.scope,
     this.description,
     this.technologies,
+    @JsonKey(name: 'is_highlighted') this.isHighlighted = false,
     @JsonKey(name: 'sort_order') this.orderIndex,
   });
 
@@ -347,12 +362,15 @@ class _$ProjectImpl implements _Project {
   @override
   final String? technologies;
   @override
+  @JsonKey(name: 'is_highlighted')
+  final bool isHighlighted;
+  @override
   @JsonKey(name: 'sort_order')
   final int? orderIndex;
 
   @override
   String toString() {
-    return 'Project(id: $id, profileId: $profileId, githubRepoId: $githubRepoId, name: $name, repoUrl: $repoUrl, isAutonomous: $isAutonomous, startDate: $startDate, endDate: $endDate, wakatimeHours: $wakatimeHours, aiSummary: $aiSummary, scope: $scope, description: $description, technologies: $technologies, orderIndex: $orderIndex)';
+    return 'Project(id: $id, profileId: $profileId, githubRepoId: $githubRepoId, name: $name, repoUrl: $repoUrl, isAutonomous: $isAutonomous, startDate: $startDate, endDate: $endDate, wakatimeHours: $wakatimeHours, aiSummary: $aiSummary, scope: $scope, description: $description, technologies: $technologies, isHighlighted: $isHighlighted, orderIndex: $orderIndex)';
   }
 
   @override
@@ -381,6 +399,8 @@ class _$ProjectImpl implements _Project {
                 other.description == description) &&
             (identical(other.technologies, technologies) ||
                 other.technologies == technologies) &&
+            (identical(other.isHighlighted, isHighlighted) ||
+                other.isHighlighted == isHighlighted) &&
             (identical(other.orderIndex, orderIndex) ||
                 other.orderIndex == orderIndex));
   }
@@ -402,6 +422,7 @@ class _$ProjectImpl implements _Project {
     scope,
     description,
     technologies,
+    isHighlighted,
     orderIndex,
   );
 
@@ -434,6 +455,7 @@ abstract class _Project implements Project {
     final String? scope,
     final String? description,
     final String? technologies,
+    @JsonKey(name: 'is_highlighted') final bool isHighlighted,
     @JsonKey(name: 'sort_order') final int? orderIndex,
   }) = _$ProjectImpl;
 
@@ -473,6 +495,9 @@ abstract class _Project implements Project {
   String? get description;
   @override
   String? get technologies;
+  @override
+  @JsonKey(name: 'is_highlighted')
+  bool get isHighlighted;
   @override
   @JsonKey(name: 'sort_order')
   int? get orderIndex;

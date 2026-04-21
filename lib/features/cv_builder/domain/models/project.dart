@@ -19,6 +19,7 @@ class Project with _$Project {
     String? scope,
     String? description,
     String? technologies,
+    @JsonKey(name: 'is_highlighted') @Default(false) bool isHighlighted,
     @JsonKey(name: 'sort_order') int? orderIndex,
   }) = _Project;
 

@@ -12,6 +12,7 @@ import 'package:career_flow/core/models/cv/skill.dart';
 import 'package:career_flow/core/models/cv/interest.dart';
 import 'package:career_flow/features/cv_builder/domain/models/language.dart';
 import 'package:career_flow/features/auth/domain/models/user_profile.dart';
+import '../pdf_generator_service.dart';
 
 class AtsOptimizedBuilder {
   final UserProfile profile;
@@ -25,6 +26,7 @@ class AtsOptimizedBuilder {
   final List<Language> languages;
   final List<Interest> interests;
   final ByteBuffer fontData;
+  final CvLanguage language;
 
   AtsOptimizedBuilder({
     required this.profile,
@@ -38,7 +40,44 @@ class AtsOptimizedBuilder {
     required this.languages,
     required this.interests,
     required this.fontData,
+    required this.language,
   });
+
+  String _label(String key) {
+    final tr = {
+      'summary': 'PROFİL',
+      'experience': 'İŞ DENEYİMİ',
+      'projects': 'PROJELER',
+      'communities': 'TOPLULUKLAR VE GÖNÜLLÜLÜK',
+      'skills_info': 'YETENEKLER VE EK BİLGİLER',
+      'courses': 'SERTİFİKALAR VE KURSLAR',
+      'education': 'EĞİTİM',
+      'tech_skills': 'Teknik Yetenekler',
+      'soft_skills': 'Kişisel Beceriler',
+      'languages': 'Diller',
+      'interests': 'İlgi Alanları',
+      'technologies': 'Teknolojiler',
+      'present': 'Devam Ediyor',
+      'see_more': 'Daha fazla proje için portfolyomu ziyaret edin:',
+    };
+    final en = {
+      'summary': 'PROFILE',
+      'experience': 'WORK EXPERIENCE',
+      'projects': 'PROJECTS',
+      'communities': 'COMMUNITIES & VOLUNTEERING',
+      'skills_info': 'SKILLS & ADDITIONAL INFO',
+      'courses': 'CERTIFICATIONS & COURSES',
+      'education': 'EDUCATION',
+      'tech_skills': 'Technical Skills',
+      'soft_skills': 'Soft Skills',
+      'languages': 'Languages',
+      'interests': 'Interests',
+      'technologies': 'Technologies',
+      'present': 'Present',
+      'see_more': 'Visit my portfolio for more projects:',
+    };
+    return (language == CvLanguage.tr ? tr[key] : en[key]) ?? key;
+  }
 
   Future<Uint8List> build() async {
     final pdf = pw.Document();
@@ -46,6 +85,10 @@ class AtsOptimizedBuilder {
     
     // Load Unicode font to support Turkish characters
     final ttf = pw.Font.ttf(fontData.asByteData());
+
+    final displayProjects = projects.any((p) => p.isHighlighted) 
+        ? projects.where((p) => p.isHighlighted).toList() 
+        : projects.take(4).toList();
 
     pdf.addPage(
       pw.MultiPage(
@@ -60,7 +103,7 @@ class AtsOptimizedBuilder {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('PROFESSIONAL SUMMARY'),
+                  _buildSectionTitle(_label('summary')),
                   pw.Paragraph(
                     text: profile.aboutMe!,
                     style: const pw.TextStyle(fontSize: 10),
@@ -76,7 +119,7 @@ class AtsOptimizedBuilder {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('WORK EXPERIENCE'),
+                  _buildSectionTitle(_label('experience')),
                   _buildExperienceItem(experience.first, dateFormat),
                 ],
               ),
@@ -86,17 +129,45 @@ class AtsOptimizedBuilder {
           ],
 
           // Projects
-          if (projects.isNotEmpty) ...[
+          if (displayProjects.isNotEmpty) ...[
             pw.Container(
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('PROJECTS'),
-                  _buildProjectItem(projects.first, dateFormat),
+                  _buildSectionTitle(_label('projects')),
+                  _buildProjectItem(displayProjects.first, dateFormat),
                 ],
               ),
             ),
-            ...projects.skip(1).map((proj) => _buildProjectItem(proj, dateFormat)),
+            ...displayProjects.skip(1).map((proj) => _buildProjectItem(proj, dateFormat)),
+            
+            // "See More" Link
+            if (projects.length > displayProjects.length)
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(top: 2, bottom: 8),
+                child: pw.RichText(
+                  text: pw.TextSpan(
+                    children: [
+                      pw.TextSpan(
+                        text: '${_label('see_more')} ',
+                        style: const pw.TextStyle(fontSize: 9, color: PdfColors.black),
+                      ),
+                      pw.TextSpan(
+                        text: profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty
+                            ? profile.portfolioUrl!
+                            : (socialMedia.any((s) => s.platform.name == 'github')
+                                ? socialMedia.firstWhere((s) => s.platform.name == 'github').url
+                                : ''),
+                        style: const pw.TextStyle(
+                          fontSize: 9,
+                          color: PdfColors.blue900,
+                          decoration: pw.TextDecoration.underline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             pw.SizedBox(height: 10),
           ],
 
@@ -106,7 +177,7 @@ class AtsOptimizedBuilder {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('COMMUNITIES & VOLUNTEERING'),
+                  _buildSectionTitle(_label('communities')),
                   _buildCommunityItem(communities.first, dateFormat),
                 ],
               ),
@@ -121,7 +192,7 @@ class AtsOptimizedBuilder {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('CERTIFICATIONS & COURSES'),
+                  _buildSectionTitle(_label('courses')),
                   _buildCourseItem(courses.first),
                 ],
               ),
@@ -136,7 +207,7 @@ class AtsOptimizedBuilder {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('EDUCATION'),
+                  _buildSectionTitle(_label('education')),
                   _buildEducationItem(education.first, dateFormat),
                 ],
               ),
@@ -151,7 +222,7 @@ class AtsOptimizedBuilder {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  _buildSectionTitle('SKILLS & ADDITIONAL INFO'),
+                  _buildSectionTitle(_label('skills_info')),
                   if (skills.isNotEmpty) _buildSkillsWrap(skills),
                   if (languages.isNotEmpty) _buildLanguagesWrap(languages),
                   if (interests.isNotEmpty) _buildInterestsWrap(interests),
@@ -295,7 +366,7 @@ class AtsOptimizedBuilder {
 
   pw.Widget _buildExperienceItem(Experience exp, DateFormat df) {
     final startStr = exp.startDate != null ? df.format(exp.startDate!) : '';
-    final endStr = exp.endDate != null ? df.format(exp.endDate!) : 'Present';
+    final endStr = exp.endDate != null ? df.format(exp.endDate!) : _label('present');
     
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 15),
@@ -317,11 +388,11 @@ class AtsOptimizedBuilder {
               pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
             ],
           ),
-          if (exp.description != null && exp.description!.isNotEmpty)
+          if (exp.description != null && exp.description!.trim().isNotEmpty)
             pw.Padding(
-              padding: const pw.EdgeInsets.only(top: 5, left: 12),
+              padding: const pw.EdgeInsets.only(top: 5),
               child: pw.Text(
-                exp.description!,
+                exp.description!.trim(),
                 style: const pw.TextStyle(fontSize: 9.5),
               ),
             ),
@@ -332,7 +403,7 @@ class AtsOptimizedBuilder {
 
   pw.Widget _buildProjectItem(Project proj, DateFormat df) {
     final startStr = proj.startDate != null ? df.format(proj.startDate!) : '';
-    final endStr = proj.endDate != null ? df.format(proj.endDate!) : (proj.startDate != null ? 'Present' : '');
+    final endStr = proj.endDate != null ? df.format(proj.endDate!) : (proj.startDate != null ? _label('present') : '');
     final dateStr = (startStr.isNotEmpty || endStr.isNotEmpty) ? '$startStr - $endStr' : '';
 
     return pw.Padding(
@@ -364,7 +435,7 @@ class AtsOptimizedBuilder {
           if (proj.technologies != null && proj.technologies!.isNotEmpty)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 3),
-              child: pw.Text('Technologies: ${proj.technologies!}', style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic, color: PdfColors.grey700)),
+              child: pw.Text('${_label('technologies')}: ${proj.technologies!}', style: pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic, color: PdfColors.grey700)),
             ),
         ],
       ),
@@ -373,7 +444,7 @@ class AtsOptimizedBuilder {
 
   pw.Widget _buildCommunityItem(Community comm, DateFormat df) {
     final startStr = comm.startDate != null ? df.format(comm.startDate!) : '';
-    final endStr = comm.endDate != null ? df.format(comm.endDate!) : 'Present';
+    final endStr = comm.endDate != null ? df.format(comm.endDate!) : _label('present');
 
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 10),
@@ -410,7 +481,7 @@ class AtsOptimizedBuilder {
 
   pw.Widget _buildEducationItem(Education edu, DateFormat df) {
     final startStr = edu.startDate != null ? df.format(edu.startDate!) : '';
-    final endStr = edu.endDate != null ? df.format(edu.endDate!) : 'Present';
+    final endStr = edu.endDate != null ? df.format(edu.endDate!) : _label('present');
 
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 12),
@@ -440,8 +511,30 @@ class AtsOptimizedBuilder {
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          if (techSkills.isNotEmpty) pw.Text('Technical Skills: $techSkills', style: const pw.TextStyle(fontSize: 9.5)),
-          if (softSkills.isNotEmpty) pw.Text('Soft Skills: $softSkills', style: const pw.TextStyle(fontSize: 9.5)),
+          if (techSkills.isNotEmpty) 
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 4),
+              child: pw.RichText(
+                text: pw.TextSpan(
+                  children: [
+                    pw.TextSpan(text: '${_label('tech_skills')}: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
+                    pw.TextSpan(text: techSkills, style: const pw.TextStyle(fontSize: 9.5)),
+                  ]
+                )
+              ),
+            ),
+          if (softSkills.isNotEmpty) 
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+              child: pw.RichText(
+                text: pw.TextSpan(
+                  children: [
+                    pw.TextSpan(text: '${_label('soft_skills')}: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
+                    pw.TextSpan(text: softSkills, style: const pw.TextStyle(fontSize: 9.5)),
+                  ]
+                )
+              ),
+            ),
         ],
       ),
     );
@@ -458,11 +551,20 @@ class AtsOptimizedBuilder {
 
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 6),
-      child: pw.Text('Languages: $langStr', style: const pw.TextStyle(fontSize: 9.5)),
+      child: pw.RichText(
+        text: pw.TextSpan(
+          children: [
+            pw.TextSpan(text: '${_label('languages')}: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
+            pw.TextSpan(text: langStr, style: const pw.TextStyle(fontSize: 9.5)),
+          ]
+        )
+      ),
     );
   }
 
   String _translateLanguage(String name) {
+    if (language == CvLanguage.tr) return name;
+    final cleanName = name.trim();
     final map = {
       'İngilizce': 'English',
       'Almanca': 'German',
@@ -475,10 +577,12 @@ class AtsOptimizedBuilder {
       'Çince': 'Chinese',
       'Japonca': 'Japanese',
     };
-    return map[name] ?? name;
+    return map[cleanName] ?? cleanName;
   }
 
   String _translateProficiency(String prof) {
+    if (language == CvLanguage.tr) return prof;
+
     // Extract CEFR code (A1, B2, etc.) if format is "B2 - Description"
     if (prof.contains(' - ')) {
       final parts = prof.split(' - ');
@@ -502,7 +606,7 @@ class AtsOptimizedBuilder {
     translations.forEach((tr, en) {
       result = result.replaceAll(tr, en);
     });
-    
+
     return result;
   }
 
@@ -510,7 +614,14 @@ class AtsOptimizedBuilder {
     final intStr = interests.map((i) => i.name).join(' • ');
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 6),
-      child: pw.Text('Interests: $intStr', style: const pw.TextStyle(fontSize: 9.5)),
+      child: pw.RichText(
+        text: pw.TextSpan(
+          children: [
+            pw.TextSpan(text: '${_label('interests')}: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
+            pw.TextSpan(text: intStr, style: const pw.TextStyle(fontSize: 9.5)),
+          ]
+        )
+      ),
     );
   }
 }

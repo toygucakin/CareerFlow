@@ -23,6 +23,11 @@ enum CvTemplate {
   atsOptimized,
 }
 
+enum CvLanguage {
+  tr,
+  en,
+}
+
 final pdfGeneratorServiceProvider = Provider((ref) => PdfGeneratorService(ref));
 
 class PdfGeneratorService {
@@ -30,7 +35,7 @@ class PdfGeneratorService {
 
   PdfGeneratorService(this._ref);
 
-  Future<Uint8List> generateCv(CvTemplate template) async {
+  Future<Uint8List> generateCv(CvTemplate template, {CvLanguage language = CvLanguage.en}) async {
     final profileAwait = await _ref.read(currentUserProfileProvider.future);
     final education = await _ref.read(educationListProvider.future);
     final experience = await _ref.read(experienceListProvider.future);
@@ -61,6 +66,7 @@ class PdfGeneratorService {
           interests: interests,
           languages: languages,
           fontData: fontData.buffer,
+          language: language,
         );
         return builder.build();
       default:

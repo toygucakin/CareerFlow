@@ -8,6 +8,8 @@ import 'community_form_screen.dart';
 import '../../domain/models/project.dart';
 import '../../domain/models/community.dart';
 import 'package:intl/intl.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../auth/domain/models/user_profile.dart';
 
 class SkillsProjectsScreen extends ConsumerStatefulWidget {
   final bool isWizardMode;
@@ -47,6 +49,7 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const _PortfolioLinkSection(),
             _buildSectionHeader(
               context,
               'Projeler',
@@ -186,6 +189,27 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Tooltip(
+                      message: proj.isHighlighted ? 'CV\'den çıkar' : 'CV\'ye dahil et',
+                      child: Switch(
+                        value: proj.isHighlighted,
+                        activeColor: Colors.amber,
+                        onChanged: (val) async {
+                          try {
+                            await ref.read(projectListProvider.notifier).toggleProjectHighlight(proj);
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.toString().replaceAll('Exception: ', '')),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, color: Colors.blue),
                       onPressed: () => Navigator.push(
@@ -343,3 +367,110 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
     );
   }
 }
+
+class _PortfolioLinkSection extends ConsumerStatefulWidget {
+  const _PortfolioLinkSection();
+
+  @override
+  ConsumerState<_PortfolioLinkSection> createState() => _PortfolioLinkSectionState();
+}
+
+class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
+  late TextEditingController _urlController;
+  bool _isSaving = false;
+  UserProfile? _lastProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _urlController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveUrl(UserProfile profile) async {
+    setState(() => _isSaving = true);
+    try {
+      final updatedProfile = profile.copyWith(portfolioUrl: _urlController.text.trim());
+      await ref.read(authRepositoryProvider).updateProfile(updatedProfile);
+      ref.invalidate(currentUserProfileProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Portfolyo linki güncellendi.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Hata: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final profileAsync = ref.watch(currentUserProfileProvider);
+
+    return profileAsync.when(
+      data: (profile) {
+        if (profile == null) return const SizedBox.shrink();
+        
+        if (_lastProfile?.portfolioUrl != profile.portfolioUrl && !_isSaving) {
+           _urlController.text = profile.portfolioUrl ?? '';
+           _lastProfile = profile;
+        }
+
+        return Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.grey.shade300),
+          ),
+          margin: const EdgeInsets.only(bottom: 24),
+          child: ExpansionTile(
+            title: const Text('Daha Fazla Proje Linki', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: const Text('CV\'nizin altında "Daha fazlası için:" şeklinde görünecek portfolyo veya GitHub linkinizi bağlayın', style: TextStyle(fontSize: 12)),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            children: [
+              TextField(
+                controller: _urlController,
+                decoration: const InputDecoration(
+                  labelText: 'Portfolyo / Kişisel Web Sitesi',
+                  hintText: 'https://...',
+                  prefixIcon: Icon(Icons.link),
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isSaving ? null : () => _saveUrl(profile),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: _isSaving 
+                      ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Text('Kaydet'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+

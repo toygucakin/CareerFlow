@@ -154,45 +154,47 @@ class SkillsInterestsScreen extends ConsumerWidget {
   }
 
   Widget _buildCategorizedSkills(BuildContext context, WidgetRef ref, List<Skill> techSkills) {
-    final Map<String, List<Skill>> grouped = {
-      'Programlama': [],
-      'Web': [],
-      'Veritabanı': [],
-      'Araçlar': [],
-      'Ofis': [],
-    };
+    final Map<String, List<Skill>> grouped = {};
 
     for (var skill in techSkills) {
-      if (grouped.containsKey(skill.category)) {
-        grouped[skill.category]!.add(skill);
+      final cat = skill.category;
+      if (!grouped.containsKey(cat)) {
+        grouped[cat] = [];
       }
+      grouped[cat]!.add(skill);
     }
 
+    final categories = grouped.keys.toList()..sort((a, b) {
+      // Keep original order for known ones, others at the end
+      final known = ['Programlama', 'Web', 'Veritabanı', 'Araçlar', 'Ofis'];
+      int idxA = known.indexOf(a);
+      int idxB = known.indexOf(b);
+      if (idxA != -1 && idxB != -1) return idxA.compareTo(idxB);
+      if (idxA != -1) return -1;
+      if (idxB != -1) return 1;
+      return a.compareTo(b);
+    });
+
     return Column(
-      children: grouped.entries.map((entry) {
+      children: categories.map((catName) {
+        final skills = grouped[catName]!;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSectionHeader(
               context,
-              entry.key,
+              catName,
               Icons.code,
-              () => _navigateToAddSkill(context, entry.key),
+              () => _navigateToAddSkill(context, catName),
             ),
-            if (entry.value.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-                child: Text('Henüz eklenmedi.', style: TextStyle(color: Colors.grey)),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: Wrap(
-                  spacing: 8.0,
-                  runSpacing: 8.0,
-                  children: entry.value.map((skill) => _buildSkillChip(context, ref, skill)).toList(),
-                ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: skills.map((skill) => _buildSkillChip(context, ref, skill)).toList(),
               ),
+            ),
           ],
         );
       }).toList(),
