@@ -99,143 +99,145 @@ class AtsOptimizedBuilder {
         build: (context) => [
           // Professional Summary
           if (profile.aboutMe != null && profile.aboutMe!.isNotEmpty)
-            pw.Container(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle(_label('summary')),
-                  pw.Paragraph(
-                    text: profile.aboutMe!,
-                    style: const pw.TextStyle(fontSize: 10),
-                  ),
-                  pw.SizedBox(height: 10),
-                ],
-              ),
+            pw.Wrap(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle(_label('summary')),
+                    pw.Paragraph(
+                      text: profile.aboutMe!,
+                      style: const pw.TextStyle(fontSize: 10),
+                    ),
+                    pw.SizedBox(height: 10),
+                  ],
+                ),
+              ],
             ),
 
           // Work Experience
-          if (experience.isNotEmpty) ...[
-            pw.Container(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle(_label('experience')),
-                  _buildExperienceItem(experience.first, dateFormat),
-                ],
-              ),
-            ),
-            ...experience.skip(1).map((exp) => _buildExperienceItem(exp, dateFormat)),
-            pw.SizedBox(height: 10),
-          ],
-
-          // Projects
-          if (displayProjects.isNotEmpty) ...[
-            pw.Container(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle(_label('projects')),
-                  _buildProjectItem(displayProjects.first, dateFormat),
-                ],
-              ),
-            ),
-            ...displayProjects.skip(1).map((proj) => _buildProjectItem(proj, dateFormat)),
-            
-            // "See More" Link
-            if (projects.length > displayProjects.length)
-              pw.Padding(
-                padding: const pw.EdgeInsets.only(top: 2, bottom: 8),
-                child: pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.center,
+          if (experience.isNotEmpty)
+            pw.Wrap(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text(
-                      '${_label('see_more')} ',
-                      style: const pw.TextStyle(fontSize: 9, color: PdfColors.black),
-                    ),
-                    pw.UrlLink(
-                      destination: profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty
-                          ? profile.portfolioUrl!
-                          : (socialMedia.any((s) => s.platform.name == 'github')
-                              ? socialMedia.firstWhere((s) => s.platform.name == 'github').url
-                              : ''),
-                      child: pw.Text(
-                        profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty
-                            ? profile.portfolioUrl!
-                            : (socialMedia.any((s) => s.platform.name == 'github')
-                                ? socialMedia.firstWhere((s) => s.platform.name == 'github').url
-                                : ''),
-                        style: const pw.TextStyle(
-                          fontSize: 9,
-                          color: PdfColors.black,
-                        ),
-                      ),
-                    ),
+                    _buildSectionTitle(_label('experience')),
+                    ...experience.map((exp) => _buildExperienceItem(exp, dateFormat)),
+                    pw.SizedBox(height: 10),
                   ],
                 ),
-              ),
-            pw.SizedBox(height: 10),
-          ],
+              ],
+            ),
+
+          // Projects
+          if (displayProjects.isNotEmpty)
+            pw.Wrap(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle(_label('projects')),
+                    ...displayProjects.map((proj) => _buildProjectItem(proj, dateFormat)),
+                    // "See More" Link
+                    if (projects.length > displayProjects.length)
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.only(top: 2, bottom: 8),
+                        child: pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.center,
+                          children: [
+                            pw.Text(
+                              '${_label('see_more')} ',
+                              style: const pw.TextStyle(fontSize: 9, color: PdfColors.black),
+                            ),
+                            pw.UrlLink(
+                              destination: profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty
+                                  ? profile.portfolioUrl!
+                                  : (socialMedia.any((s) => s.platform.name == 'github')
+                                      ? socialMedia.firstWhere((s) => s.platform.name == 'github').url
+                                      : ''),
+                              child: pw.Text(
+                                profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty
+                                    ? profile.portfolioUrl!
+                                    : (socialMedia.any((s) => s.platform.name == 'github')
+                                        ? socialMedia.firstWhere((s) => s.platform.name == 'github').url
+                                        : ''),
+                                style: const pw.TextStyle(
+                                  fontSize: 9,
+                                  color: PdfColors.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    pw.SizedBox(height: 10),
+                  ],
+                ),
+              ],
+            ),
 
           // Communities & Volunteering
-          if (communities.isNotEmpty) ...[
-            pw.Container(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle(_label('communities')),
-                  _buildCommunityItem(communities.first, dateFormat),
-                ],
-              ),
+          if (communities.isNotEmpty)
+            pw.Wrap(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle(_label('communities')),
+                    ...communities.map((comm) => _buildCommunityItem(comm, dateFormat)),
+                    pw.SizedBox(height: 15),
+                  ],
+                ),
+              ],
             ),
-            ...communities.skip(1).map((comm) => _buildCommunityItem(comm, dateFormat)),
-            pw.SizedBox(height: 15),
-          ],
 
           // Certifications & Courses
-          if (courses.isNotEmpty) ...[
-            pw.Container(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle(_label('courses')),
-                  _buildCourseItem(courses.first),
-                ],
-              ),
+          if (courses.isNotEmpty)
+            pw.Wrap(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle(_label('courses')),
+                    ...courses.map((course) => _buildCourseItem(course)),
+                    pw.SizedBox(height: 10),
+                  ],
+                ),
+              ],
             ),
-            ...courses.skip(1).map((course) => _buildCourseItem(course)),
-            pw.SizedBox(height: 10),
-          ],
 
           // Education
-          if (education.isNotEmpty) ...[
-            pw.Container(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle(_label('education')),
-                  _buildEducationItem(education.first, dateFormat),
-                ],
-              ),
+          if (education.isNotEmpty)
+            pw.Wrap(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle(_label('education')),
+                    ...education.map((edu) => _buildEducationItem(edu, dateFormat)),
+                    pw.SizedBox(height: 10),
+                  ],
+                ),
+              ],
             ),
-            ...education.skip(1).map((edu) => _buildEducationItem(edu, dateFormat)),
-            pw.SizedBox(height: 10),
-          ],
 
           // Skills, Languages & Interests
-          if (skills.isNotEmpty || languages.isNotEmpty || interests.isNotEmpty) ...[
-            pw.Container(
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle(_label('skills_info')),
-                  if (skills.isNotEmpty) _buildSkillsWrap(skills),
-                  if (languages.isNotEmpty) _buildLanguagesWrap(languages),
-                  if (interests.isNotEmpty) _buildInterestsWrap(interests),
-                ],
-              ),
+          if (skills.isNotEmpty || languages.isNotEmpty || interests.isNotEmpty)
+            pw.Wrap(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionTitle(_label('skills_info')),
+                    if (skills.isNotEmpty) _buildSkillsWrap(skills),
+                    if (languages.isNotEmpty) _buildLanguagesWrap(languages),
+                    if (interests.isNotEmpty) _buildInterestsWrap(interests),
+                    pw.SizedBox(height: 10),
+                  ],
+                ),
+              ],
             ),
-            pw.SizedBox(height: 10),
-          ],
         ],
       ),
     );
