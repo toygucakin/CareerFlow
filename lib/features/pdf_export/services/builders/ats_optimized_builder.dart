@@ -108,7 +108,7 @@ class AtsOptimizedBuilder {
                     text: profile.aboutMe!,
                     style: const pw.TextStyle(fontSize: 10),
                   ),
-                  pw.SizedBox(height: 15),
+                  pw.SizedBox(height: 10),
                 ],
               ),
             ),
@@ -125,7 +125,7 @@ class AtsOptimizedBuilder {
               ),
             ),
             ...experience.skip(1).map((exp) => _buildExperienceItem(exp, dateFormat)),
-            pw.SizedBox(height: 15),
+            pw.SizedBox(height: 10),
           ],
 
           // Projects
@@ -203,7 +203,7 @@ class AtsOptimizedBuilder {
               ),
             ),
             ...courses.skip(1).map((course) => _buildCourseItem(course)),
-            pw.SizedBox(height: 15),
+            pw.SizedBox(height: 10),
           ],
 
           // Education
@@ -218,7 +218,7 @@ class AtsOptimizedBuilder {
               ),
             ),
             ...education.skip(1).map((edu) => _buildEducationItem(edu, dateFormat)),
-            pw.SizedBox(height: 15),
+            pw.SizedBox(height: 10),
           ],
 
           // Skills, Languages & Interests
@@ -366,7 +366,7 @@ class AtsOptimizedBuilder {
           padding: const pw.EdgeInsets.only(bottom: 2),
           decoration: const pw.BoxDecoration(
             border: pw.Border(
-              bottom: pw.BorderSide(color: PdfColors.black, width: 0.8),
+              bottom: pw.BorderSide(color: PdfColors.grey700, width: 0.5),
             ),
           ),
           child: pw.Text(
@@ -374,7 +374,7 @@ class AtsOptimizedBuilder {
             style: pw.TextStyle(fontSize: 10.5, fontWeight: pw.FontWeight.bold, color: PdfColors.black),
           ),
         ),
-        pw.SizedBox(height: 6),
+        pw.SizedBox(height: 4),
       ],
     );
   }
@@ -400,7 +400,7 @@ class AtsOptimizedBuilder {
     final endStr = exp.endDate != null ? df.format(exp.endDate!) : _label('present');
     
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 15),
+      padding: const pw.EdgeInsets.only(bottom: 10),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -412,7 +412,7 @@ class AtsOptimizedBuilder {
                   children: [
                     pw.TextSpan(text: exp.company, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
                     if (exp.role != null && exp.role!.isNotEmpty)
-                      pw.TextSpan(text: ' - ${exp.role!}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                      pw.TextSpan(text: ' - ${exp.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10.5)),
                   ],
                 ),
               ),
@@ -438,7 +438,7 @@ class AtsOptimizedBuilder {
     final dateStr = (startStr.isNotEmpty || endStr.isNotEmpty) ? '$startStr - $endStr' : '';
 
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 12),
+      padding: const pw.EdgeInsets.only(bottom: 8),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -450,7 +450,7 @@ class AtsOptimizedBuilder {
                   children: [
                     pw.TextSpan(text: proj.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
                     if (proj.role != null && proj.role!.isNotEmpty)
-                      pw.TextSpan(text: ' - ${proj.role!}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                      pw.TextSpan(text: ' - ${proj.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10.5)),
                     if (proj.repoUrl != null) 
                       pw.TextSpan(text: '  |  ${_extractHandle(proj.repoUrl!)}', style: const pw.TextStyle(fontSize: 9, color: PdfColors.blue900)),
                   ],
@@ -489,7 +489,7 @@ class AtsOptimizedBuilder {
             children: [
               pw.Text(comm.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
               if (comm.role != null)
-                pw.Text(comm.role!, style: const pw.TextStyle(fontSize: 9.5)),
+                pw.Text(comm.role!, style: const pw.TextStyle(fontSize: 9.5, fontStyle: pw.FontStyle.italic)),
             ],
           ),
           pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
@@ -526,7 +526,7 @@ class AtsOptimizedBuilder {
             children: [
               pw.Text(edu.school, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
               if (edu.degree != null)
-                pw.Text(edu.degree!, style: const pw.TextStyle(fontSize: 9.5)),
+                pw.Text(edu.degree!, style: const pw.TextStyle(fontSize: 9.5, fontStyle: pw.FontStyle.italic)),
             ],
           ),
           pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
