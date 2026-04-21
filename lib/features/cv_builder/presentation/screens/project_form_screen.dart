@@ -18,7 +18,7 @@ class ProjectFormScreen extends ConsumerStatefulWidget {
 class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
-  late TextEditingController _scopeController;
+  late TextEditingController _roleController;
   late TextEditingController _descriptionController;
   late TextEditingController _technologiesController;
   DateTime? _startDate;
@@ -30,7 +30,7 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.projectToEdit?.name);
-    _scopeController = TextEditingController(text: widget.projectToEdit?.scope);
+    _roleController = TextEditingController(text: widget.projectToEdit?.role);
     _descriptionController = TextEditingController(
       text: widget.projectToEdit?.description,
     );
@@ -45,7 +45,7 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _scopeController.dispose();
+    _roleController.dispose();
     _descriptionController.dispose();
     _technologiesController.dispose();
     super.dispose();
@@ -142,13 +142,19 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
       id: widget.projectToEdit?.id,
       profileId: user.id,
       name: _nameController.text,
-      scope: _scopeController.text,
+      role: _roleController.text.trim().isEmpty ? null : _roleController.text.trim(),
       description: _descriptionController.text,
       technologies: _technologiesController.text,
       startDate: _startDate,
       endDate: _isOngoing ? null : _endDate,
       orderIndex: widget.projectToEdit?.orderIndex ?? 0,
       isAutonomous: widget.projectToEdit?.isAutonomous ?? false,
+      isHighlighted: widget.projectToEdit?.isHighlighted ?? false,
+      githubRepoId: widget.projectToEdit?.githubRepoId,
+      repoUrl: widget.projectToEdit?.repoUrl,
+      wakatimeHours: widget.projectToEdit?.wakatimeHours ?? 0,
+      aiSummary: widget.projectToEdit?.aiSummary,
+      scope: widget.projectToEdit?.scope,
     );
 
     try {
@@ -198,11 +204,11 @@ class _ProjectFormScreenState extends ConsumerState<ProjectFormScreen> {
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _scopeController,
+                controller: _roleController,
                 decoration: const InputDecoration(
-                  labelText: 'Proje Kapsamı',
+                  labelText: 'Projedeki Rolünüz (Opsiyonel)',
                   border: OutlineInputBorder(),
-                  hintText: 'Örn: Web Uygulaması, Bitirme Projesi',
+                  hintText: 'Örn: Backend Developer',
                 ),
               ),
               const SizedBox(height: 16),

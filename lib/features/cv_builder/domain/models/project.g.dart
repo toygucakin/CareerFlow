@@ -12,6 +12,7 @@ _$ProjectImpl _$$ProjectImplFromJson(Map<String, dynamic> json) =>
       profileId: json['profile_id'] as String?,
       githubRepoId: json['github_repo_id'] as String?,
       name: json['name'] as String,
+      role: json['role'] as String?,
       repoUrl: json['repo_url'] as String?,
       isAutonomous: json['is_autonomous'] as bool? ?? false,
       startDate: json['start_date'] == null
@@ -25,6 +26,7 @@ _$ProjectImpl _$$ProjectImplFromJson(Map<String, dynamic> json) =>
       scope: json['scope'] as String?,
       description: json['description'] as String?,
       technologies: json['technologies'] as String?,
+      isHighlighted: json['is_highlighted'] as bool? ?? false,
       orderIndex: (json['sort_order'] as num?)?.toInt(),
     );
 
@@ -34,6 +36,7 @@ Map<String, dynamic> _$$ProjectImplToJson(_$ProjectImpl instance) =>
       'profile_id': instance.profileId,
       'github_repo_id': instance.githubRepoId,
       'name': instance.name,
+      'role': instance.role,
       'repo_url': instance.repoUrl,
       'is_autonomous': instance.isAutonomous,
       'start_date': instance.startDate?.toIso8601String(),
@@ -43,5 +46,6 @@ Map<String, dynamic> _$$ProjectImplToJson(_$ProjectImpl instance) =>
       'scope': instance.scope,
       'description': instance.description,
       'technologies': instance.technologies,
+      'is_highlighted': instance.isHighlighted,
       'sort_order': instance.orderIndex,
     };

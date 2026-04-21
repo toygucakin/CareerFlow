@@ -200,14 +200,23 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS scope TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS technologies TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_highlighted BOOLEAN DEFAULT FALSE;
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS role TEXT;
 
 ALTER TABLE experience ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 ALTER TABLE education ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 
 ALTER TABLE communities ADD COLUMN IF NOT EXISTS start_date DATE;
 ALTER TABLE communities ADD COLUMN IF NOT EXISTS end_date DATE;
+ALTER TABLE communities ADD COLUMN IF NOT EXISTS description TEXT;
 
 -- Hakkımda kolonunu ekle
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS about_me TEXT;
+
+-- Ünvan/Görev tanımı kolonunu ekle
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS job_title TEXT;
+
+-- Portfolyo linki kolonunu ekle
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS portfolio_url TEXT;
 
 

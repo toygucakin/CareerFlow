@@ -27,6 +27,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _cityController;
   late TextEditingController _districtController;
+  late TextEditingController _jobTitleController;
+  late TextEditingController _portfolioUrlController;
 
   final List<CountryData> _countryOptions = [
     CountryData(
@@ -68,6 +70,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _phoneController = TextEditingController();
     _cityController = TextEditingController();
     _districtController = TextEditingController();
+    _jobTitleController = TextEditingController();
+    _portfolioUrlController = TextEditingController();
     _selectedCountry = _countryOptions.first;
     _sortedCities = turkeyCities.keys.toList()..sort();
     _isReady = true;
@@ -85,6 +89,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _phoneController.dispose();
     _cityController.dispose();
     _districtController.dispose();
+    _jobTitleController.dispose();
+    _portfolioUrlController.dispose();
     super.dispose();
   }
 
@@ -93,12 +99,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     setState(() => _isSaving = true);
     try {
-      final unmaskedPhone = _phoneController.text.replaceAll(' ', '');
+      final phoneText = _phoneController.text.trim();
+      // Remove all non-digit characters to get the raw number
+      final unmaskedPhone = phoneText.replaceAll(RegExp(r'\D'), '');
 
       final updatedProfile = currentProfile.copyWith(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        phone: '${_selectedCountry.code}$unmaskedPhone',
+        phone: unmaskedPhone.isNotEmpty ? '${_selectedCountry.code}$unmaskedPhone' : null,
+        jobTitle: _jobTitleController.text.trim(),
+        portfolioUrl: _portfolioUrlController.text.trim(),
         city: _cityController.text.trim(),
         district: _districtController.text.trim(),
         birthDate: _selectedBirthDate,
@@ -109,6 +119,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       await ref.read(authRepositoryProvider).updateProfile(updatedProfile);
 
       if (mounted) {
+        ref.invalidate(currentUserProfileProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profil başarıyla güncellendi!')),
         );
@@ -184,6 +195,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               }
               _cityController.text = currentProfile.city ?? '';
               _districtController.text = currentProfile.district ?? '';
+              _jobTitleController.text = currentProfile.jobTitle ?? '';
+              _portfolioUrlController.text = currentProfile.portfolioUrl ?? '';
               _selectedBirthDate = currentProfile.birthDate;
               _isFormInitialized = true;
             }
@@ -247,6 +260,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(labelText: 'Soy isim'),
           validator: (v) => v!.isEmpty ? 'Gerekli' : null,
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _jobTitleController,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            labelText: 'Ünvan / Görev Tanımı',
+            hintText: 'Örn: Yazılım Mühendisi, Öğrenci vb.',
+            prefixIcon: Icon(Icons.work_outline_rounded),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _portfolioUrlController,
+          decoration: const InputDecoration(
+            labelText: 'Portfolyo / Kişisel Web Sitesi',
+            hintText: 'https://...',
+            prefixIcon: Icon(Icons.language_rounded),
+            helperText: 'CV\'de projeleriniz için "DAHA FAZLA" linki olarak kullanılır.',
+          ),
         ),
       ],
     );

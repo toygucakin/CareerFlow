@@ -18,6 +18,8 @@ import 'features/cv_builder/presentation/providers/experience_provider.dart';
 import 'features/cv_builder/presentation/screens/github_integration_screen.dart';
 import 'core/providers/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'features/pdf_export/services/pdf_generator_service.dart';
+import 'features/pdf_export/presentation/screens/pdf_preview_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -258,28 +260,34 @@ class HomeScreen extends ConsumerWidget {
                 scrollDirection: Axis.horizontal,
                 children: [
                   _TemplateCard(
+                    title: 'ATS Optimized (9.5)',
+                    preview: const _AtsOptimizedPreview(),
+                    color: Colors.orange,
+                    onTap: () => _startWithTemplate(context, CvTemplate.atsOptimized),
+                  ),
+                  _TemplateCard(
                     title: 'Modern Tech',
                     preview: const _ModernPreview(),
                     color: Colors.blue,
-                    onTap: () => _startWithTemplate(context, 'modern_tech'),
+                    onTap: () => _startWithTemplate(context, CvTemplate.modernTech),
                   ),
                   _TemplateCard(
                     title: 'Professional',
                     preview: const _ProfessionalPreview(),
                     color: Colors.indigo,
-                    onTap: () => _startWithTemplate(context, 'professional'),
+                    onTap: () => _startWithTemplate(context, CvTemplate.professional),
                   ),
                   _TemplateCard(
                     title: 'Creative Grid',
                     preview: const _CreativePreview(),
                     color: Colors.purple,
-                    onTap: () => _startWithTemplate(context, 'creative_grid'),
+                    onTap: () => _startWithTemplate(context, CvTemplate.creativeGrid),
                   ),
                   _TemplateCard(
                     title: 'Minimalist',
                     preview: const _MinimalistPreview(),
                     color: Colors.teal,
-                    onTap: () => _startWithTemplate(context, 'minimalist'),
+                    onTap: () => _startWithTemplate(context, CvTemplate.minimalist),
                   ),
                 ],
               ),
@@ -291,12 +299,12 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _startWithTemplate(BuildContext context, String templateId) {
+  void _startWithTemplate(BuildContext context, CvTemplate template) {
     Navigator.pop(context); // Close sheet
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const CvBuilderWizardScreen(),
+        builder: (context) => PdfPreviewScreen(template: template),
       ),
     );
   }
@@ -597,6 +605,64 @@ class _MinimalistPreview extends StatelessWidget {
             // Eğitim
             const Text('EĞİTİM —', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.teal)),
             const Text('Üniversite - Fakülte', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class _AtsOptimizedPreview extends StatelessWidget {
+  const _AtsOptimizedPreview();
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.grey.shade300, width: 0.5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            // Header: Name
+            const Text('AD SOYAD', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: 0.5)),
+            const SizedBox(height: 1),
+            const Text('Ankara • +90 5XX XXX XX XX', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+            const Text('linkedin.com/in/user • github.com/user', style: TextStyle(fontSize: 2.8, color: Colors.blue, decoration: TextDecoration.underline)),
+            const SizedBox(height: 8),
+            
+            // Section 1: Professional Summary
+            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('SUMMARY', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
+            const SizedBox(height: 2),
+            Container(height: 8, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 6),
+            
+            // Section 2: Experience
+            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('EXPERIENCE', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
+            const SizedBox(height: 3),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Company Name', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)),
+                const Text('2020 - Present', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+              ],
+            ),
+            const Align(alignment: Alignment.centerLeft, child: Text('Senior Dev', style: TextStyle(fontSize: 3, fontStyle: FontStyle.italic, color: Colors.black54))),
+            const SizedBox(height: 2),
+            Container(height: 12, width: double.infinity, color: Colors.grey.shade50),
+            const SizedBox(height: 8),
+            
+            // Section 3: Education
+            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('EDUCATION', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
+            const SizedBox(height: 2),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('University Name', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)),
+                const Text('2014 - 2018', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+              ],
+            ),
           ],
         ),
       ),

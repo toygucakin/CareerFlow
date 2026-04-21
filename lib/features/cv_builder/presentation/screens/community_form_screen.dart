@@ -20,6 +20,7 @@ class _CommunityFormScreenState extends ConsumerState<CommunityFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _roleController;
+  late TextEditingController _descriptionController;
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isOngoing = false;
@@ -30,6 +31,7 @@ class _CommunityFormScreenState extends ConsumerState<CommunityFormScreen> {
     super.initState();
     _nameController = TextEditingController(text: widget.communityToEdit?.name);
     _roleController = TextEditingController(text: widget.communityToEdit?.role);
+    _descriptionController = TextEditingController(text: widget.communityToEdit?.description);
     _startDate = widget.communityToEdit?.startDate;
     _endDate = widget.communityToEdit?.endDate;
     _isOngoing = widget.communityToEdit != null && widget.communityToEdit!.endDate == null && widget.communityToEdit!.startDate != null;
@@ -39,6 +41,7 @@ class _CommunityFormScreenState extends ConsumerState<CommunityFormScreen> {
   void dispose() {
     _nameController.dispose();
     _roleController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -134,6 +137,7 @@ class _CommunityFormScreenState extends ConsumerState<CommunityFormScreen> {
       profileId: user.id,
       name: _nameController.text,
       role: _roleController.text,
+      description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
       startDate: _startDate,
       endDate: _isOngoing ? null : _endDate,
       orderIndex: widget.communityToEdit?.orderIndex ?? 0,
@@ -194,6 +198,16 @@ class _CommunityFormScreenState extends ConsumerState<CommunityFormScreen> {
                   labelText: 'Rolünüz',
                   border: OutlineInputBorder(),
                   hintText: 'Örn: Üye, Yönetim Kurulu Başkanı',
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Sorumluluklarınız / Açıklama',
+                  border: OutlineInputBorder(),
+                  hintText: 'Örn: Etkinlik koordinasyonu, sponsorluk görüşmeleri...',
                 ),
               ),
               const SizedBox(height: 16),

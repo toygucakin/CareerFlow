@@ -27,6 +27,7 @@ mixin _$Project {
   @JsonKey(name: 'github_repo_id')
   String? get githubRepoId => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  String? get role => throw _privateConstructorUsedError;
   @JsonKey(name: 'repo_url')
   String? get repoUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_autonomous')
@@ -42,6 +43,8 @@ mixin _$Project {
   String? get scope => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String? get technologies => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_highlighted')
+  bool get isHighlighted => throw _privateConstructorUsedError;
   @JsonKey(name: 'sort_order')
   int? get orderIndex => throw _privateConstructorUsedError;
 
@@ -64,6 +67,7 @@ abstract class $ProjectCopyWith<$Res> {
     @JsonKey(name: 'profile_id') String? profileId,
     @JsonKey(name: 'github_repo_id') String? githubRepoId,
     String name,
+    String? role,
     @JsonKey(name: 'repo_url') String? repoUrl,
     @JsonKey(name: 'is_autonomous') bool isAutonomous,
     @JsonKey(name: 'start_date') DateTime? startDate,
@@ -73,6 +77,7 @@ abstract class $ProjectCopyWith<$Res> {
     String? scope,
     String? description,
     String? technologies,
+    @JsonKey(name: 'is_highlighted') bool isHighlighted,
     @JsonKey(name: 'sort_order') int? orderIndex,
   });
 }
@@ -96,6 +101,7 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
     Object? profileId = freezed,
     Object? githubRepoId = freezed,
     Object? name = null,
+    Object? role = freezed,
     Object? repoUrl = freezed,
     Object? isAutonomous = null,
     Object? startDate = freezed,
@@ -105,6 +111,7 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
     Object? scope = freezed,
     Object? description = freezed,
     Object? technologies = freezed,
+    Object? isHighlighted = null,
     Object? orderIndex = freezed,
   }) {
     return _then(
@@ -125,6 +132,10 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
                 ? _value.name
                 : name // ignore: cast_nullable_to_non_nullable
                       as String,
+            role: freezed == role
+                ? _value.role
+                : role // ignore: cast_nullable_to_non_nullable
+                      as String?,
             repoUrl: freezed == repoUrl
                 ? _value.repoUrl
                 : repoUrl // ignore: cast_nullable_to_non_nullable
@@ -161,6 +172,10 @@ class _$ProjectCopyWithImpl<$Res, $Val extends Project>
                 ? _value.technologies
                 : technologies // ignore: cast_nullable_to_non_nullable
                       as String?,
+            isHighlighted: null == isHighlighted
+                ? _value.isHighlighted
+                : isHighlighted // ignore: cast_nullable_to_non_nullable
+                      as bool,
             orderIndex: freezed == orderIndex
                 ? _value.orderIndex
                 : orderIndex // ignore: cast_nullable_to_non_nullable
@@ -184,6 +199,7 @@ abstract class _$$ProjectImplCopyWith<$Res> implements $ProjectCopyWith<$Res> {
     @JsonKey(name: 'profile_id') String? profileId,
     @JsonKey(name: 'github_repo_id') String? githubRepoId,
     String name,
+    String? role,
     @JsonKey(name: 'repo_url') String? repoUrl,
     @JsonKey(name: 'is_autonomous') bool isAutonomous,
     @JsonKey(name: 'start_date') DateTime? startDate,
@@ -193,6 +209,7 @@ abstract class _$$ProjectImplCopyWith<$Res> implements $ProjectCopyWith<$Res> {
     String? scope,
     String? description,
     String? technologies,
+    @JsonKey(name: 'is_highlighted') bool isHighlighted,
     @JsonKey(name: 'sort_order') int? orderIndex,
   });
 }
@@ -215,6 +232,7 @@ class __$$ProjectImplCopyWithImpl<$Res>
     Object? profileId = freezed,
     Object? githubRepoId = freezed,
     Object? name = null,
+    Object? role = freezed,
     Object? repoUrl = freezed,
     Object? isAutonomous = null,
     Object? startDate = freezed,
@@ -224,6 +242,7 @@ class __$$ProjectImplCopyWithImpl<$Res>
     Object? scope = freezed,
     Object? description = freezed,
     Object? technologies = freezed,
+    Object? isHighlighted = null,
     Object? orderIndex = freezed,
   }) {
     return _then(
@@ -244,6 +263,10 @@ class __$$ProjectImplCopyWithImpl<$Res>
             ? _value.name
             : name // ignore: cast_nullable_to_non_nullable
                   as String,
+        role: freezed == role
+            ? _value.role
+            : role // ignore: cast_nullable_to_non_nullable
+                  as String?,
         repoUrl: freezed == repoUrl
             ? _value.repoUrl
             : repoUrl // ignore: cast_nullable_to_non_nullable
@@ -280,6 +303,10 @@ class __$$ProjectImplCopyWithImpl<$Res>
             ? _value.technologies
             : technologies // ignore: cast_nullable_to_non_nullable
                   as String?,
+        isHighlighted: null == isHighlighted
+            ? _value.isHighlighted
+            : isHighlighted // ignore: cast_nullable_to_non_nullable
+                  as bool,
         orderIndex: freezed == orderIndex
             ? _value.orderIndex
             : orderIndex // ignore: cast_nullable_to_non_nullable
@@ -297,6 +324,7 @@ class _$ProjectImpl implements _Project {
     @JsonKey(name: 'profile_id') this.profileId,
     @JsonKey(name: 'github_repo_id') this.githubRepoId,
     required this.name,
+    this.role,
     @JsonKey(name: 'repo_url') this.repoUrl,
     @JsonKey(name: 'is_autonomous') this.isAutonomous = false,
     @JsonKey(name: 'start_date') this.startDate,
@@ -306,6 +334,7 @@ class _$ProjectImpl implements _Project {
     this.scope,
     this.description,
     this.technologies,
+    @JsonKey(name: 'is_highlighted') this.isHighlighted = false,
     @JsonKey(name: 'sort_order') this.orderIndex,
   });
 
@@ -322,6 +351,8 @@ class _$ProjectImpl implements _Project {
   final String? githubRepoId;
   @override
   final String name;
+  @override
+  final String? role;
   @override
   @JsonKey(name: 'repo_url')
   final String? repoUrl;
@@ -347,12 +378,15 @@ class _$ProjectImpl implements _Project {
   @override
   final String? technologies;
   @override
+  @JsonKey(name: 'is_highlighted')
+  final bool isHighlighted;
+  @override
   @JsonKey(name: 'sort_order')
   final int? orderIndex;
 
   @override
   String toString() {
-    return 'Project(id: $id, profileId: $profileId, githubRepoId: $githubRepoId, name: $name, repoUrl: $repoUrl, isAutonomous: $isAutonomous, startDate: $startDate, endDate: $endDate, wakatimeHours: $wakatimeHours, aiSummary: $aiSummary, scope: $scope, description: $description, technologies: $technologies, orderIndex: $orderIndex)';
+    return 'Project(id: $id, profileId: $profileId, githubRepoId: $githubRepoId, name: $name, role: $role, repoUrl: $repoUrl, isAutonomous: $isAutonomous, startDate: $startDate, endDate: $endDate, wakatimeHours: $wakatimeHours, aiSummary: $aiSummary, scope: $scope, description: $description, technologies: $technologies, isHighlighted: $isHighlighted, orderIndex: $orderIndex)';
   }
 
   @override
@@ -366,6 +400,7 @@ class _$ProjectImpl implements _Project {
             (identical(other.githubRepoId, githubRepoId) ||
                 other.githubRepoId == githubRepoId) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.role, role) || other.role == role) &&
             (identical(other.repoUrl, repoUrl) || other.repoUrl == repoUrl) &&
             (identical(other.isAutonomous, isAutonomous) ||
                 other.isAutonomous == isAutonomous) &&
@@ -381,6 +416,8 @@ class _$ProjectImpl implements _Project {
                 other.description == description) &&
             (identical(other.technologies, technologies) ||
                 other.technologies == technologies) &&
+            (identical(other.isHighlighted, isHighlighted) ||
+                other.isHighlighted == isHighlighted) &&
             (identical(other.orderIndex, orderIndex) ||
                 other.orderIndex == orderIndex));
   }
@@ -393,6 +430,7 @@ class _$ProjectImpl implements _Project {
     profileId,
     githubRepoId,
     name,
+    role,
     repoUrl,
     isAutonomous,
     startDate,
@@ -402,6 +440,7 @@ class _$ProjectImpl implements _Project {
     scope,
     description,
     technologies,
+    isHighlighted,
     orderIndex,
   );
 
@@ -425,6 +464,7 @@ abstract class _Project implements Project {
     @JsonKey(name: 'profile_id') final String? profileId,
     @JsonKey(name: 'github_repo_id') final String? githubRepoId,
     required final String name,
+    final String? role,
     @JsonKey(name: 'repo_url') final String? repoUrl,
     @JsonKey(name: 'is_autonomous') final bool isAutonomous,
     @JsonKey(name: 'start_date') final DateTime? startDate,
@@ -434,6 +474,7 @@ abstract class _Project implements Project {
     final String? scope,
     final String? description,
     final String? technologies,
+    @JsonKey(name: 'is_highlighted') final bool isHighlighted,
     @JsonKey(name: 'sort_order') final int? orderIndex,
   }) = _$ProjectImpl;
 
@@ -449,6 +490,8 @@ abstract class _Project implements Project {
   String? get githubRepoId;
   @override
   String get name;
+  @override
+  String? get role;
   @override
   @JsonKey(name: 'repo_url')
   String? get repoUrl;
@@ -473,6 +516,9 @@ abstract class _Project implements Project {
   String? get description;
   @override
   String? get technologies;
+  @override
+  @JsonKey(name: 'is_highlighted')
+  bool get isHighlighted;
   @override
   @JsonKey(name: 'sort_order')
   int? get orderIndex;

@@ -8,6 +8,8 @@ import 'community_form_screen.dart';
 import '../../domain/models/project.dart';
 import '../../domain/models/community.dart';
 import 'package:intl/intl.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../auth/domain/models/user_profile.dart';
 
 class SkillsProjectsScreen extends ConsumerStatefulWidget {
   final bool isWizardMode;
@@ -42,14 +44,18 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
       appBar: widget.isWizardMode
           ? null
           : AppBar(title: const Text('Projeler ve Topluluklar')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader(
-              context,
-              'Projeler',
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _PortfolioLinkSection(),
+              _buildSectionHeader(
+                context,
+                'Projeler',
               Icons.assignment_outlined,
               () => Navigator.push(
                 context,
@@ -106,6 +112,7 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -176,8 +183,6 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (proj.scope != null && proj.scope!.isNotEmpty)
-                      Text(proj.scope!),
                     const SizedBox(height: 2),
                     Text(
                       _formatDateRange(proj.startDate, proj.endDate),
@@ -188,6 +193,27 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Tooltip(
+                      message: proj.isHighlighted ? 'CV\'den çıkar' : 'CV\'ye dahil et',
+                      child: Switch(
+                        value: proj.isHighlighted,
+                        activeColor: Colors.amber,
+                        onChanged: (val) async {
+                          try {
+                            await ref.read(projectListProvider.notifier).toggleProjectHighlight(proj);
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.toString().replaceAll('Exception: ', '')),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ),
                     IconButton(
                       icon: const Icon(Icons.edit_outlined, color: Colors.blue),
                       onPressed: () => Navigator.push(
@@ -345,3 +371,184 @@ class _SkillsProjectsScreenState extends ConsumerState<SkillsProjectsScreen> {
     );
   }
 }
+
+class _PortfolioLinkSection extends ConsumerStatefulWidget {
+  const _PortfolioLinkSection();
+
+  @override
+  ConsumerState<_PortfolioLinkSection> createState() => _PortfolioLinkSectionState();
+}
+
+class _PortfolioLinkSectionState extends ConsumerState<_PortfolioLinkSection> {
+  late TextEditingController _urlController;
+  bool _isSaving = false;
+  bool _isIncluded = false;
+  bool _isExpanded = false;
+  bool _hasInitialized = false;
+  UserProfile? _lastProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _urlController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveUrl(UserProfile profile, String newUrl) async {
+    setState(() => _isSaving = true);
+    try {
+      final updatedProfile = profile.copyWith(portfolioUrl: newUrl);
+      await ref.read(authRepositoryProvider).updateProfile(updatedProfile);
+      ref.invalidate(currentUserProfileProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(newUrl.isEmpty ? 'Portfolyo linki kaldırıldı.' : 'Portfolyo linki güncellendi.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Hata: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final profileAsync = ref.watch(currentUserProfileProvider);
+
+    return profileAsync.when(
+      data: (profile) {
+        if (profile == null) return const SizedBox.shrink();
+        
+        final hasValidUrl = profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty;
+
+        if (!_hasInitialized) {
+          _urlController.text = profile.portfolioUrl ?? '';
+          _isIncluded = hasValidUrl;
+          _isExpanded = false; // Başlangıçta kapalı, istenirse ok tuşuyla açılır
+          _hasInitialized = true;
+        }
+
+        if (_lastProfile?.portfolioUrl != profile.portfolioUrl && !_isSaving) {
+           _urlController.text = profile.portfolioUrl ?? '';
+           _isIncluded = (profile.portfolioUrl != null && profile.portfolioUrl!.isNotEmpty);
+           _lastProfile = profile;
+        }
+
+        return Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.grey.shade300),
+          ),
+          margin: const EdgeInsets.only(bottom: 24),
+          child: Column(
+            children: [
+              ListTile(
+                leading: Checkbox(
+                  value: _isIncluded,
+                  activeColor: Colors.blue,
+                  onChanged: (val) async {
+                    if (val == true) {
+                      setState(() {
+                         _isIncluded = true;
+                         _isExpanded = true; // Açılınca yazabilmesi için alanı da göster
+                      });
+                    } else {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Emin misiniz?'),
+                          content: const Text('Portfolyo linkiniz CV\'den kaldırılacaktır. Onaylıyor musunuz?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('İptal')),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true), 
+                              child: const Text('Evet, Kaldır', style: TextStyle(color: Colors.red))
+                            ),
+                          ],
+                        )
+                      );
+                      if (confirm == true) {
+                        setState(() {
+                           _isIncluded = false;
+                           _isExpanded = false;
+                        });
+                        _urlController.clear();
+                        await _saveUrl(profile, '');
+                      }
+                    }
+                  },
+                ),
+                title: const Text('Daha Fazla Proje Linki', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('CV\'nizin altında görünür', style: TextStyle(fontSize: 12)),
+                trailing: _isIncluded 
+                    ? IconButton(
+                        icon: Icon(_isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
+                        onPressed: () => setState(() => _isExpanded = !_isExpanded),
+                      )
+                    : null,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              ),
+              AnimatedCrossFade(
+                firstChild: const SizedBox(width: double.infinity, height: 0),
+                secondChild: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _urlController,
+                        decoration: const InputDecoration(
+                          labelText: 'Portfolyo / Kişisel Web Sitesi',
+                          hintText: 'https://...',
+                          prefixIcon: Icon(Icons.link),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isSaving ? null : () {
+                            FocusScope.of(context).unfocus(); // Klavyeyi kapat
+                            _saveUrl(profile, _urlController.text.trim());
+                            setState(() => _isExpanded = false); // Alanı kapat
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: _isSaving 
+                              ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Text('Kaydet'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 250),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+

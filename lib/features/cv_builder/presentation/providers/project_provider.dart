@@ -20,14 +20,22 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
     if (user == null) return [];
     final repo = ref.read(projectRepositoryProvider);
     final list = await repo.getProjects(user.id);
+    _sortProjects(list);
+    return list;
+  }
+
+  void _sortProjects(List<Project> list) {
     list.sort((a, b) {
-      if (a.orderIndex != null && b.orderIndex != null)
+      if (a.isHighlighted != b.isHighlighted) {
+        return a.isHighlighted ? -1 : 1;
+      }
+      if (a.orderIndex != null && b.orderIndex != null) {
         return a.orderIndex!.compareTo(b.orderIndex!);
+      }
       return (b.startDate ?? DateTime.now()).compareTo(
         a.startDate ?? DateTime.now(),
       );
     });
-    return list;
   }
 
   Future<void> addProject(Project project) async {
@@ -36,13 +44,7 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
       final newItem = await repo.createProject(project);
       if (state.hasValue) {
         final newList = [...state.value!, newItem];
-        newList.sort((a, b) {
-          if (a.orderIndex != null && b.orderIndex != null)
-            return a.orderIndex!.compareTo(b.orderIndex!);
-          return (b.startDate ?? DateTime.now()).compareTo(
-            a.startDate ?? DateTime.now(),
-          );
-        });
+        _sortProjects(newList);
         state = AsyncValue.data(newList);
       } else {
         ref.invalidateSelf();
@@ -56,9 +58,9 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
     if (!state.hasValue) return;
     
     final currentList = state.value!;
-    state = AsyncValue.data(
-      currentList.map((e) => e.id == project.id ? project : e).toList(),
-    );
+    final updatedList = currentList.map((e) => e.id == project.id ? project : e).toList();
+    _sortProjects(updatedList);
+    state = AsyncValue.data(updatedList);
 
     try {
       final repo = ref.read(projectRepositoryProvider);
@@ -102,6 +104,35 @@ class ProjectListNotifier extends AsyncNotifier<List<Project>> {
       await ref.read(projectRepositoryProvider).updateProjectOrder(updatedList);
     } catch (e) {
       ref.invalidateSelf();
+    }
+  }
+
+  Future<void> toggleProjectHighlight(Project project) async {
+    if (!state.hasValue) return;
+    
+    final currentList = state.value!;
+    final isActivating = !project.isHighlighted;
+    
+    if (isActivating) {
+      final highlightedCount = currentList.where((p) => p.isHighlighted).length;
+      if (highlightedCount >= 4) {
+        throw Exception('Maksimum 4 proje öne çıkarılabilir.');
+      }
+    }
+
+    final updatedProject = project.copyWith(isHighlighted: isActivating);
+    
+    // Optimistic update
+    final updatedList = currentList.map((e) => e.id == project.id ? updatedProject : e).toList();
+    _sortProjects(updatedList);
+    state = AsyncValue.data(updatedList);
+
+    try {
+      final repo = ref.read(projectRepositoryProvider);
+      await repo.updateProject(updatedProject);
+    } catch (e) {
+      ref.invalidateSelf();
+      rethrow;
     }
   }
 }

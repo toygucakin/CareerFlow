@@ -30,6 +30,8 @@ mixin _$UserProfile {
   DateTime? get birthDate => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
   String? get aboutMe => throw _privateConstructorUsedError;
+  String? get jobTitle => throw _privateConstructorUsedError;
+  String? get portfolioUrl => throw _privateConstructorUsedError;
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this UserProfile to a JSON map.
@@ -59,6 +61,8 @@ abstract class $UserProfileCopyWith<$Res> {
     DateTime? birthDate,
     String? email,
     String? aboutMe,
+    String? jobTitle,
+    String? portfolioUrl,
     DateTime? updatedAt,
   });
 }
@@ -87,6 +91,8 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? birthDate = freezed,
     Object? email = freezed,
     Object? aboutMe = freezed,
+    Object? jobTitle = freezed,
+    Object? portfolioUrl = freezed,
     Object? updatedAt = freezed,
   }) {
     return _then(
@@ -127,6 +133,14 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
                 ? _value.aboutMe
                 : aboutMe // ignore: cast_nullable_to_non_nullable
                       as String?,
+            jobTitle: freezed == jobTitle
+                ? _value.jobTitle
+                : jobTitle // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            portfolioUrl: freezed == portfolioUrl
+                ? _value.portfolioUrl
+                : portfolioUrl // ignore: cast_nullable_to_non_nullable
+                      as String?,
             updatedAt: freezed == updatedAt
                 ? _value.updatedAt
                 : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -156,6 +170,8 @@ abstract class _$$UserProfileImplCopyWith<$Res>
     DateTime? birthDate,
     String? email,
     String? aboutMe,
+    String? jobTitle,
+    String? portfolioUrl,
     DateTime? updatedAt,
   });
 }
@@ -183,6 +199,8 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? birthDate = freezed,
     Object? email = freezed,
     Object? aboutMe = freezed,
+    Object? jobTitle = freezed,
+    Object? portfolioUrl = freezed,
     Object? updatedAt = freezed,
   }) {
     return _then(
@@ -223,6 +241,14 @@ class __$$UserProfileImplCopyWithImpl<$Res>
             ? _value.aboutMe
             : aboutMe // ignore: cast_nullable_to_non_nullable
                   as String?,
+        jobTitle: freezed == jobTitle
+            ? _value.jobTitle
+            : jobTitle // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        portfolioUrl: freezed == portfolioUrl
+            ? _value.portfolioUrl
+            : portfolioUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
         updatedAt: freezed == updatedAt
             ? _value.updatedAt
             : updatedAt // ignore: cast_nullable_to_non_nullable
@@ -246,6 +272,8 @@ class _$UserProfileImpl implements _UserProfile {
     this.birthDate,
     this.email,
     this.aboutMe,
+    this.jobTitle,
+    this.portfolioUrl,
     this.updatedAt,
   });
 
@@ -271,11 +299,15 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   final String? aboutMe;
   @override
+  final String? jobTitle;
+  @override
+  final String? portfolioUrl;
+  @override
   final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, birthDate: $birthDate, email: $email, aboutMe: $aboutMe, updatedAt: $updatedAt)';
+    return 'UserProfile(id: $id, firstName: $firstName, lastName: $lastName, phone: $phone, city: $city, district: $district, birthDate: $birthDate, email: $email, aboutMe: $aboutMe, jobTitle: $jobTitle, portfolioUrl: $portfolioUrl, updatedAt: $updatedAt)';
   }
 
   @override
@@ -296,6 +328,10 @@ class _$UserProfileImpl implements _UserProfile {
                 other.birthDate == birthDate) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.aboutMe, aboutMe) || other.aboutMe == aboutMe) &&
+            (identical(other.jobTitle, jobTitle) ||
+                other.jobTitle == jobTitle) &&
+            (identical(other.portfolioUrl, portfolioUrl) ||
+                other.portfolioUrl == portfolioUrl) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt));
   }
@@ -313,6 +349,8 @@ class _$UserProfileImpl implements _UserProfile {
     birthDate,
     email,
     aboutMe,
+    jobTitle,
+    portfolioUrl,
     updatedAt,
   );
 
@@ -341,6 +379,8 @@ abstract class _UserProfile implements UserProfile {
     final DateTime? birthDate,
     final String? email,
     final String? aboutMe,
+    final String? jobTitle,
+    final String? portfolioUrl,
     final DateTime? updatedAt,
   }) = _$UserProfileImpl;
 
@@ -365,6 +405,10 @@ abstract class _UserProfile implements UserProfile {
   String? get email;
   @override
   String? get aboutMe;
+  @override
+  String? get jobTitle;
+  @override
+  String? get portfolioUrl;
   @override
   DateTime? get updatedAt;
 
