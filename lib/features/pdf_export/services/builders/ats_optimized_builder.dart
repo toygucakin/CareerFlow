@@ -165,8 +165,7 @@ class AtsOptimizedBuilder {
                                 : ''),
                         style: const pw.TextStyle(
                           fontSize: 9,
-                          color: PdfColors.blue900,
-                          decoration: pw.TextDecoration.underline,
+                          color: PdfColors.black,
                         ),
                       ),
                     ),
@@ -332,7 +331,6 @@ class AtsOptimizedBuilder {
                       style: const pw.TextStyle(
                         fontSize: 9, 
                         color: PdfColors.black,
-                        decoration: pw.TextDecoration.underline,
                       ),
                     ),
                   );
@@ -450,6 +448,8 @@ class AtsOptimizedBuilder {
                 text: pw.TextSpan(
                   children: [
                     pw.TextSpan(text: proj.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                    if (proj.role != null && proj.role!.isNotEmpty)
+                      pw.TextSpan(text: ' - ${proj.role!}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
                     if (proj.repoUrl != null) 
                       pw.TextSpan(text: '  |  ${_extractHandle(proj.repoUrl!)}', style: const pw.TextStyle(fontSize: 9, color: PdfColors.blue900)),
                   ],

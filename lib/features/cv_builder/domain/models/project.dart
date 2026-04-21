@@ -10,6 +10,7 @@ class Project with _$Project {
     @JsonKey(name: 'profile_id') String? profileId,
     @JsonKey(name: 'github_repo_id') String? githubRepoId,
     required String name,
+    String? role,
     @JsonKey(name: 'repo_url') String? repoUrl,
     @JsonKey(name: 'is_autonomous') @Default(false) bool isAutonomous,
     @JsonKey(name: 'start_date') DateTime? startDate,

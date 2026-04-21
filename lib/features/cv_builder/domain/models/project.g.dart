@@ -12,6 +12,7 @@ _$ProjectImpl _$$ProjectImplFromJson(Map<String, dynamic> json) =>
       profileId: json['profile_id'] as String?,
       githubRepoId: json['github_repo_id'] as String?,
       name: json['name'] as String,
+      role: json['role'] as String?,
       repoUrl: json['repo_url'] as String?,
       isAutonomous: json['is_autonomous'] as bool? ?? false,
       startDate: json['start_date'] == null
@@ -35,6 +36,7 @@ Map<String, dynamic> _$$ProjectImplToJson(_$ProjectImpl instance) =>
       'profile_id': instance.profileId,
       'github_repo_id': instance.githubRepoId,
       'name': instance.name,
+      'role': instance.role,
       'repo_url': instance.repoUrl,
       'is_autonomous': instance.isAutonomous,
       'start_date': instance.startDate?.toIso8601String(),
