@@ -32,6 +32,7 @@ mixin _$Community {
   DateTime? get endDate => throw _privateConstructorUsedError;
   @JsonKey(name: 'sort_order')
   int? get orderIndex => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError;
 
   /// Serializes this Community to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -56,6 +57,7 @@ abstract class $CommunityCopyWith<$Res> {
     @JsonKey(name: 'start_date') DateTime? startDate,
     @JsonKey(name: 'end_date') DateTime? endDate,
     @JsonKey(name: 'sort_order') int? orderIndex,
+    String? description,
   });
 }
 
@@ -81,6 +83,7 @@ class _$CommunityCopyWithImpl<$Res, $Val extends Community>
     Object? startDate = freezed,
     Object? endDate = freezed,
     Object? orderIndex = freezed,
+    Object? description = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -112,6 +115,10 @@ class _$CommunityCopyWithImpl<$Res, $Val extends Community>
                 ? _value.orderIndex
                 : orderIndex // ignore: cast_nullable_to_non_nullable
                       as int?,
+            description: freezed == description
+                ? _value.description
+                : description // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -135,6 +142,7 @@ abstract class _$$CommunityImplCopyWith<$Res>
     @JsonKey(name: 'start_date') DateTime? startDate,
     @JsonKey(name: 'end_date') DateTime? endDate,
     @JsonKey(name: 'sort_order') int? orderIndex,
+    String? description,
   });
 }
 
@@ -159,6 +167,7 @@ class __$$CommunityImplCopyWithImpl<$Res>
     Object? startDate = freezed,
     Object? endDate = freezed,
     Object? orderIndex = freezed,
+    Object? description = freezed,
   }) {
     return _then(
       _$CommunityImpl(
@@ -190,6 +199,10 @@ class __$$CommunityImplCopyWithImpl<$Res>
             ? _value.orderIndex
             : orderIndex // ignore: cast_nullable_to_non_nullable
                   as int?,
+        description: freezed == description
+            ? _value.description
+            : description // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -206,6 +219,7 @@ class _$CommunityImpl implements _Community {
     @JsonKey(name: 'start_date') this.startDate,
     @JsonKey(name: 'end_date') this.endDate,
     @JsonKey(name: 'sort_order') this.orderIndex,
+    this.description,
   });
 
   factory _$CommunityImpl.fromJson(Map<String, dynamic> json) =>
@@ -229,10 +243,12 @@ class _$CommunityImpl implements _Community {
   @override
   @JsonKey(name: 'sort_order')
   final int? orderIndex;
+  @override
+  final String? description;
 
   @override
   String toString() {
-    return 'Community(id: $id, profileId: $profileId, name: $name, role: $role, startDate: $startDate, endDate: $endDate, orderIndex: $orderIndex)';
+    return 'Community(id: $id, profileId: $profileId, name: $name, role: $role, startDate: $startDate, endDate: $endDate, orderIndex: $orderIndex, description: $description)';
   }
 
   @override
@@ -249,7 +265,9 @@ class _$CommunityImpl implements _Community {
                 other.startDate == startDate) &&
             (identical(other.endDate, endDate) || other.endDate == endDate) &&
             (identical(other.orderIndex, orderIndex) ||
-                other.orderIndex == orderIndex));
+                other.orderIndex == orderIndex) &&
+            (identical(other.description, description) ||
+                other.description == description));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -263,6 +281,7 @@ class _$CommunityImpl implements _Community {
     startDate,
     endDate,
     orderIndex,
+    description,
   );
 
   /// Create a copy of Community
@@ -288,6 +307,7 @@ abstract class _Community implements Community {
     @JsonKey(name: 'start_date') final DateTime? startDate,
     @JsonKey(name: 'end_date') final DateTime? endDate,
     @JsonKey(name: 'sort_order') final int? orderIndex,
+    final String? description,
   }) = _$CommunityImpl;
 
   factory _Community.fromJson(Map<String, dynamic> json) =
@@ -311,6 +331,8 @@ abstract class _Community implements Community {
   @override
   @JsonKey(name: 'sort_order')
   int? get orderIndex;
+  @override
+  String? get description;
 
   /// Create a copy of Community
   /// with the given fields replaced by the non-null parameter values.

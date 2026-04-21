@@ -208,6 +208,7 @@ ALTER TABLE education ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 
 ALTER TABLE communities ADD COLUMN IF NOT EXISTS start_date DATE;
 ALTER TABLE communities ADD COLUMN IF NOT EXISTS end_date DATE;
+ALTER TABLE communities ADD COLUMN IF NOT EXISTS description TEXT;
 
 -- Hakkımda kolonunu ekle
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS about_me TEXT;

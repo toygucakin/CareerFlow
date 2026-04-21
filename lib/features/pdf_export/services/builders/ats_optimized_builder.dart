@@ -481,18 +481,29 @@ class AtsOptimizedBuilder {
 
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 10),
-      child: pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
-          pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(comm.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-              if (comm.role != null)
-                pw.Text(comm.role!, style: const pw.TextStyle(fontSize: 9.5, fontStyle: pw.FontStyle.italic)),
+              pw.RichText(
+                text: pw.TextSpan(
+                  children: [
+                    pw.TextSpan(text: comm.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                    if (comm.role != null && comm.role!.isNotEmpty)
+                      pw.TextSpan(text: ' - ${comm.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10.5)),
+                  ],
+                ),
+              ),
+              pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
             ],
           ),
-          pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
+          if (comm.description != null && comm.description!.isNotEmpty)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 3),
+              child: pw.Text(comm.description!, style: const pw.TextStyle(fontSize: 9.5)),
+            ),
         ],
       ),
     );

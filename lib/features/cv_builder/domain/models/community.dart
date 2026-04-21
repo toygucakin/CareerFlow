@@ -13,6 +13,7 @@ class Community with _$Community {
     @JsonKey(name: 'start_date') DateTime? startDate,
     @JsonKey(name: 'end_date') DateTime? endDate,
     @JsonKey(name: 'sort_order') int? orderIndex,
+    String? description,
   }) = _Community;
 
   factory Community.fromJson(Map<String, dynamic> json) =>

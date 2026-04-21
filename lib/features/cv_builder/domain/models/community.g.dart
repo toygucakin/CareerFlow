@@ -19,6 +19,7 @@ _$CommunityImpl _$$CommunityImplFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['end_date'] as String),
       orderIndex: (json['sort_order'] as num?)?.toInt(),
+      description: json['description'] as String?,
     );
 
 Map<String, dynamic> _$$CommunityImplToJson(_$CommunityImpl instance) =>
@@ -30,4 +31,5 @@ Map<String, dynamic> _$$CommunityImplToJson(_$CommunityImpl instance) =>
       'start_date': instance.startDate?.toIso8601String(),
       'end_date': instance.endDate?.toIso8601String(),
       'sort_order': instance.orderIndex,
+      'description': instance.description,
     };
