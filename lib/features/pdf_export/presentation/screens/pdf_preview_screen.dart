@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:career_flow/features/pdf_export/services/pdf_generator_service.dart';
+import 'package:career_flow/features/auth/presentation/providers/auth_provider.dart';
 
 class PdfPreviewScreen extends ConsumerStatefulWidget {
   final CvTemplate template;
@@ -19,6 +20,24 @@ class _PdfPreviewScreenState extends ConsumerState<PdfPreviewScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    // Watch user profile for dynamic filename
+    final profileAsync = ref.watch(currentUserProfileProvider);
+    final profile = profileAsync.value;
+
+    final firstName = profile?.firstName ?? '';
+    final lastName = profile?.lastName ?? '';
+    final langSuffix = _currentLanguage == CvLanguage.en ? 'EN' : 'TR';
+
+    String fileName;
+    if (firstName.isEmpty && lastName.isEmpty) {
+      fileName = 'CV_$langSuffix.pdf';
+    } else {
+      // Create filename: Firstname_Lastname_CV_LANG.pdf
+      fileName = '${firstName}_${lastName}_CV_$langSuffix.pdf'
+          .replaceAll(' ', '_')
+          .replaceAll(RegExp(r'[<>:"/\\|?*]'), ''); // Basic sanitization
+    }
 
     return Scaffold(
       backgroundColor: isDark ? Colors.black : Colors.grey.shade100,
@@ -58,8 +77,7 @@ class _PdfPreviewScreenState extends ConsumerState<PdfPreviewScreen> {
           canChangeOrientation: false,
           loadingWidget: const Center(
               child: CircularProgressIndicator(color: Color(0xFF2196F3))),
-          pdfFileName:
-              'CV_${_currentLanguage == CvLanguage.en ? 'EN' : 'TR'}.pdf',
+          pdfFileName: fileName,
           key: ValueKey('${_currentLanguage}_${widget.template}'),
           padding: const EdgeInsets.all(20),
         ),
