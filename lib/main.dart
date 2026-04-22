@@ -622,50 +622,116 @@ class _AtsOptimizedPreview extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300, width: 0.5),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            // Header: Name
-            const Text('AD SOYAD', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: 0.5)),
-            const SizedBox(height: 1),
-            const Text('Ankara • +90 5XX XXX XX XX', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
-            const Text('linkedin.com/in/user • github.com/user', style: TextStyle(fontSize: 2.8, color: Colors.blue, decoration: TextDecoration.underline)),
-            const SizedBox(height: 8),
-            
-            // Section 1: Professional Summary
-            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('SUMMARY', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
-            const SizedBox(height: 2),
-            Container(height: 8, width: double.infinity, color: Colors.grey.shade50),
-            const SizedBox(height: 6),
-            
-            // Section 2: Experience
-            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('EXPERIENCE', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
-            const SizedBox(height: 3),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 8.0),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: 120, // Constrain width for scaling
+            child: Column(
               children: [
-                const Text('Company Name', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)),
-                const Text('2020 - Present', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+                // Centered Header
+                const Text('NAME SURNAME',
+                    style: TextStyle(
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        letterSpacing: 0.5)),
+                const Text('JOB TITLE / STUDENT',
+                    style: TextStyle(
+                        fontSize: 5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87)),
+                const SizedBox(height: 1),
+                const Text('City • +90 5XX XXX XX XX',
+                    style: TextStyle(fontSize: 3.5, color: Colors.grey)),
+                const Text('LinkedIn • GitHub',
+                    style: TextStyle(fontSize: 3, color: Colors.blue)),
+                const SizedBox(height: 6),
+
+                // Section: PROFILE
+                _buildSection('PROFILE'),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                        'Software Engineering student with focus on mobile development...',
+                        maxLines: 2,
+                        style: TextStyle(fontSize: 3, color: Colors.grey))),
+                const SizedBox(height: 6),
+
+                // Section: WORK EXPERIENCE
+                _buildSection('WORK EXPERIENCE'),
+                _buildItem('Company Name', 'Software Dev', '2024 - Present'),
+                const SizedBox(height: 6),
+
+                // Section: PROJECTS
+                _buildSection('PROJECTS'),
+                _buildItem('Project Title', 'Lead Dev', '2023 - 2024'),
+                const SizedBox(height: 1),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Technologies: Flutter, Supabase',
+                        style: TextStyle(
+                            fontSize: 2.8,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey))),
+                const SizedBox(height: 6),
+
+                // Section: COMMUNITIES & VOLUNTEERING
+                _buildSection('COMMUNITIES & VOLUNTEERING'),
+                _buildItem('Organization', 'Volunteer', '2023 - Present'),
+                const SizedBox(height: 8),
+
+                // Section: SKILLS & ADDITIONAL INFO
+                _buildSection('SKILLS & ADDITIONAL INFO'),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Technical Skills: Flutter, Dart, Java, Kotlin, Firebase',
+                        style: TextStyle(fontSize: 3, color: Colors.black87))),
+                const SizedBox(height: 1),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Languages: Turkish (Native), English (Advanced)',
+                        style: TextStyle(fontSize: 3, color: Colors.black87))),
               ],
             ),
-            const Align(alignment: Alignment.centerLeft, child: Text('Senior Dev', style: TextStyle(fontSize: 3, fontStyle: FontStyle.italic, color: Colors.black54))),
-            const SizedBox(height: 2),
-            Container(height: 12, width: double.infinity, color: Colors.grey.shade50),
-            const SizedBox(height: 8),
-            
-            // Section 3: Education
-            Align(alignment: Alignment.centerLeft, child: Row(children: [Text('EDUCATION', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)), Expanded(child: Divider(indent: 4, height: 1, thickness: 0.5))])),
-            const SizedBox(height: 2),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('University Name', style: TextStyle(fontSize: 4, fontWeight: FontWeight.bold, color: Colors.black87)),
-                const Text('2014 - 2018', style: TextStyle(fontSize: 3.5, color: Colors.grey)),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSection(String title) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: const TextStyle(
+                fontSize: 4.5,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87)),
+        const Divider(height: 4, thickness: 0.5, color: Colors.black26),
+        const SizedBox(height: 1),
+      ],
+    );
+  }
+
+  Widget _buildItem(String title, String role, String date) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('$title - $role',
+                style: const TextStyle(
+                    fontSize: 4,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87)),
+            Text(date, style: const TextStyle(fontSize: 3.2, color: Colors.grey)),
+          ],
+        ),
+      ],
     );
   }
 }

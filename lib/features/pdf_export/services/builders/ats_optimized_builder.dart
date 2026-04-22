@@ -93,7 +93,7 @@ class AtsOptimizedBuilder {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.fromLTRB(40, 20, 40, 40),
+        margin: const pw.EdgeInsets.fromLTRB(40, 20, 40, 20),
         theme: pw.ThemeData.withFont(base: ttf, bold: ttf, italic: ttf),
         header: (context) => context.pageNumber == 1 ? _buildHeader() : pw.SizedBox.shrink(),
         build: (context) => [
@@ -186,7 +186,7 @@ class AtsOptimizedBuilder {
                   children: [
                     _buildSectionTitle(_label('communities')),
                     ...communities.map((comm) => _buildCommunityItem(comm, dateFormat)),
-                    pw.SizedBox(height: 15),
+                    pw.SizedBox(height: 10),
                   ],
                 ),
               ],
@@ -308,7 +308,7 @@ class AtsOptimizedBuilder {
             ],
           ),
           if (socialMedia.isNotEmpty) ...[
-            pw.SizedBox(height: 12),
+            pw.SizedBox(height: 8),
             pw.Wrap(
               spacing: 15,
               runSpacing: 5,
@@ -373,7 +373,7 @@ class AtsOptimizedBuilder {
           ),
           child: pw.Text(
             title,
-            style: pw.TextStyle(fontSize: 10.5, fontWeight: pw.FontWeight.bold, color: PdfColors.black),
+            style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold, color: PdfColors.black),
           ),
         ),
         pw.SizedBox(height: 4),
@@ -402,7 +402,7 @@ class AtsOptimizedBuilder {
     final endStr = exp.endDate != null ? df.format(exp.endDate!) : _label('present');
     
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 10),
+      padding: const pw.EdgeInsets.only(bottom: 8),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -412,13 +412,13 @@ class AtsOptimizedBuilder {
               pw.RichText(
                 text: pw.TextSpan(
                   children: [
-                    pw.TextSpan(text: exp.company, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                    pw.TextSpan(text: exp.company, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
                     if (exp.role != null && exp.role!.isNotEmpty)
-                      pw.TextSpan(text: ' - ${exp.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10.5)),
+                      pw.TextSpan(text: ' - ${exp.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10)),
                   ],
                 ),
               ),
-              pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
+              pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9)),
             ],
           ),
           if (exp.description != null && exp.description!.trim().isNotEmpty)
@@ -426,7 +426,7 @@ class AtsOptimizedBuilder {
               padding: const pw.EdgeInsets.only(top: 5),
               child: pw.Text(
                 exp.description!.trim(),
-                style: const pw.TextStyle(fontSize: 9.5),
+                style: const pw.TextStyle(fontSize: 9),
               ),
             ),
         ],
@@ -440,7 +440,7 @@ class AtsOptimizedBuilder {
     final dateStr = (startStr.isNotEmpty || endStr.isNotEmpty) ? '$startStr - $endStr' : '';
 
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 8),
+      padding: const pw.EdgeInsets.only(bottom: 7),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -450,22 +450,22 @@ class AtsOptimizedBuilder {
               pw.RichText(
                 text: pw.TextSpan(
                   children: [
-                    pw.TextSpan(text: proj.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                    pw.TextSpan(text: proj.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
                     if (proj.role != null && proj.role!.isNotEmpty)
-                      pw.TextSpan(text: ' - ${proj.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10.5)),
+                      pw.TextSpan(text: ' - ${proj.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10)),
                     if (proj.repoUrl != null) 
                       pw.TextSpan(text: '  |  ${_extractHandle(proj.repoUrl!)}', style: const pw.TextStyle(fontSize: 9, color: PdfColors.blue900)),
                   ],
                 ),
               ),
               if (dateStr.isNotEmpty)
-                pw.Text(dateStr, style: const pw.TextStyle(fontSize: 9.5)),
+                pw.Text(dateStr, style: const pw.TextStyle(fontSize: 9)),
             ],
           ),
           if (proj.description != null && proj.description!.isNotEmpty)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 3),
-              child: pw.Text(proj.description!, style: const pw.TextStyle(fontSize: 9.5)),
+              child: pw.Text(proj.description!, style: const pw.TextStyle(fontSize: 9)),
             ),
           if (proj.technologies != null && proj.technologies!.isNotEmpty)
             pw.Padding(
@@ -482,7 +482,7 @@ class AtsOptimizedBuilder {
     final endStr = comm.endDate != null ? df.format(comm.endDate!) : _label('present');
 
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 10),
+      padding: const pw.EdgeInsets.only(bottom: 8),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -492,19 +492,19 @@ class AtsOptimizedBuilder {
               pw.RichText(
                 text: pw.TextSpan(
                   children: [
-                    pw.TextSpan(text: comm.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+                    pw.TextSpan(text: comm.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
                     if (comm.role != null && comm.role!.isNotEmpty)
-                      pw.TextSpan(text: ' - ${comm.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10.5)),
+                      pw.TextSpan(text: ' - ${comm.role!}', style: pw.TextStyle(fontStyle: pw.FontStyle.italic, fontSize: 10)),
                   ],
                 ),
               ),
-              pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
+              pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9)),
             ],
           ),
           if (comm.description != null && comm.description!.isNotEmpty)
             pw.Padding(
               padding: const pw.EdgeInsets.only(top: 3),
-              child: pw.Text(comm.description!, style: const pw.TextStyle(fontSize: 9.5)),
+              child: pw.Text(comm.description!, style: const pw.TextStyle(fontSize: 9)),
             ),
         ],
       ),
@@ -513,13 +513,13 @@ class AtsOptimizedBuilder {
 
   pw.Widget _buildCourseItem(Course course) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 8),
+      padding: const pw.EdgeInsets.only(bottom: 7),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(course.name, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
           if (course.issuer != null)
-            pw.Text(course.issuer!, style: const pw.TextStyle(fontSize: 9.5, fontStyle: pw.FontStyle.italic)),
+            pw.Text(course.issuer!, style: const pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
         ],
       ),
     );
@@ -530,19 +530,19 @@ class AtsOptimizedBuilder {
     final endStr = edu.endDate != null ? df.format(edu.endDate!) : _label('present');
 
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 12),
+      padding: const pw.EdgeInsets.only(bottom: 8),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(edu.school, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10.5)),
+              pw.Text(edu.school, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
               if (edu.degree != null)
-                pw.Text(edu.degree!, style: const pw.TextStyle(fontSize: 9.5, fontStyle: pw.FontStyle.italic)),
+                pw.Text(edu.degree!, style: const pw.TextStyle(fontSize: 9, fontStyle: pw.FontStyle.italic)),
             ],
           ),
-          pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9.5)),
+          pw.Text('$startStr - $endStr', style: const pw.TextStyle(fontSize: 9)),
         ],
       ),
     );
@@ -563,8 +563,8 @@ class AtsOptimizedBuilder {
               child: pw.RichText(
                 text: pw.TextSpan(
                   children: [
-                    pw.TextSpan(text: '${_label('tech_skills')}: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
-                    pw.TextSpan(text: techSkills, style: const pw.TextStyle(fontSize: 9.5)),
+                    pw.TextSpan(text: '${_label('tech_skills')}: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
+                    pw.TextSpan(text: techSkills, style: const pw.TextStyle(fontSize: 9)),
                   ]
                 )
               ),
@@ -575,8 +575,8 @@ class AtsOptimizedBuilder {
               child: pw.RichText(
                 text: pw.TextSpan(
                   children: [
-                    pw.TextSpan(text: '${_label('soft_skills')}: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9.5)),
-                    pw.TextSpan(text: softSkills, style: const pw.TextStyle(fontSize: 9.5)),
+                    pw.TextSpan(text: '${_label('soft_skills')}: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 9)),
+                    pw.TextSpan(text: softSkills, style: const pw.TextStyle(fontSize: 9)),
                   ]
                 )
               ),
